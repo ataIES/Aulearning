@@ -118,9 +118,1786 @@
                     }
                 ]
             }
+        },
+        "/chat-groups": {
+            "get": {
+                "tags": [
+                    "Chat Groups"
+                ],
+                "summary": "Listar grupos de chat",
+                "operationId": "3d7f84754fb47a5cb40722eb21e9deab",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "owner_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "active",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/PerPage"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortBy"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de grupos"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Chat Groups"
+                ],
+                "summary": "Crear grupo de chat",
+                "operationId": "83b8019dbdb13e422bc52a1a176b4868",
+                "responses": {
+                    "201": {
+                        "description": "Grupo creado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/chat-groups/{id}": {
+            "get": {
+                "tags": [
+                    "Chat Groups"
+                ],
+                "summary": "Ver grupo de chat",
+                "operationId": "3f242b2b0ca9401c58a7312315547f7b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Grupo encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Chat Groups"
+                ],
+                "summary": "Actualizar grupo de chat",
+                "operationId": "312c0286bbd02883f6408033e50458b0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Grupo actualizado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Chat Groups"
+                ],
+                "summary": "Eliminar grupo de chat",
+                "operationId": "396ae2e10c678cf20591761f3e5ea6b3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Grupo eliminado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/courses": {
+            "get": {
+                "tags": [
+                    "Courses"
+                ],
+                "summary": "Listar cursos",
+                "operationId": "75403048c36d79fe464ce4716c204c61",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "teacher_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "start_date_from",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "start_date_to",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "end_date_from",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "end_date_to",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/PerPage"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortBy"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de cursos"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Courses"
+                ],
+                "summary": "Crear curso",
+                "operationId": "56ff5a96b473881afe594ca81aeb754b",
+                "responses": {
+                    "201": {
+                        "description": "Curso creado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/courses/{id}": {
+            "get": {
+                "tags": [
+                    "Courses"
+                ],
+                "summary": "Ver curso",
+                "operationId": "703f82b2a4cf2b6bec94909bbbc1ea7a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Curso encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Courses"
+                ],
+                "summary": "Actualizar curso",
+                "operationId": "3a7361097bd69b58c4a6d2bf4bdd283f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Curso actualizado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Courses"
+                ],
+                "summary": "Eliminar curso",
+                "operationId": "46eece04198b0ea6faa7697bffa4f469",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Curso eliminado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/enrollments": {
+            "get": {
+                "tags": [
+                    "Enrollments"
+                ],
+                "summary": "Listar inscripciones",
+                "operationId": "46f86247fae90db42c50de2b294234ad",
+                "parameters": [
+                    {
+                        "name": "student_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "course_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "active",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "enrollment_date_from",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "enrollment_date_to",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/PerPage"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortBy"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de inscripciones"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Enrollments"
+                ],
+                "summary": "Crear inscripción",
+                "operationId": "8b49ef3dceb0238cfbd9996b169728e8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "student_id",
+                                    "course_id"
+                                ],
+                                "properties": {
+                                    "student_id": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "course_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Inscripción creada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/enrollments/{id}": {
+            "get": {
+                "tags": [
+                    "Enrollments"
+                ],
+                "summary": "Ver inscripción",
+                "operationId": "7702a76cd3c43405c6aae82e79572999",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Inscripción encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Enrollments"
+                ],
+                "summary": "Eliminar inscripción",
+                "operationId": "7f6eede96ccbc31ddf0f9cbb9410466a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Inscripción eliminada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/files": {
+            "get": {
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Listar archivos",
+                "operationId": "483dc41aae90d4e129f56bbdbb646ae5",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "mime_type",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "disk",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "min_size",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "max_size",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/PerPage"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortBy"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de archivos"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Subir archivo",
+                "description": "Sube un archivo y lo guarda en storage/app/public/tasks. Devuelve la ruta relativa y la URL pública.",
+                "operationId": "b188b4e883de24b3ffb1ba36098c5a72",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file",
+                                    "task_id"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "description": "Archivo a subir",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "task_id": {
+                                        "description": "ID de la tarea asociada",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Archivo subido correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Archivo subido correctamente."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "tema1.pdf"
+                                                },
+                                                "path": {
+                                                    "type": "string",
+                                                    "example": "tasks/abc123.pdf"
+                                                },
+                                                "disk": {
+                                                    "type": "string",
+                                                    "example": "public"
+                                                },
+                                                "mime_type": {
+                                                    "type": "string",
+                                                    "example": "application/pdf"
+                                                },
+                                                "size": {
+                                                    "type": "integer",
+                                                    "example": 152634
+                                                },
+                                                "task_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "url": {
+                                                    "type": "string",
+                                                    "example": "http://localhost:8000/storage/tasks/abc123.pdf"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/files/{id}": {
+            "get": {
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Ver archivo",
+                "operationId": "96453911ed535b22cfebc831f23d74d3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del archivo",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Archivo encontrado"
+                    },
+                    "404": {
+                        "description": "Archivo no encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Eliminar archivo",
+                "description": "Elimina el archivo físico del storage y después elimina su registro en base de datos.",
+                "operationId": "af774334bc652b31c15a83bdffb37809",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del archivo",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Archivo eliminado"
+                    },
+                    "404": {
+                        "description": "Archivo no encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/grades": {
+            "get": {
+                "tags": [
+                    "Grades"
+                ],
+                "summary": "Listar calificaciones",
+                "operationId": "219f2a64ee0e5767a4aa4f1c65debdbc",
+                "parameters": [
+                    {
+                        "name": "student_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "course_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "min_grade",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "max_grade",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/PerPage"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortBy"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de calificaciones"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Grades"
+                ],
+                "summary": "Crear calificación",
+                "operationId": "a41924c58474d7924b256fe28834ba77",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "grade",
+                                    "student_id",
+                                    "course_id"
+                                ],
+                                "properties": {
+                                    "grade": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 8.5
+                                    },
+                                    "student_id": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "course_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Calificación creada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/grades/{id}": {
+            "get": {
+                "tags": [
+                    "Grades"
+                ],
+                "summary": "Ver calificación",
+                "operationId": "a551c7d5536a126502162cd79d1b462c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Calificación encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Grades"
+                ],
+                "summary": "Actualizar calificación",
+                "operationId": "593caae352e2a275a2d4a8e632038ccf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Calificación actualizada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Grades"
+                ],
+                "summary": "Eliminar calificación",
+                "operationId": "0209e0f4a4c0932f4e118311a6103245",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Calificación eliminada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/messages": {
+            "get": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Listar mensajes",
+                "operationId": "10788780023ff70f05958accb63231df",
+                "responses": {
+                    "200": {
+                        "description": "Listado de mensajes"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Enviar mensaje",
+                "operationId": "1aa21572307a1c2e85281f5e04599031",
+                "responses": {
+                    "201": {
+                        "description": "Mensaje enviado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/messages/{id}": {
+            "get": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Ver mensaje",
+                "operationId": "3da524f6f1119c4674015e7c02dc620c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mensaje encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Eliminar mensaje",
+                "operationId": "54b1ce2fb5cbe579d52259a18682a8c9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mensaje eliminado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Listar notificaciones",
+                "operationId": "b1274a2aaae8a4295a7e1925e8d8090f",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "read",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "created_from",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "created_to",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/PerPage"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortBy"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de notificaciones"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Crear notificación",
+                "operationId": "0faafeb87df4ff1447878720cce80571",
+                "responses": {
+                    "201": {
+                        "description": "Notificación creada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/notifications/{id}": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Ver notificación",
+                "operationId": "6293e7ffc395913cd17da6467e486699",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notificación encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Eliminar notificación",
+                "operationId": "0f28a0400610f81f01e2d25ce4e0edff",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notificación eliminada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/notifications/{id}/read": {
+            "patch": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Marcar como leída",
+                "operationId": "356012fe06901053b88e36ec633c6524",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notificación leída"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/participants": {
+            "get": {
+                "tags": [
+                    "Participants"
+                ],
+                "summary": "Listar participantes",
+                "operationId": "c2e57570446bfbbc003c01d360751d4b",
+                "parameters": [
+                    {
+                        "name": "chat_group_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "active",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "joined_from",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "joined_to",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/PerPage"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortBy"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de participantes"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Participants"
+                ],
+                "summary": "Añadir participante",
+                "operationId": "44c068642f5dc3041474da3207055485",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "chat_group_id",
+                                    "user_id"
+                                ],
+                                "properties": {
+                                    "chat_group_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "user_id": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "member"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Participante añadido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/participants/{id}": {
+            "delete": {
+                "tags": [
+                    "Participants"
+                ],
+                "summary": "Eliminar participante",
+                "operationId": "2a86a14b1ef47702e95517fd364568b7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Participante eliminado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/tasks": {
+            "get": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Listar tareas",
+                "operationId": "7786da811325606208249ebc8d393d9a",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "course_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "student_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "gradable",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "due_date_from",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "due_date_to",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/PerPage"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortBy"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de tareas"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Crear tarea",
+                "operationId": "a737e990cef5769592bc41ee6a62f7f1",
+                "responses": {
+                    "201": {
+                        "description": "Tarea creada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/tasks/{id}": {
+            "get": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Ver tarea",
+                "operationId": "dd21301b6ef0425f2260a34eac9679c5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tarea encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Actualizar tarea",
+                "operationId": "2a0a8c212f84263f9a249469557b2539",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tarea actualizada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Eliminar tarea",
+                "operationId": "a2d3ec140e69f8b97ce812eadbe932ac",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tarea eliminada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Listar usuarios",
+                "operationId": "7208c29037df2b8bb02499ba39ed8a78",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Buscar por nombre, apellidos o email",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Tipo de usuario",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "active",
+                        "in": "query",
+                        "description": "Usuario activo",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/PerPage"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortBy"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de usuarios"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Crear usuario",
+                "operationId": "262eb5ca1fdea354023c0a8870442c1e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "last_name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation",
+                                    "type"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Adrián"
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Tresgallo"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "alumno@test.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "password"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "student"
+                                    },
+                                    "active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuario creado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Ver usuario",
+                "operationId": "6946bbab7898f59a09e3c8e529a38907",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuario encontrado"
+                    },
+                    "404": {
+                        "description": "Usuario no encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Actualizar usuario",
+                "operationId": "05028d02ea3e9a99abd6260cfe05b179",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuario actualizado"
+                    },
+                    "404": {
+                        "description": "Usuario no encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Eliminar usuario",
+                "operationId": "b3d28da5dc9de7fc1bd425f93b54ff7b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuario eliminado"
+                    },
+                    "404": {
+                        "description": "Usuario no encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
+        "parameters": {
+            "PerPage": {
+                "name": "per_page",
+                "in": "query",
+                "description": "Número de elementos por página",
+                "required": false,
+                "schema": {
+                    "type": "integer",
+                    "default": 15,
+                    "minimum": 1
+                }
+            },
+            "SortBy": {
+                "name": "sort_by",
+                "in": "query",
+                "description": "Campo por el que ordenar",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "default": "id"
+                }
+            },
+            "SortDirection": {
+                "name": "sort_direction",
+                "in": "query",
+                "description": "Dirección de ordenación",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "default": "desc",
+                    "enum": [
+                        "asc",
+                        "desc"
+                    ]
+                }
+            }
+        },
         "securitySchemes": {
             "sanctum": {
                 "type": "http",
@@ -133,6 +1910,46 @@
         {
             "name": "Auth",
             "description": "Auth"
+        },
+        {
+            "name": "Chat Groups",
+            "description": "Chat Groups"
+        },
+        {
+            "name": "Courses",
+            "description": "Courses"
+        },
+        {
+            "name": "Enrollments",
+            "description": "Enrollments"
+        },
+        {
+            "name": "Files",
+            "description": "Files"
+        },
+        {
+            "name": "Grades",
+            "description": "Grades"
+        },
+        {
+            "name": "Messages",
+            "description": "Messages"
+        },
+        {
+            "name": "Notifications",
+            "description": "Notifications"
+        },
+        {
+            "name": "Participants",
+            "description": "Participants"
+        },
+        {
+            "name": "Tasks",
+            "description": "Tasks"
+        },
+        {
+            "name": "Users",
+            "description": "Users"
         }
     ]
 }
