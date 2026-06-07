@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 interface IBaseRepository
 {
-     public function all(array $relations = []): Collection;
+    public function all(array $relations = []): Collection;
 
     public function paginate(
         ?BaseFilter $filter = null,
@@ -23,4 +23,13 @@ interface IBaseRepository
     public function update(int $id, array $data): ?Model;
 
     public function delete(int $id): bool;
+
+    public function count(?BaseFilter $filter = null): int;
+
+    public function latest(
+        ?BaseFilter $filter = null,
+        int $limit = 5,
+        array $relations = [],
+        array $columns = ['*']
+    ): Collection;
 }

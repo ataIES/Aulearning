@@ -1,0 +1,446 @@
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  background: #f4f6fb;
+  color: #111827;
+}
+
+/* Layout */
+
+.app-shell {
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  background: #f4f6fb;
+}
+
+.sidebar {
+  width: 270px;
+  min-width: 270px;
+  max-width: 270px;
+  height: 100vh;
+  overflow: hidden;
+
+  background: linear-gradient(180deg, #111827, #1f2937);
+  color: white;
+
+  padding: 24px 18px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 0 8px;
+  flex-shrink: 0;
+}
+
+.sidebar-brand h5 {
+  margin: 0;
+}
+
+.sidebar-brand small {
+  color: #9ca3af;
+}
+
+.brand-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: #2563eb;
+  color: white;
+  font-weight: 800;
+  font-size: 26px;
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #2563eb;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 700;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  color: #d1d5db;
+  text-decoration: none;
+
+  padding: 12px 14px;
+  border-radius: 12px;
+
+  transition: 0.2s;
+}
+
+.sidebar-link:hover,
+.sidebar-link.active {
+  background: #2563eb;
+  color: white;
+}
+
+.sidebar-link i {
+  font-size: 18px;
+}
+
+.sidebar-footer {
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+}
+
+.app-header {
+  height: 72px;
+  min-height: 72px;
+
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+
+  padding: 0 28px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 28px;
+}
+
+/* Pages */
+
+.page-title,
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title p,
+.page-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Dashboard */
+
+.dashboard-card {
+  background: white;
+  border-radius: 18px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  height: 100%;
+}
+
+.dashboard-card i {
+  font-size: 30px;
+  color: #2563eb;
+  margin-bottom: 16px;
+  display: inline-block;
+}
+
+.dashboard-card h5 {
+  margin-bottom: 8px;
+}
+
+.dashboard-card p {
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Cards / Forms */
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.btn {
+  border-radius: 10px;
+}
+
+.form-control,
+.form-select {
+  border-radius: 10px;
+}
+
+/* Login */
+
+.login-page {
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.45), transparent 35%),
+    linear-gradient(135deg, #111827, #1e3a8a);
+}
+
+.login-card {
+  width: 390px;
+  max-width: calc(100vw - 32px);
+  background: white;
+  padding: 34px;
+  border-radius: 22px;
+  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.35);
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-brand h3 {
+  margin-bottom: 6px;
+  font-weight: 800;
+}
+
+.login-brand p {
+  color: #6b7280;
+  margin-bottom: 0;
+}
+
+/* Loader */
+
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  background: rgba(255, 255, 255, 0.78);
+
+  display: grid;
+  place-items: center;
+}
+
+.loader-box {
+  background: white;
+  border-radius: 18px;
+  padding: 28px 36px;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.18);
+  text-align: center;
+}
+
+/* Modals */
+
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: 9998;
+
+  display: grid;
+  place-items: center;
+
+  padding: 20px;
+}
+
+.modal-card {
+  width: 420px;
+  max-width: 100%;
+  background: white;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25);
+}
+
+.modal-card-lg {
+  width: 720px;
+}
+
+/* Scrollbar suave */
+
+.app-content::-webkit-scrollbar,
+.sidebar-nav::-webkit-scrollbar {
+  width: 8px;
+}
+
+.app-content::-webkit-scrollbar-thumb,
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 20px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+/* Tablets y móvil */
+@media (max-width: 991.98px) {
+  html,
+  body,
+  #root {
+    overflow: hidden;
+  }
+
+  .app-shell {
+    position: relative;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    z-index: 1000;
+
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+
+    position: fixed;
+    inset: 0;
+
+    z-index: 999;
+
+    background: rgba(15, 23, 42, 0.55);
+  }
+
+  .app-main {
+    width: 100%;
+  }
+
+  .app-header {
+    padding: 0 16px;
+  }
+
+  .app-content {
+    padding: 18px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .page-header .btn {
+    width: 100%;
+  }
+
+  .dashboard-card {
+    padding: 20px;
+  }
+
+  .modal-card,
+  .modal-card-lg {
+    width: calc(100vw - 32px);
+  }
+}
+
+/* Móvil pequeño */
+@media (max-width: 575.98px) {
+  .app-header {
+    height: 64px;
+    min-height: 64px;
+  }
+
+  .app-header h5 {
+    font-size: 1rem;
+  }
+
+  .app-header small {
+    font-size: 0.75rem;
+  }
+
+  .app-content {
+    padding: 14px;
+  }
+
+  .login-card {
+    width: calc(100vw - 28px);
+    padding: 26px;
+  }
+
+  .dashboard-card h2 {
+    font-size: 1.7rem;
+  }
+
+  .card {
+    border-radius: 14px;
+  }
+}

@@ -446,6 +446,32 @@
                 ]
             }
         },
+        "/dashboard/admin": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Dashboard de administrador",
+                "description": "Devuelve resumen y últimas actualizaciones de los últimos 3 días.",
+                "operationId": "62028326c33dafb1808daa47dbd12839",
+                "responses": {
+                    "200": {
+                        "description": "Dashboard obtenido correctamente"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "No autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/enrollments": {
             "get": {
                 "tags": [
@@ -1048,6 +1074,54 @@
                 ],
                 "summary": "Listar mensajes",
                 "operationId": "10788780023ff70f05958accb63231df",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "chat_group_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "created_from",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "created_to",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/PerPage"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortBy"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Listado de mensajes"
@@ -1918,6 +1992,10 @@
         {
             "name": "Courses",
             "description": "Courses"
+        },
+        {
+            "name": "Dashboard",
+            "description": "Dashboard"
         },
         {
             "name": "Enrollments",

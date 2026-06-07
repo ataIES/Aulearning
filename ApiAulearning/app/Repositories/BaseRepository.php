@@ -14,7 +14,7 @@ abstract class BaseRepository implements IBaseRepository
         protected Model $model
     ) {}
 
-     public function all(array $relations = []): Collection
+    public function all(array $relations = []): Collection
     {
         return $this->model->newQuery()
             ->with($relations)
@@ -69,5 +69,37 @@ abstract class BaseRepository implements IBaseRepository
         }
 
         return (bool) $model->delete();
+    }
+
+    public function count(?BaseFilter $filter = null): int
+    {
+        $query = $this->model->newQuery();
+
+        if ($filter) {
+            $filter->apply($query);
+        }
+
+        return $query->count();
+    }
+
+    public function latest(
+        ?BaseFilter $filter = null,
+        int $limit = 5,
+        array $relations = [],
+        array $columns = ['*']
+    ): Collection {
+        $query = $this->model
+            ->newQuery()
+            ->select($columns)
+            ->with($relations);
+
+        if ($filter) {
+            $filter->apply($query);
+        }
+
+        return $query
+            ->latest('created_at')
+            ->limit($limit)
+            ->get();
     }
 }

@@ -38,6 +38,7 @@ use App\Services\GradeService;
 use App\Services\TaskService;
 use App\Services\FileService;
 use App\Services\ChatGroupService;
+use App\Services\DashBoardService;
 use App\Services\ParticipantService;
 use App\Services\MessageService;
 use App\Services\NotificationService;
@@ -51,6 +52,7 @@ use App\Services\Interfaces\IGradeService;
 use App\Services\Interfaces\ITaskService;
 use App\Services\Interfaces\IFileService;
 use App\Services\Interfaces\IChatGroupService;
+use App\Services\Interfaces\IDashboardService;
 use App\Services\Interfaces\IParticipantService;
 use App\Services\Interfaces\IMessageService;
 use App\Services\Interfaces\INotificationService;
@@ -97,6 +99,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IMessageService::class, MessageService::class);
         $this->app->bind(INotificationService::class, NotificationService::class);
         $this->app->bind(IRoleService::class, RoleService::class);
+        $this->app->bind(IDashboardService::class, DashBoardService::class
+        );
     }
 
     public function boot(): void

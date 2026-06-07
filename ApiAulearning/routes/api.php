@@ -11,166 +11,76 @@ use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ChatGroupController;
+use App\Http\Controllers\Api\DashBoardController;
 use App\Http\Controllers\Api\ParticipantController;
 use App\Http\Controllers\Api\MessageController;
 
 Route::prefix('v1')->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | AUTH
-    |--------------------------------------------------------------------------
-    */
-
     Route::prefix('auth')->group(function () {
-
         Route::post('/login', [AuthController::class, 'login']);
 
         Route::middleware('auth:sanctum')->group(function () {
-
             Route::get('/me', [AuthController::class, 'me']);
-
             Route::post('/logout', [AuthController::class, 'logout']);
-
             Route::post('/logout-all', [AuthController::class, 'logoutAll']);
         });
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | PROTECTED ROUTES
-    |--------------------------------------------------------------------------
-    */
+    Route::middleware([
+        'auth:sanctum',
+        'role.exists',
+        'role:admin',
+    ])->get('/dashboard/admin', [DashBoardController::class, 'getAdminDashboard']);
 
     Route::middleware([
         'auth:sanctum',
-        'role.exists'
+        'role.exists',
     ])->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | USERS
+        | ADMIN ONLY
         |--------------------------------------------------------------------------
         */
 
-        Route::apiResource(
-            'users',
-            UserController::class
-        );
+        Route::middleware('role:admin')->group(function () {
+            Route::apiResource('users', UserController::class);
+            Route::apiResource('enrollments', EnrollmentController::class)->except(['update']);
+        });
 
         /*
         |--------------------------------------------------------------------------
-        | COURSES
+        | ADMIN + TEACHER
         |--------------------------------------------------------------------------
         */
 
-        Route::apiResource(
-            'courses',
-            CourseController::class
-        );
+        Route::middleware('role:admin|teacher')->group(function () {
+            Route::apiResource('courses', CourseController::class)->except(['index', 'show']);
+            Route::apiResource('grades', GradeController::class)->except(['index', 'show']);
+            Route::apiResource('tasks', TaskController::class)->except(['index', 'show']);
+            Route::apiResource('notifications', NotificationController::class)->except(['index', 'show', 'update']);
+        });
 
         /*
         |--------------------------------------------------------------------------
-        | ENROLLMENTS
+        | ADMIN + TEACHER + STUDENT
         |--------------------------------------------------------------------------
         */
 
-        Route::apiResource(
-            'enrollments',
-            EnrollmentController::class
-        )->except([
-            'update'
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | GRADES
-        |--------------------------------------------------------------------------
-        */
-
-        Route::apiResource(
-            'grades',
-            GradeController::class
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | TASKS
-        |--------------------------------------------------------------------------
-        */
-
-        Route::apiResource(
-            'tasks',
-            TaskController::class
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | FILES
-        |--------------------------------------------------------------------------
-        */
-
-        Route::apiResource(
-            'files',
-            FileController::class
-        )->except([
-            'update'
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | NOTIFICATIONS
-        |--------------------------------------------------------------------------
-        */
-
-        Route::apiResource(
-            'notifications',
-            NotificationController::class
-        )->except([
-            'update'
-        ]);
+        Route::apiResource('courses', CourseController::class)->only(['index', 'show']);
+        Route::apiResource('tasks', TaskController::class)->only(['index', 'show']);
+        Route::apiResource('grades', GradeController::class)->only(['index', 'show']);
+        Route::apiResource('files', FileController::class)->except(['update']);
+        Route::apiResource('notifications', NotificationController::class)->only(['index', 'show', 'destroy']);
 
         Route::patch(
             '/notifications/{id}/read',
             [NotificationController::class, 'markAsRead']
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | CHAT GROUPS
-        |--------------------------------------------------------------------------
-        */
-
-        Route::apiResource(
-            'chat-groups',
-            ChatGroupController::class
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | PARTICIPANTS
-        |--------------------------------------------------------------------------
-        */
-
-        Route::apiResource(
-            'participants',
-            ParticipantController::class
-        )->except([
-            'show',
-            'update'
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | MESSAGES
-        |--------------------------------------------------------------------------
-        */
-
-        Route::apiResource(
-            'messages',
-            MessageController::class
-        )->except([
-            'update'
-        ]);
+        Route::apiResource('chat-groups', ChatGroupController::class);
+        Route::apiResource('participants', ParticipantController::class)->except(['show', 'update']);
+        Route::apiResource('messages', MessageController::class)->except(['update']);
     });
 });
