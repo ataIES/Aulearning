@@ -1,0 +1,331 @@
+.admin-shell,
+.learning-shell {
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ADMIN */
+
+.admin-sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: #111827;
+  color: white;
+  padding: 22px;
+  overflow-y: auto;
+}
+
+.admin-brand,
+.learning-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.admin-logo,
+.learning-logo {
+  width: 44px;
+  height: 44px;
+  background: #2563eb;
+  color: white;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+}
+
+.admin-brand h5,
+.learning-brand h5 {
+  margin: 0;
+  font-weight: 800;
+}
+
+.admin-brand small {
+  color: #9ca3af;
+}
+
+.admin-nav,
+.learning-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-link,
+.learning-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  padding: 12px;
+  border-radius: 12px;
+  transition: 0.2s;
+}
+
+.admin-link {
+  color: #d1d5db;
+}
+
+.admin-link:hover,
+.admin-link.active {
+  background: #2563eb;
+  color: white;
+}
+
+.admin-main,
+.learning-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-header,
+.learning-header {
+  height: 72px;
+  min-height: 72px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-header h5,
+.learning-header h5 {
+  margin: 0;
+  font-weight: 800;
+}
+
+.admin-header small,
+.learning-header small {
+  color: #6b7280;
+}
+
+.admin-content,
+.learning-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px;
+}
+
+.admin-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 24px;
+  height: 100%;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+.admin-card i {
+  font-size: 30px;
+  color: #2563eb;
+  margin-bottom: 12px;
+  display: inline-block;
+}
+
+.admin-card h5 {
+  font-weight: 800;
+}
+
+.admin-card p {
+  color: #6b7280;
+  margin: 0;
+}
+
+/* LEARNING */
+
+.learning-sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.learning-brand small {
+  color: #6b7280;
+}
+
+.learning-link {
+  color: #374151;
+}
+
+.learning-link:hover,
+.learning-link.active {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.learning-hero {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  border-radius: 26px;
+  padding: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.learning-hero h2 {
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.learning-hero p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.learning-hero i {
+  font-size: 64px;
+  opacity: 0.85;
+}
+
+@media (max-width: 900px) {
+  .login-card {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .login-info {
+    display: none;
+  }
+
+  .login-form-area {
+    padding: 38px 30px;
+  }
+
+  .admin-sidebar,
+  .learning-sidebar {
+    display: none;
+  }
+
+  .admin-header,
+  .learning-header {
+    padding: 0 16px;
+  }
+
+  .admin-content,
+  .learning-content {
+    padding: 18px;
+  }
+
+  .admin-email {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .login-page {
+    padding: 14px;
+  }
+
+  .login-card {
+    border-radius: 22px;
+  }
+
+  .login-form-area {
+    padding: 32px 22px;
+  }
+
+  .admin-header h5,
+  .learning-header h5 {
+    font-size: 1rem;
+  }
+
+  .admin-content,
+  .learning-content {
+    padding: 14px;
+  }
+
+  .learning-hero {
+    padding: 26px;
+  }
+
+  .learning-hero i {
+    display: none;
+  }
+}
+
+.mobile-menu-btn {
+  display: none;
+
+  width: 42px;
+  height: 42px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #f3f4f6;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-menu-btn i {
+  font-size: 1.4rem;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .admin-sidebar {
+    position: fixed;
+
+    top: 0;
+    left: -280px;
+
+    width: 280px;
+    height: 100vh;
+
+    z-index: 1200;
+
+    transition: left 0.3s ease;
+  }
+
+  .admin-sidebar.show {
+    left: 0;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    z-index: 1100;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition: 0.3s;
+  }
+
+  .sidebar-backdrop.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .admin-main {
+    width: 100%;
+  }
+
+  .admin-email {
+    display: none;
+  }
+}

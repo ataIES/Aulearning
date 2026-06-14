@@ -50,4 +50,9 @@ class Task extends Model
             File::class
         );
     }
+
+    public function deliveries()
+    {
+        return $this->hasMany(DeliveryTask::class, 'task_id');
+    }
 }

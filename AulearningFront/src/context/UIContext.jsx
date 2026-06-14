@@ -5,35 +5,23 @@ export const UIContext = createContext();
 export function UIProvider({ children }) {
   const [loading, setLoading] = useState(false);
 
-  const [alert, setAlert] = useState({
+  const [errorModal, setErrorModal] = useState({
     show: false,
-    type: 'success',
     title: '',
     message: '',
   });
 
-  const showSuccess = (message, title = 'Correcto') => {
-    setAlert({
-      show: true,
-      type: 'success',
-      title,
-      message,
-    });
-  };
-
   const showError = (message, title = 'Error') => {
-    setAlert({
+    setErrorModal({
       show: true,
-      type: 'danger',
       title,
       message,
     });
   };
 
-  const closeAlert = () => {
-    setAlert({
+  const closeError = () => {
+    setErrorModal({
       show: false,
-      type: 'success',
       title: '',
       message: '',
     });
@@ -44,10 +32,9 @@ export function UIProvider({ children }) {
       value={{
         loading,
         setLoading,
-        alert,
-        showSuccess,
+        errorModal,
         showError,
-        closeAlert,
+        closeError,
       }}
     >
       {children}

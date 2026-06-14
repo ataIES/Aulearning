@@ -29,9 +29,24 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware([
         'auth:sanctum',
-        'role.exists',
-        'role:admin',
-    ])->get('/dashboard/admin', [DashBoardController::class, 'getAdminDashboard']);
+        'role.exists'
+    ])->group(function () {
+
+        Route::middleware('role:admin')->get(
+            '/dashboard/admin', 
+            [DashBoardController::class,
+             'getAdminDashboard']);
+
+        Route::middleware('role:teacher')->get(
+            '/dashboard/teacher',
+            [DashBoardController::class, 'getTeacherDashBoard']
+        );
+
+        Route::middleware('role:student')->get(
+            '/dashboard/student',
+            [DashBoardController::class, 'getStudentDashBoard']
+        );
+    });
 
     Route::middleware([
         'auth:sanctum',

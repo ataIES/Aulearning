@@ -9,32 +9,32 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(getToken());
   const [checkingAuth, setCheckingAuth] = useState(true);
 
-  const login = async (credentials) => {
+  const login = async (credentials, remember = false) => {
     const response = await AuthService.login(credentials);
     const authData = response.data;
 
-    saveAuth(authData.token, authData.user);
+    saveAuth(authData.token, authData.user, remember);
 
-    setToken(authData.token);
     setUser(authData.user);
+    setToken(authData.token);
 
-    return response;
+    return authData.user;
   };
 
   const logout = async () => {
     try {
       await AuthService.logout();
     } catch {
-      // Ignoramos errores de logout del servidor.
+      //
     } finally {
       clearAuth();
-      setToken(null);
       setUser(null);
+      setToken(null);
     }
   };
 
   useEffect(() => {
-    const initializeAuth = async () => {
+    const initAuth = async () => {
       const storedToken = getToken();
 
       if (!storedToken) {
@@ -56,7 +56,7 @@ export function AuthProvider({ children }) {
       }
     };
 
-    initializeAuth();
+    initAuth();
   }, []);
 
   return (

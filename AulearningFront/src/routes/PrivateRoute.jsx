@@ -3,7 +3,7 @@ import Loader from '../components/common/Loader';
 import { useAuth } from '../hooks/useAuth';
 
 export default function PrivateRoute() {
-  const { isAuthenticated, checkingAuth } = useAuth();
+  const { checkingAuth, isAuthenticated } = useAuth();
 
   if (checkingAuth) {
     return <Loader />;

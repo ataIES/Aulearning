@@ -5,12 +5,15 @@ export default class BaseService {
     this.endpoint = endpoint;
   }
 
-  async getAll(params = {}) {
-    const { data } = await axiosClient.get(this.endpoint, { params });
+  async paginate(params = {}) {
+    const { data } = await axiosClient.get(this.endpoint, {
+      params,
+    });
+
     return data;
   }
 
-  async getById(id) {
+  async find(id) {
     const { data } = await axiosClient.get(`${this.endpoint}/${id}`);
     return data;
   }

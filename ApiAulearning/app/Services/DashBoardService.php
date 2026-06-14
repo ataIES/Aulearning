@@ -13,6 +13,12 @@ use App\Repositories\Interfaces\ITaskRepository;
 use App\Repositories\Interfaces\IUserRepository;
 use App\Services\Interfaces\IDashboardService;
 use Illuminate\Support\Facades\Cache;
+use App\Models\Course;
+use App\Models\DeliveryTask;
+use App\Models\Task;
+use App\Models\User;
+use App\Models\Enrollment;
+use App\Models\File;
 
 class DashBoardService implements IDashBoardService
 {
@@ -37,6 +43,72 @@ class DashBoardService implements IDashBoardService
             self::CACHE_TTL_SECONDS,
             fn() => $this->buildAdminDashboard()
         );
+    }
+
+    public function getTeacherDashboard(User $teacher): array
+    {
+        $courseIds = Course::query()
+            ->where('teacher_id', $teacher->id)
+            ->pluck('id');
+
+        $taskIds = Task::query()
+            ->whereIn('course_id', $courseIds)
+            ->pluck('id');
+
+        return [
+            'summary' => [
+                'courses' => $courseIds->count(),
+
+                'tasks' => Task::query()
+                    ->whereIn('course_id', $courseIds)
+                    ->count(),
+
+                'deliveries' => DeliveryTask::query()
+                    ->whereIn('task_id', $taskIds)
+                    ->count(),
+
+                'students' => Enrollment::query()
+                    ->whereIn('course_id', $courseIds)
+                    ->distinct('student_id')
+                    ->count('student_id'),
+            ],
+
+            'latest_tasks' => Task::query()
+                ->whereIn('course_id', $courseIds)
+                ->latest()
+                ->limit(5)
+                ->get([
+                    'id',
+                    'title',
+                    'course_id',
+                    'type',
+                    'created_at',
+                ]),
+
+            'latest_deliveries' => DeliveryTask::query()
+                ->with(['student:id,name,email', 'task:id,title'])
+                ->whereIn('task_id', $taskIds)
+                ->latest()
+                ->limit(5)
+                ->get([
+                    'id',
+                    'student_id',
+                    'task_id',
+                    'submitted_at',
+                    'grade',
+                    'created_at',
+                ]),
+
+            'latest_courses' => Course::query()
+                ->whereIn('id', $courseIds)
+                ->latest()
+                ->limit(5)
+                ->get([
+                    'id',
+                    'name',
+                    'created_at',
+                ]),
+        ];
     }
 
     private function buildAdminDashboard(): array
@@ -129,6 +201,77 @@ class DashBoardService implements IDashBoardService
                     ['id', 'content', 'user_id', 'chat_group_id', 'created_at']
                 ),
             ],
+        ];
+    }
+
+    public function getStudentDashboard(User $student): array
+    {
+        $courseIds = Enrollment::query()
+            ->where('student_id', $student->id)
+            ->pluck('course_id');
+
+        $taskIds = Task::query()
+            ->whereIn('course_id', $courseIds)
+            ->pluck('id');
+
+        return [
+            'summary' => [
+                'courses' => $courseIds->count(),
+
+                'pending_tasks' => Task::query()
+                    ->whereIn('course_id', $courseIds)
+                    ->whereNotIn('id', function ($query) use ($student) {
+                        $query->select('task_id')
+                            ->from('entrega_tareas')
+                            ->where('student_id', $student->id);
+                    })
+                    ->count(),
+
+                'materials' => File::query()
+                    ->whereIn('task_id', $taskIds)
+                    ->count(),
+
+                'grades' => DeliveryTask::query()
+                    ->where('student_id', $student->id)
+                    ->whereNotNull('grade')
+                    ->count(),
+            ],
+
+            'upcoming_tasks' => Task::query()
+                ->whereIn('course_id', $courseIds)
+                ->latest()
+                ->limit(5)
+                ->get([
+                    'id',
+                    'title',
+                    'course_id',
+                    'type',
+                    'created_at',
+                ]),
+
+            'latest_grades' => DeliveryTask::query()
+                ->with(['task:id,title'])
+                ->where('student_id', $student->id)
+                ->whereNotNull('grade')
+                ->latest()
+                ->limit(5)
+                ->get([
+                    'id',
+                    'task_id',
+                    'grade',
+                    'comment',
+                    'created_at',
+                ]),
+
+            'courses' => Course::query()
+                ->whereIn('id', $courseIds)
+                ->latest()
+                ->limit(5)
+                ->get([
+                    'id',
+                    'name',
+                    'created_at',
+                ]),
         ];
     }
 

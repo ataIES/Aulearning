@@ -92,4 +92,9 @@ class User extends Authenticatable
             Message::class
         );
     }
+
+    public function deliveries()
+    {
+        return $this->hasMany(DeliveryTask::class, 'student_id');
+    }
 }

@@ -1,8 +1,9 @@
+import { ENDPOINTS } from '../api/endpoints';
 import BaseService from './BaseService';
 
 class UserService extends BaseService {
   constructor() {
-    super('/users');
+    super(ENDPOINTS.users.list);
   }
 }
 

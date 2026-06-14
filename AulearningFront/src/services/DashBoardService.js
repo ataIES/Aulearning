@@ -1,14 +1,26 @@
 import axiosClient from '../api/axiosClient';
 import { ENDPOINTS } from '../api/endpoints';
 
-class DashBoardService {
-  async getAdminDashboard() {
+class DashboardService {
+  async admin() {
+    const { data } = await axiosClient.get(ENDPOINTS.dashboard.admin);
+    return data;
+  }
+  async teacher() {
     const { data } = await axiosClient.get(
-      ENDPOINTS.dashboard.admin
+      ENDPOINTS.dashboard.teacher
+    );
+
+    return data;
+  }
+
+  async student() {
+    const { data } = await axiosClient.get(
+      ENDPOINTS.dashboard.student
     );
 
     return data;
   }
 }
 
-export default new DashBoardService();
+export default new DashboardService();
