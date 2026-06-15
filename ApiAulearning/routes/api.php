@@ -14,6 +14,8 @@ use App\Http\Controllers\Api\ChatGroupController;
 use App\Http\Controllers\Api\DashBoardController;
 use App\Http\Controllers\Api\ParticipantController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\PermissionController;
 
 Route::prefix('v1')->group(function () {
 
@@ -33,9 +35,12 @@ Route::prefix('v1')->group(function () {
     ])->group(function () {
 
         Route::middleware('role:admin')->get(
-            '/dashboard/admin', 
-            [DashBoardController::class,
-             'getAdminDashboard']);
+            '/dashboard/admin',
+            [
+                DashBoardController::class,
+                'getAdminDashboard'
+            ]
+        );
 
         Route::middleware('role:teacher')->get(
             '/dashboard/teacher',
@@ -46,6 +51,10 @@ Route::prefix('v1')->group(function () {
             '/dashboard/student',
             [DashBoardController::class, 'getStudentDashBoard']
         );
+
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::get('/notifications/unread', [NotificationController::class, 'unread']);
+        Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     });
 
     Route::middleware([
@@ -61,7 +70,12 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware('role:admin')->group(function () {
             Route::apiResource('users', UserController::class);
-            Route::apiResource('enrollments', EnrollmentController::class)->except(['update']);
+            Route::get('/enrollments', [EnrollmentController::class, 'index']);
+            Route::post('/enrollments', [EnrollmentController::class, 'store']);
+            Route::delete('/enrollments/{id}', [EnrollmentController::class, 'destroy']);
+            Route::apiResource('roles', RoleController::class);
+            Route::get('/permissions', [PermissionController::class, 'index']);
+            Route::put('/roles/{role}/permissions', [RoleController::class, 'syncPermissions']);
         });
 
         /*

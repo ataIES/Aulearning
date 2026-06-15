@@ -19,5 +19,36 @@ export const ENDPOINTS = {
         update: (id) => `/users/${id}`,
         delete: (id) => `/users/${id}`,
     },
+    courses: {
+        list: '/courses',
+        create: '/courses',
+        detail: (id) => `/courses/${id}`,
+        update: (id) => `/courses/${id}`,
+        delete: (id) => `/courses/${id}`,
+    },
+    enrollments: {
+        list: '/enrollments',
+        create: '/enrollments',
+        detail: (id) => `/enrollments/${id}`,
+        update: (id) => `/enrollments/${id}`,
+        delete: (id) => `/enrollments/${id}`,
+    },
+    roles: {
+        list: '/roles',
+        create: '/roles',
+        detail: (id) => `/roles/${id}`,
+        update: (id) => `/roles/${id}`,
+        delete: (id) => `/roles/${id}`,
+        syncPermissions: (id) => `/roles/${id}/permissions`,
+    },
 
+    permissions: {
+        list: '/permissions',
+    },
+
+    notifications: {
+        list: '/notifications',
+        unread: '/notifications/unread',
+        markAsRead: (id) => `/notifications/${id}/read`,
+    },
 };

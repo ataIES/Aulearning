@@ -10,11 +10,14 @@ use App\Services\Interfaces\ICourseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
+use App\Models\Course;
+use App\Services\Interfaces\INotificationService;
 
 class CourseController extends BaseApiController
 {
     public function __construct(
-        private readonly ICourseService $courseService
+        private readonly ICourseService $courseService,
+        private readonly INotificationService $notificationService
     ) {}
 
     #[OA\Parameter(
@@ -81,6 +84,23 @@ class CourseController extends BaseApiController
     {
         $data = $request->validated();
 
+        $course = $this->courseService->create($request->validated());
+
+        $this->notificationService->createGlobal(
+            'Nuevo curso creado',
+            "Se ha creado el curso {$course->name}.",
+            'course_created'
+        );
+
+        if ($course->teacher) {
+            $this->notificationService->createForUser(
+                $course->teacher,
+                'Nuevo curso asignado',
+                "Se te ha asignado el curso {$course->name}.",
+                'course_assigned'
+            );
+        }
+
         return $this->success(
             $this->courseService->create(new CourseDto(
                 id: null,
@@ -95,16 +115,61 @@ class CourseController extends BaseApiController
         );
     }
 
-    #[OA\Get(path: '/courses/{id}', summary: 'Ver curso', security: [['sanctum' => []]], tags: ['Courses'])]
-    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
-    #[OA\Response(response: 200, description: 'Curso encontrado')]
+    #[OA\Get(
+        path: '/courses/{id}',
+        summary: 'Obtener curso',
+        description: 'Obtiene el detalle de un curso con profesor, últimos alumnos matriculados, últimas tareas y contadores.',
+        security: [['sanctum' => []]],
+        tags: ['Courses']
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        description: 'ID del curso',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'integer')
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Curso obtenido correctamente'
+    )]
+    #[OA\Response(response: 401, description: 'No autenticado')]
+    #[OA\Response(response: 403, description: 'No autorizado')]
+    #[OA\Response(response: 404, description: 'Curso no encontrado')]
     public function show(int $id): JsonResponse
     {
-        $course = $this->courseService->getById($id, ['teacher']);
+        $course = Course::query()
+            ->with([
+                'teacher:id,name,last_name,email',
+                'tasks' => fn($query) => $query
+                    ->select('id', 'course_id', 'title', 'type', 'created_at')
+                    ->latest()
+                    ->limit(5),
 
-        return $course
-            ? $this->success($course)
-            : $this->error('Curso no encontrado.', 404);
+                'enrollments' => fn($query) => $query
+                    ->select('id', 'course_id', 'student_id', 'enrollment_date')
+                    ->latest()
+                    ->limit(5),
+
+                'enrollments.student:id,name,last_name,email,type,active',
+            ])
+            ->withCount([
+                'tasks',
+                'enrollments',
+            ])
+            ->find($id);
+
+        if (!$course) {
+            return $this->error(
+                'Curso no encontrado.',
+                404
+            );
+        }
+
+        return $this->success(
+            $course,
+            'Curso obtenido correctamente.'
+        );
     }
 
     #[OA\Put(path: '/courses/{id}', summary: 'Actualizar curso', security: [['sanctum' => []]], tags: ['Courses'])]

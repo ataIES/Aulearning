@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 
 import ConfirmModal from '../../../components/common/ConfirmModal';
 import DataTable from '../../../components/table/DataTable';
+import TableActionButtons from '../../../components/table/TableActionButtons';
 import TablePagination from '../../../components/table/TablePagination';
+import TableToolbar from '../../../components/table/TableToolbar';
+import TableUserCell from '../../../components/table/TableUserCell';
 
 import { useUI } from '../../../hooks/useUI';
 import UserService from '../../../services/UserService';
@@ -19,12 +22,12 @@ const defaultFilters = {
 };
 
 export default function AdminUsersPage() {
-    const { setLoading, showError } = useUI();
-    const [tableLoading, setTableLoading] = useState(false);
+    const { showError } = useUI();
 
     const [users, setUsers] = useState([]);
     const [meta, setMeta] = useState(null);
     const [filters, setFilters] = useState(defaultFilters);
+    const [tableLoading, setTableLoading] = useState(false);
 
     const [showForm, setShowForm] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -59,28 +62,29 @@ export default function AdminUsersPage() {
 
             setUsers(response.data?.data ?? response.data?.items ?? []);
             setMeta(response.data?.meta ?? response.data?.pagination ?? null);
+            
         } catch {
             showError('No se pudo cargar la lista de usuarios.');
         } finally {
             setTableLoading(false);
         }
     };
+
     useEffect(() => {
         loadUsers();
     }, [filters.page, filters.per_page]);
 
-    const handleFilterChange = (event) => {
-        const { name, value } = event.target;
-
+    const updateFilter = (key, value) => {
         setFilters((prev) => ({
             ...prev,
-            [name]: value,
+            [key]: value,
             page: 1,
         }));
     };
 
     const handleSearch = (event) => {
         event.preventDefault();
+        event.stopPropagation();
         loadUsers();
     };
 
@@ -114,22 +118,25 @@ export default function AdminUsersPage() {
 
             setShowForm(false);
             setSelectedUser(null);
+
             await loadUsers();
         } catch (error) {
             const response = error.response?.data;
 
             if (response?.errors) {
                 setFormErrors(response.errors);
+
+                const firstKey = Object.keys(response.errors)[0];
+                const firstMessage = response.errors[firstKey]?.[0];
+
+                showError(firstMessage ?? response.message, 'Error de validación');
+                return;
             }
 
             showError(response?.message ?? 'No se pudo guardar el usuario.');
         } finally {
             setSaving(false);
         }
-    };
-
-    const confirmDelete = (user) => {
-        setUserToDelete(user);
     };
 
     const handleDelete = async () => {
@@ -167,24 +174,14 @@ export default function AdminUsersPage() {
         {
             label: 'Usuario',
             render: (user) => (
-                <div className="table-user">
-                    <div className="table-avatar">
-                        {(user.name ?? 'U').charAt(0).toUpperCase()}
-                    </div>
-
-                    <div>
-                        <strong>{user.name}</strong>
-                        <small>ID #{user.id}</small>
-                    </div>
-                </div>
+                <TableUserCell
+                    name={`${user.name ?? ''} ${user.last_name ?? ''}`}
+                    email={user.email}
+                />
             ),
         },
         {
-            label: 'Email',
-            key: 'email',
-        },
-        {
-            label: 'Tipo',
+            label: 'Rol',
             render: (user) => roleBadge(user.type),
         },
         {
@@ -193,64 +190,58 @@ export default function AdminUsersPage() {
                 user.active ? (
                     <span className="badge bg-success-subtle text-success">Activo</span>
                 ) : (
-                    <span className="badge bg-secondary-subtle text-secondary">Inactivo</span>
+                    <span className="badge bg-secondary-subtle text-secondary">
+                        Inactivo
+                    </span>
                 ),
         },
         {
             label: 'Acciones',
             render: (user) => (
-                <div className="btn-group">
-                    <button
-                        className="btn btn-outline-primary btn-sm"
-                        onClick={() => openEdit(user)}
-                    >
-                        <i className="bi bi-pencil" />
-                    </button>
-
-                    <button
-                        className="btn btn-outline-danger btn-sm"
-                        onClick={() => confirmDelete(user)}
-                    >
-                        <i className="bi bi-trash" />
-                    </button>
-                </div>
+                <TableActionButtons
+                    onEdit={() => openEdit(user)}
+                    onDelete={() => setUserToDelete(user)}
+                />
             ),
         },
     ];
 
     return (
         <div>
-            <div className="admin-dashboard-header">
-                <div>
-                    <h3>Usuarios</h3>
-                    <p>Gestiona administradores, profesores y alumnos.</p>
-                </div>
-
-                <button className="btn btn-primary" onClick={openCreate}>
-                    <i className="bi bi-plus-lg me-1" />
-                    Nuevo usuario
-                </button>
-            </div>
-
-            <div className="admin-panel-card mb-3">
-                <form onSubmit={handleSearch}>
-                    <div className="row g-2">
-                        <div className="col-md-4">
-                            <input
-                                name="search"
-                                className="form-control"
-                                placeholder="Buscar por nombre o email..."
-                                value={filters.search}
-                                onChange={handleFilterChange}
-                            />
+            <TableToolbar
+                title="Usuarios"
+                subtitle="Gestiona administradores, profesores y alumnos."
+                search={filters.search}
+                searchPlaceholder={
+                    filters.searchBy === 'name'
+                        ? 'Buscar por nombre...'
+                        : filters.searchBy === 'email'
+                            ? 'Buscar por email...'
+                            : 'Buscar por nombre o email...'
+                }
+                onSearchChange={(value) => updateFilter('search', value)}
+                onSearchSubmit={handleSearch}
+                createLabel="Nuevo usuario"
+                onCreate={openCreate}
+                filters={
+                    <>
+                        <div className="col-md-2">
+                            <select
+                                className="form-select"
+                                value={filters.searchBy}
+                                onChange={(event) => updateFilter('searchBy', event.target.value)}
+                            >
+                                <option value="all">Todo</option>
+                                <option value="name">Nombre</option>
+                                <option value="email">Email</option>
+                            </select>
                         </div>
 
                         <div className="col-md-2">
                             <select
-                                name="type"
                                 className="form-select"
                                 value={filters.type}
-                                onChange={handleFilterChange}
+                                onChange={(event) => updateFilter('type', event.target.value)}
                             >
                                 <option value="">Todos los roles</option>
                                 <option value="admin">Administrador</option>
@@ -261,10 +252,9 @@ export default function AdminUsersPage() {
 
                         <div className="col-md-2">
                             <select
-                                name="active"
                                 className="form-select"
                                 value={filters.active}
-                                onChange={handleFilterChange}
+                                onChange={(event) => updateFilter('active', event.target.value)}
                             >
                                 <option value="">Todos</option>
                                 <option value="1">Activos</option>
@@ -274,10 +264,9 @@ export default function AdminUsersPage() {
 
                         <div className="col-md-2">
                             <select
-                                name="per_page"
                                 className="form-select"
                                 value={filters.per_page}
-                                onChange={handleFilterChange}
+                                onChange={(event) => updateFilter('per_page', event.target.value)}
                             >
                                 <option value="10">10 por página</option>
                                 <option value="15">15 por página</option>
@@ -285,30 +274,21 @@ export default function AdminUsersPage() {
                                 <option value="50">50 por página</option>
                             </select>
                         </div>
-
-                        <div className="col-md-2 d-flex gap-2">
-                            <button className="btn btn-outline-primary w-100" type="submit">
-                                Filtrar
-                            </button>
-
-                            <button
-                                className="btn btn-outline-secondary"
-                                type="button"
-                                onClick={handleReset}
-                            >
-                                <i className="bi bi-arrow-clockwise" />
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+                    </>
+                }
+                actions={
+                    <button
+                        className="btn btn-outline-secondary"
+                        type="button"
+                        onClick={handleReset}
+                    >
+                        <i className="bi bi-arrow-clockwise" />
+                    </button>
+                }
+            />
 
             <div className="admin-panel-card">
-                <DataTable
-                    columns={columns}
-                    data={users}
-                    loading={tableLoading}
-                />
+                <DataTable columns={columns} data={users} loading={tableLoading} />
 
                 <TablePagination
                     meta={meta}
@@ -333,7 +313,8 @@ export default function AdminUsersPage() {
             <ConfirmModal
                 show={Boolean(userToDelete)}
                 title="Eliminar usuario"
-                message={`¿Seguro que quieres eliminar a ${userToDelete?.name ?? 'este usuario'}?`}
+                message={`¿Seguro que quieres eliminar a ${userToDelete?.name ?? 'este usuario'
+                    }?`}
                 confirmText="Eliminar"
                 loading={deleting}
                 onClose={() => setUserToDelete(null)}

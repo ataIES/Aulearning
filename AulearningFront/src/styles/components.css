@@ -371,3 +371,398 @@
 .error-modal-backdrop {
   z-index: 9000;
 }
+
+.course-code {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.course-cell{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.course-avatar{
+    width:48px;
+    height:48px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+}
+
+.course-avatar i{
+    font-size:20px;
+}
+
+.course-cell strong{
+    display:block;
+    font-weight:700;
+}
+
+.course-cell small{
+    color:#6b7280;
+}
+
+.teacher-cell{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.teacher-avatar{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:#dbeafe;
+    color:#2563eb;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.table-entity-cell,
+.table-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.table-entity-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  color: white;
+}
+
+.table-entity-icon i {
+  font-size: 20px;
+}
+
+.table-entity-icon.blue {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.table-entity-icon.green {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+.table-entity-icon.purple {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+}
+
+.table-entity-cell strong,
+.table-user-cell strong {
+  display: block;
+  font-weight: 800;
+}
+
+.table-entity-cell small,
+.table-user-cell small {
+  display: block;
+  color: #6b7280;
+  font-size: 0.82rem;
+}
+
+.table-user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+
+  background: #dbeafe;
+  color: #2563eb;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.table-stat-pill {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 7px 11px;
+  border-radius: 999px;
+
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.table-stat-pill.blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.table-stat-pill.green {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.table-stat-pill.purple {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+.course-period {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  min-width: 220px;
+  padding: 10px 14px;
+
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+}
+
+.course-period > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.course-period small {
+  color: #6b7280;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.course-period strong {
+  font-size: .92rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.course-period i {
+  color: #2563eb;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.course-status{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:8px 14px;
+
+    border-radius:999px;
+
+    font-size:.82rem;
+
+    font-weight:700;
+
+}
+
+.course-status.success{
+
+    background:#dcfce7;
+
+    color:#15803d;
+
+}
+
+.course-status.primary{
+
+    background:#dbeafe;
+
+    color:#1d4ed8;
+
+}
+
+.course-status.secondary{
+
+    background:#e5e7eb;
+
+    color:#374151;
+
+}
+
+.course-description {
+  max-width: 220px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  color: #6b7280;
+}
+
+.table-toolbar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.table-toolbar-header h4 {
+  margin: 0 0 4px;
+  font-weight: 800;
+}
+
+.table-toolbar-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.permissions-modal {
+  width: 900px;
+}
+
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.permission-group {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+  background: #f9fafb;
+}
+
+.permission-group h6 {
+  margin-bottom: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.permission-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.permission-check input {
+  width: 16px;
+  height: 16px;
+}
+
+.notifications-wrapper {
+  position: relative;
+}
+
+.notification-button {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 12px;
+  background: #f3f4f6;
+  color: #374151;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.notification-button i {
+  font-size: 1.15rem;
+}
+
+.notification-button span {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+.notifications-dropdown {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  box-shadow: 0 25px 70px rgba(15, 23, 42, 0.22);
+  z-index: 5000;
+  overflow: hidden;
+}
+
+.notifications-header {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notifications-header h6 {
+  margin: 0;
+  font-weight: 800;
+}
+
+.notifications-list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.notification-item strong {
+  display: block;
+  font-size: 0.92rem;
+}
+
+.notification-item p {
+  margin: 4px 0;
+  color: #6b7280;
+  font-size: 0.84rem;
+}
+
+.notification-item small {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+.notifications-empty {
+  padding: 28px 18px;
+  text-align: center;
+  color: #6b7280;
+}

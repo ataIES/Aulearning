@@ -1,5 +1,6 @@
 import { useAuth } from '../../hooks/useAuth';
 import { useUI } from '../../hooks/useUI';
+import NotificationsDropdown from '../../components/common/NotificationsDropdown';
 
 export default function AdminHeader({ onToggleSidebar }) {
   const { user, logout } = useAuth();
@@ -34,6 +35,8 @@ export default function AdminHeader({ onToggleSidebar }) {
 
       <div className="d-flex align-items-center gap-3">
         <small className="admin-email">{user?.email}</small>
+
+        <NotificationsDropdown />
 
         <button className="btn btn-outline-danger btn-sm" onClick={handleLogout}>
           Salir

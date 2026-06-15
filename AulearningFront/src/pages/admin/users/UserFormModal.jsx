@@ -1,3 +1,4 @@
+import LoadingButton from '../../../components/common/LoadingButton';
 import { useEffect, useState } from 'react';
 
 const emptyForm = {
@@ -258,9 +259,14 @@ export default function UserFormModal({
               Cancelar
             </button>
 
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear'}
-            </button>
+            <LoadingButton
+              type="submit"
+              loading={loading}
+              loadingText="Guardando usuario..."
+              icon="bi-check-lg"
+            >
+              Guardar usuario
+            </LoadingButton>
           </div>
         </form>
       </div>

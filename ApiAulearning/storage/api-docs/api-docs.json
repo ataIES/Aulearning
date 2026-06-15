@@ -368,12 +368,14 @@
                 "tags": [
                     "Courses"
                 ],
-                "summary": "Ver curso",
+                "summary": "Obtener curso",
+                "description": "Obtiene el detalle de un curso con profesor, últimos alumnos matriculados, últimas tareas y contadores.",
                 "operationId": "703f82b2a4cf2b6bec94909bbbc1ea7a",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID del curso",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -382,7 +384,16 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Curso encontrado"
+                        "description": "Curso obtenido correctamente"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "No autorizado"
+                    },
+                    "404": {
+                        "description": "Curso no encontrado"
                     }
                 },
                 "security": [
@@ -529,59 +540,91 @@
                 "tags": [
                     "Enrollments"
                 ],
-                "summary": "Listar inscripciones",
+                "summary": "Listar matrículas",
+                "description": "Obtiene una lista paginada de matrículas. Permite filtrar por curso, alumno y búsqueda por datos del alumno.",
                 "operationId": "46f86247fae90db42c50de2b294234ad",
                 "parameters": [
                     {
-                        "name": "student_id",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
                         "name": "course_id",
                         "in": "query",
+                        "description": "ID del curso",
+                        "required": false,
                         "schema": {
                             "type": "integer"
                         }
                     },
                     {
-                        "name": "active",
+                        "name": "student_id",
                         "in": "query",
+                        "description": "ID del alumno",
+                        "required": false,
                         "schema": {
-                            "type": "boolean"
+                            "type": "integer"
                         }
                     },
                     {
-                        "name": "enrollment_date_from",
+                        "name": "search",
                         "in": "query",
+                        "description": "Buscar por nombre, apellidos o email del alumno",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Número de registros por página",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Número de página",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "description": "Campo por el que ordenar",
+                        "required": false,
                         "schema": {
                             "type": "string",
-                            "format": "date"
+                            "default": "id"
                         }
                     },
                     {
-                        "name": "enrollment_date_to",
+                        "name": "sortDirection",
                         "in": "query",
+                        "description": "Dirección de ordenación",
+                        "required": false,
                         "schema": {
                             "type": "string",
-                            "format": "date"
+                            "default": "desc",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
                         }
-                    },
-                    {
-                        "$ref": "#/components/parameters/PerPage"
-                    },
-                    {
-                        "$ref": "#/components/parameters/SortBy"
-                    },
-                    {
-                        "$ref": "#/components/parameters/SortDirection"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Listado de inscripciones"
+                        "description": "Matrículas obtenidas correctamente"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "No autorizado"
                     }
                 },
                 "security": [
@@ -594,7 +637,8 @@
                 "tags": [
                     "Enrollments"
                 ],
-                "summary": "Crear inscripción",
+                "summary": "Crear matrícula",
+                "description": "Matricula un alumno en un curso.",
                 "operationId": "8b49ef3dceb0238cfbd9996b169728e8",
                 "requestBody": {
                     "required": true,
@@ -608,11 +652,22 @@
                                 "properties": {
                                     "student_id": {
                                         "type": "integer",
-                                        "example": 3
+                                        "example": 12
                                     },
                                     "course_id": {
                                         "type": "integer",
-                                        "example": 1
+                                        "example": 3
+                                    },
+                                    "enrollment_date": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2026-06-14 10:30:00",
+                                        "nullable": true
+                                    },
+                                    "active": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
                                     }
                                 },
                                 "type": "object"
@@ -622,7 +677,16 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Inscripción creada"
+                        "description": "Alumno matriculado correctamente"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "No autorizado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 },
                 "security": [
@@ -633,43 +697,18 @@
             }
         },
         "/enrollments/{id}": {
-            "get": {
-                "tags": [
-                    "Enrollments"
-                ],
-                "summary": "Ver inscripción",
-                "operationId": "7702a76cd3c43405c6aae82e79572999",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Inscripción encontrada"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
             "delete": {
                 "tags": [
                     "Enrollments"
                 ],
-                "summary": "Eliminar inscripción",
+                "summary": "Eliminar matrícula",
+                "description": "Elimina una matrícula existente.",
                 "operationId": "7f6eede96ccbc31ddf0f9cbb9410466a",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID de la matrícula",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -678,7 +717,16 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Inscripción eliminada"
+                        "description": "Matrícula eliminada correctamente"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "No autorizado"
+                    },
+                    "404": {
+                        "description": "Matrícula no encontrada"
                     }
                 },
                 "security": [
@@ -1435,6 +1483,32 @@
                 ]
             }
         },
+        "/notifications/unread": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Listar notificaciones no leídas",
+                "description": "Obtiene las notificaciones no leídas del usuario autenticado.",
+                "operationId": "614996c6742b6424819d7ef04bb7c1df",
+                "responses": {
+                    "200": {
+                        "description": "Notificaciones no leídas obtenidas correctamente"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "No autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/participants": {
             "get": {
                 "tags": [
@@ -1574,6 +1648,226 @@
                 "responses": {
                     "200": {
                         "description": "Participante eliminado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/permissions": {
+            "get": {
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "Listar permisos",
+                "description": "Obtiene todos los permisos disponibles.",
+                "operationId": "8b2089df410846234e6e453c26a0f7e9",
+                "responses": {
+                    "200": {
+                        "description": "Permisos obtenidos correctamente"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "No autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/roles": {
+            "get": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Listar roles",
+                "description": "Obtiene todos los roles con sus permisos.",
+                "operationId": "a54b004ebbd6168338f4feed2095aa40",
+                "responses": {
+                    "200": {
+                        "description": "Roles obtenidos correctamente"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Crear rol",
+                "operationId": "bcb0907febbb51b1021efa8e9174ce0d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "coordinator"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Rol creado correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/roles/{id}": {
+            "put": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Actualizar rol",
+                "operationId": "cf4bcd0bc1dbd5ec769b7e62a269688a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "teacher"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Rol actualizado correctamente"
+                    },
+                    "404": {
+                        "description": "Rol no encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Eliminar rol",
+                "operationId": "eb1e1d4330bed83f78bb6a7643d4cbc2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rol eliminado correctamente"
+                    },
+                    "404": {
+                        "description": "Rol no encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/roles/{id}/permissions": {
+            "put": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Sincronizar permisos de rol",
+                "operationId": "54d4c0a7a57e7ff352ec5ec21f30efad",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "permissions"
+                                ],
+                                "properties": {
+                                    "permissions": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "users.view",
+                                            "courses.view"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Permisos actualizados correctamente"
                     }
                 },
                 "security": [
@@ -2072,6 +2366,14 @@
         {
             "name": "Participants",
             "description": "Participants"
+        },
+        {
+            "name": "Permissions",
+            "description": "Permissions"
+        },
+        {
+            "name": "Roles",
+            "description": "Roles"
         },
         {
             "name": "Tasks",

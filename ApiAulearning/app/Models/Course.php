@@ -19,30 +19,16 @@ class Course extends Model
 
     public function teacher()
     {
-        return $this->belongsTo(
-            User::class,
-            'teacher_id'
-        );
-    }
-
-    public function enrollments()
-    {
-        return $this->hasMany(
-            Enrollment::class
-        );
-    }
-
-    public function grades()
-    {
-        return $this->hasMany(
-            Grade::class
-        );
+        return $this->belongsTo(User::class, 'teacher_id');
     }
 
     public function tasks()
     {
-        return $this->hasMany(
-            Task::class
-        );
+        return $this->hasMany(Task::class, 'course_id');
+    }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class, 'course_id');
     }
 }

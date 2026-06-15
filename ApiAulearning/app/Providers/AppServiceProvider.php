@@ -15,6 +15,8 @@ use App\Repositories\ChatGroupRepository;
 use App\Repositories\ParticipantRepository;
 use App\Repositories\MessageRepository;
 use App\Repositories\NotificationRepository;
+use App\Mappers\Interfaces\INotificationMapper;
+use App\Mappers\NotificationMapper;
 
 // Repository interfaces
 use App\Repositories\Interfaces\IUserRepository;
@@ -80,6 +82,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IMessageRepository::class, MessageRepository::class);
         $this->app->bind(INotificationRepository::class, NotificationRepository::class);
         $this->app->bind(IRoleRepository::class, RoleRepository::class);
+        $this->app->bind(
+            NotificationRepository::class
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -97,9 +102,18 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IChatGroupService::class, ChatGroupService::class);
         $this->app->bind(IParticipantService::class, ParticipantService::class);
         $this->app->bind(IMessageService::class, MessageService::class);
-        $this->app->bind(INotificationService::class, NotificationService::class);
+        $this->app->bind(
+            INotificationService::class,
+            NotificationService::class
+        );
         $this->app->bind(IRoleService::class, RoleService::class);
-        $this->app->bind(IDashboardService::class, DashBoardService::class
+        $this->app->bind(
+            IDashboardService::class,
+            DashBoardService::class
+        );
+        $this->app->bind(
+            INotificationMapper::class,
+            NotificationMapper::class
         );
     }
 

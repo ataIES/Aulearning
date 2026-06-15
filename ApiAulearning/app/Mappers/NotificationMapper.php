@@ -6,9 +6,10 @@ use App\DTOs\Interfaces\IBaseDto;
 use App\DTOs\NotificationDto;
 use App\Models\Notification;
 use App\Mappers\Interfaces\IBaseMapper;
+use App\Mappers\Interfaces\INotificationMapper;
 use Illuminate\Database\Eloquent\Model;
 
-class NotificationMapper extends BaseMapper implements IBaseMapper
+class NotificationMapper extends BaseMapper implements IBaseMapper, INotificationMapper
 {
     public function toDto(Model $model): NotificationDto
     {

@@ -21,6 +21,11 @@ import PrivateRoute from './PrivateRoute';
 import StudentRoute from './StudentRoute';
 import TeacherRoute from './TeacherRoute';
 import AdminUsersPage from '../pages/admin/users/AdminUsersPage';
+import AdminCoursesPage from '../pages/admin/courses/AdminCoursesPage';
+import AdminCourseDetailPage from '../pages/admin/courses/AdminCourseDetailPage';
+import AdminRolesPage from '../pages/admin/roles/AdminRolesPage';
+import AdminCourseEnrollmentsPage from '../pages/admin/enrollments/AdminCourseEnrollmentsPage';
+import AdminNotificationsPage from '../pages/admin/notifications/AdminNotificationsPage';
 
 function RootRedirect() {
   const { user } = useAuth();
@@ -51,6 +56,14 @@ export default function AppRouter() {
             <Route element={<AdminLayout />}>
               <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
               <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/courses" element={<AdminCoursesPage />} />
+              <Route path="/admin/courses/:courseId" element={<AdminCourseDetailPage />} />
+              <Route path="/admin/roles" element={<AdminRolesPage />} />
+              <Route
+                path="/admin/courses/:courseId/enrollments"
+                element={<AdminCourseEnrollmentsPage />}
+              />
+              <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
             </Route>
           </Route>
 

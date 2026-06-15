@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Enrollment extends Model
 {
@@ -16,26 +16,18 @@ class Enrollment extends Model
         'active',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'enrollment_date' => 'datetime',
-            'active' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'enrollment_date' => 'datetime',
+        'active' => 'boolean',
+    ];
 
     public function student()
     {
-        return $this->belongsTo(
-            User::class,
-            'student_id'
-        );
+        return $this->belongsTo(User::class, 'student_id');
     }
 
     public function course()
     {
-        return $this->belongsTo(
-            Course::class
-        );
+        return $this->belongsTo(Course::class, 'course_id');
     }
 }

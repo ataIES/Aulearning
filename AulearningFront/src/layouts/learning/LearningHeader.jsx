@@ -1,5 +1,6 @@
 import { useAuth } from '../../hooks/useAuth';
 import { useUI } from '../../hooks/useUI';
+import NotificationsDropdown from '../../components/common/NotificationsDropdown';
 
 export default function LearningHeader({ onToggleSidebar }) {
   const { user, logout } = useAuth();
@@ -36,6 +37,7 @@ export default function LearningHeader({ onToggleSidebar }) {
         </div>
       </div>
 
+      <NotificationsDropdown></NotificationsDropdown>
       <button className="btn btn-outline-danger btn-sm" onClick={handleLogout}>
         Salir
       </button>

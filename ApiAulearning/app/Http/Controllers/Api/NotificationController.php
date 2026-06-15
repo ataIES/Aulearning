@@ -104,4 +104,24 @@ class NotificationController extends BaseApiController
             ? $this->success(null, 'Notificación eliminada correctamente.')
             : $this->error('Notificación no encontrada.', 404);
     }
+
+    #[OA\Get(
+        path: '/notifications/unread',
+        summary: 'Listar notificaciones no leídas',
+        description: 'Obtiene las notificaciones no leídas del usuario autenticado.',
+        security: [['sanctum' => []]],
+        tags: ['Notifications']
+    )]
+    #[OA\Response(response: 200, description: 'Notificaciones no leídas obtenidas correctamente')]
+    #[OA\Response(response: 401, description: 'No autenticado')]
+    #[OA\Response(response: 403, description: 'No autorizado')]
+    public function unread(Request $request): JsonResponse
+    {
+        return $this->success(
+            $this->notificationService->getUnreadByUser(
+                $request->user()->id
+            ),
+            'Notificaciones no leídas obtenidas correctamente.'
+        );
+    }
 }
