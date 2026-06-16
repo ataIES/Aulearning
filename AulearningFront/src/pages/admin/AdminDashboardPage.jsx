@@ -2,11 +2,19 @@ import { Link } from 'react-router-dom';
 
 import DashboardService from '../../services/DashboardService';
 import useDashboard from '../../hooks/useDashboard';
+import PageLoader from '../../components/common/PageLoader';
 
 export default function AdminDashboardPage() {
   const dashboard = useDashboard(() => DashboardService.admin());
 
-  if (!dashboard) return null;
+  if (!dashboard) {
+    return (
+      <PageLoader
+        title="Cargando dashboard"
+        message="Obteniendo las estadísticas principales..."
+      />
+    );
+  }
 
   const cards = [
     {

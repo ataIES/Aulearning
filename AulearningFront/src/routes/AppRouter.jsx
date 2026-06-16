@@ -1,7 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import ErrorModal from '../components/common/ErrorModal';
-import Loader from '../components/common/Loader';
 
 import { useAuth } from '../hooks/useAuth';
 import { useUI } from '../hooks/useUI';
@@ -14,31 +13,32 @@ import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import TeacherDashboardPage from '../pages/teacher/TeacherDashboardPage';
 import StudentDashboardPage from '../pages/student/StudentDashboardPage';
 
-import { getHomeByRole } from '../utils/redirectByRole';
-
-import AdminRoute from './AdminRoute';
-import PrivateRoute from './PrivateRoute';
-import StudentRoute from './StudentRoute';
-import TeacherRoute from './TeacherRoute';
 import AdminUsersPage from '../pages/admin/users/AdminUsersPage';
 import AdminCoursesPage from '../pages/admin/courses/AdminCoursesPage';
 import AdminCourseDetailPage from '../pages/admin/courses/AdminCourseDetailPage';
 import AdminRolesPage from '../pages/admin/roles/AdminRolesPage';
 import AdminCourseEnrollmentsPage from '../pages/admin/enrollments/AdminCourseEnrollmentsPage';
 import AdminNotificationsPage from '../pages/admin/notifications/AdminNotificationsPage';
+import AdminEnrollmentsPage from '../pages/admin/enrollments/AdminEnrollmentsPage';
+
+import { getHomeByRole } from '../utils/redirectByRole';
+
+import AdminRoute from './AdminRoute';
+import PrivateRoute from './PrivateRoute';
+import StudentRoute from './StudentRoute';
+import TeacherRoute from './TeacherRoute';
 
 function RootRedirect() {
   const { user } = useAuth();
+
   return <Navigate to={getHomeByRole(user)} replace />;
 }
 
 export default function AppRouter() {
-  const { loading, errorModal, closeError } = useUI();
+  const { errorModal, closeError } = useUI();
 
   return (
     <BrowserRouter>
-      {loading && <Loader />}
-
       <ErrorModal
         show={errorModal.show}
         title={errorModal.title}
@@ -58,12 +58,13 @@ export default function AppRouter() {
               <Route path="/admin/users" element={<AdminUsersPage />} />
               <Route path="/admin/courses" element={<AdminCoursesPage />} />
               <Route path="/admin/courses/:courseId" element={<AdminCourseDetailPage />} />
-              <Route path="/admin/roles" element={<AdminRolesPage />} />
               <Route
                 path="/admin/courses/:courseId/enrollments"
                 element={<AdminCourseEnrollmentsPage />}
               />
+              <Route path="/admin/roles" element={<AdminRolesPage />} />
               <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
+              <Route path="/admin/enrollments" element={<AdminEnrollmentsPage />} />
             </Route>
           </Route>
 

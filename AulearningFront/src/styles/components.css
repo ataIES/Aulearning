@@ -766,3 +766,134 @@
   text-align: center;
   color: #6b7280;
 }
+.notification-button {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 12px;
+  background: #f3f4f6;
+  color: #64748b;
+  position: relative;
+  display: grid;
+  place-items: center;
+  transition: 0.25s;
+}
+
+.notification-button.has-notifications {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.notification-button.has-notifications i {
+  animation: bellShake 1.8s infinite;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+
+  border-radius: 999px;
+  background: #ef4444;
+  color: white;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes bellShake {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+
+  10%,
+  30%,
+  50% {
+    transform: rotate(12deg);
+  }
+
+  20%,
+  40% {
+    transform: rotate(-12deg);
+  }
+
+  60% {
+    transform: rotate(0);
+  }
+}
+.login-loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(8px);
+
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-loader-card,
+.page-content-loader-card {
+  width: 430px;
+  max-width: 100%;
+
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+
+  padding: 26px 30px;
+
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  box-shadow: 0 25px 70px rgba(15, 23, 42, 0.2);
+}
+
+.login-loader-spinner,
+.page-content-loader-spinner {
+  width: 46px;
+  height: 46px;
+
+  border: 4px solid #dbeafe;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+
+  animation: spin 0.85s linear infinite;
+  flex-shrink: 0;
+}
+
+.login-loader-card h5,
+.page-content-loader-card h5 {
+  margin: 0 0 4px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.login-loader-card p,
+.page-content-loader-card p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.page-content-loader {
+  min-height: calc(100vh - 300px);
+  width: 100%;
+
+  display: grid;
+  place-items: center;
+
+  padding: 32px;
+  background: transparent;
+}

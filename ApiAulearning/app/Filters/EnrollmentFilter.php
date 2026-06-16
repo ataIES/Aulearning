@@ -9,6 +9,7 @@ class EnrollmentFilter extends BaseFilter
     public function __construct(
         public readonly ?int $courseId = null,
         public readonly ?int $studentId = null,
+        public readonly ?int $teacherId = null,
         public readonly ?string $search = null,
         ?int $perPage = 15,
         ?string $sortBy = 'id',
@@ -26,11 +27,27 @@ class EnrollmentFilter extends BaseFilter
             ->when($this->studentId, fn (Builder $query) =>
                 $query->where('student_id', $this->studentId)
             )
+            ->when($this->teacherId, fn (Builder $query) =>
+                $query->whereHas('course', fn (Builder $query) =>
+                    $query->where('teacher_id', $this->teacherId)
+                )
+            )
             ->when($this->search, function (Builder $query) {
-                $query->whereHas('student', function (Builder $query) {
-                    $query->where('name', 'like', "%{$this->search}%")
-                        ->orWhere('last_name', 'like', "%{$this->search}%")
-                        ->orWhere('email', 'like', "%{$this->search}%");
+                $query->where(function (Builder $query) {
+                    $query
+                        ->whereHas('student', function (Builder $query) {
+                            $query->where('name', 'like', "%{$this->search}%")
+                                ->orWhere('last_name', 'like', "%{$this->search}%")
+                                ->orWhere('email', 'like', "%{$this->search}%");
+                        })
+                        ->orWhereHas('course', function (Builder $query) {
+                            $query->where('name', 'like', "%{$this->search}%");
+                        })
+                        ->orWhereHas('course.teacher', function (Builder $query) {
+                            $query->where('name', 'like', "%{$this->search}%")
+                                ->orWhere('last_name', 'like', "%{$this->search}%")
+                                ->orWhere('email', 'like', "%{$this->search}%");
+                        });
                 });
             });
 

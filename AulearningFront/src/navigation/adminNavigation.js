@@ -28,29 +28,9 @@ const adminNavigation = [
         to: '/admin/enrollments',
       },
       {
-        icon: 'bi-list-task',
-        label: 'Tareas',
-        to: '/admin/tasks',
-      },
-      {
         icon: 'bi-folder2-open',
         label: 'Archivos',
         to: '/admin/files',
-      },
-      {
-        icon: 'bi-award',
-        label: 'Calificaciones',
-        to: '/admin/grades',
-      },
-    ],
-  },
-  {
-    title: 'Comunicación',
-    items: [
-      {
-        icon: 'bi-bell',
-        label: 'Notificaciones',
-        to: '/admin/notifications',
       },
     ],
   },
@@ -61,12 +41,7 @@ const adminNavigation = [
         icon: 'bi-shield-lock',
         label: 'Roles',
         to: '/admin/roles',
-      },
-      {
-        icon: 'bi-key',
-        label: 'Permisos',
-        to: '/admin/permissions',
-      },
+      }
     ],
   },
 ];

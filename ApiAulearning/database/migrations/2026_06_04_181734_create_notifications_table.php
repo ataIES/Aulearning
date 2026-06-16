@@ -18,8 +18,9 @@ return new class extends Migration
             $table->longText('content');
 
             $table->foreignId('user_id')
+                ->nullable()
                 ->constrained('users')
-                ->cascadeOnDelete();
+                ->nullOnDelete();
 
             $table->enum('type', [
                 'info',

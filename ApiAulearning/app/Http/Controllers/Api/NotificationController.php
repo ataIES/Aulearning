@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\DTOs\NotificationDto;
-use App\Filters\NotificationFilter;
-use App\Http\Requests\Notification\StoreNotificationRequest;
 use App\Services\Interfaces\INotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,99 +13,30 @@ class NotificationController extends BaseApiController
         private readonly INotificationService $notificationService
     ) {}
 
-    #[OA\Parameter(name: 'search', in: 'query', schema: new OA\Schema(type: 'string'))]
-    #[OA\Parameter(name: 'user_id', in: 'query', schema: new OA\Schema(type: 'integer'))]
-    #[OA\Parameter(name: 'type', in: 'query', schema: new OA\Schema(type: 'string'))]
-    #[OA\Parameter(name: 'read', in: 'query', schema: new OA\Schema(type: 'boolean'))]
-    #[OA\Parameter(name: 'created_from', in: 'query', schema: new OA\Schema(type: 'string', format: 'date'))]
-    #[OA\Parameter(name: 'created_to', in: 'query', schema: new OA\Schema(type: 'string', format: 'date'))]
-    #[OA\Parameter(ref: '#/components/parameters/PerPage')]
-    #[OA\Parameter(ref: '#/components/parameters/SortBy')]
-    #[OA\Parameter(ref: '#/components/parameters/SortDirection')]
-    #[OA\Get(path: '/notifications', summary: 'Listar notificaciones', security: [['sanctum' => []]], tags: ['Notifications'])]
-    #[OA\Response(response: 200, description: 'Listado de notificaciones')]
+    #[OA\Get(
+        path: '/notifications',
+        summary: 'Listar notificaciones',
+        description: 'Obtiene todas las notificaciones del usuario autenticado, incluyendo las globales.',
+        security: [['sanctum' => []]],
+        tags: ['Notifications']
+    )]
+    #[OA\Response(response: 200, description: 'Notificaciones obtenidas correctamente')]
+    #[OA\Response(response: 401, description: 'No autenticado')]
+    #[OA\Response(response: 403, description: 'No autorizado')]
     public function index(Request $request): JsonResponse
     {
-        $filter = new NotificationFilter(
-            search: $request->query('search'),
-            userId: $request->query('user_id')
-                ? (int) $request->query('user_id')
-                : null,
-            type: $request->query('type'),
-            read: $request->has('read')
-                ? $request->boolean('read')
-                : null,
-            createdFrom: $request->query('created_from'),
-            createdTo: $request->query('created_to'),
-            perPage: (int) $request->query('per_page', 15),
-            sortBy: $request->query('sort_by', 'id'),
-            sortDirection: $request->query('sort_direction', 'desc'),
-        );
-
         return $this->success(
-            $this->paginated(
-                $this->notificationService->paginate($filter, ['user'])
+            $this->notificationService->getByUser(
+                $request->user()->id
             ),
             'Notificaciones obtenidas correctamente.'
         );
     }
 
-    #[OA\Post(path: '/notifications', summary: 'Crear notificación', security: [['sanctum' => []]], tags: ['Notifications'])]
-    #[OA\Response(response: 201, description: 'Notificación creada')]
-    public function store(StoreNotificationRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-
-        return $this->success(
-            $this->notificationService->create(new NotificationDto(
-                id: null,
-                title: $data['title'],
-                content: $data['content'],
-                userId: $data['user_id'],
-                type: $data['type'],
-                readAt: null,
-            )),
-            'Notificación creada correctamente.',
-            201
-        );
-    }
-
-    #[OA\Get(path: '/notifications/{id}', summary: 'Ver notificación', security: [['sanctum' => []]], tags: ['Notifications'])]
-    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
-    #[OA\Response(response: 200, description: 'Notificación encontrada')]
-    public function show(int $id): JsonResponse
-    {
-        $notification = $this->notificationService->getById($id, ['user']);
-
-        return $notification
-            ? $this->success($notification)
-            : $this->error('Notificación no encontrada.', 404);
-    }
-
-    #[OA\Patch(path: '/notifications/{id}/read', summary: 'Marcar como leída', security: [['sanctum' => []]], tags: ['Notifications'])]
-    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
-    #[OA\Response(response: 200, description: 'Notificación leída')]
-    public function markAsRead(int $id): JsonResponse
-    {
-        return $this->notificationService->markAsRead($id)
-            ? $this->success(null, 'Notificación marcada como leída.')
-            : $this->error('Notificación no encontrada.', 404);
-    }
-
-    #[OA\Delete(path: '/notifications/{id}', summary: 'Eliminar notificación', security: [['sanctum' => []]], tags: ['Notifications'])]
-    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
-    #[OA\Response(response: 200, description: 'Notificación eliminada')]
-    public function destroy(int $id): JsonResponse
-    {
-        return $this->notificationService->delete($id)
-            ? $this->success(null, 'Notificación eliminada correctamente.')
-            : $this->error('Notificación no encontrada.', 404);
-    }
-
     #[OA\Get(
         path: '/notifications/unread',
         summary: 'Listar notificaciones no leídas',
-        description: 'Obtiene las notificaciones no leídas del usuario autenticado.',
+        description: 'Obtiene las notificaciones no leídas del usuario autenticado, incluyendo las globales.',
         security: [['sanctum' => []]],
         tags: ['Notifications']
     )]
@@ -117,11 +45,48 @@ class NotificationController extends BaseApiController
     #[OA\Response(response: 403, description: 'No autorizado')]
     public function unread(Request $request): JsonResponse
     {
-        return $this->success(
+         $notification= $this->success(
             $this->notificationService->getUnreadByUser(
                 $request->user()->id
             ),
             'Notificaciones no leídas obtenidas correctamente.'
+        );
+
+        return $notification;
+    }
+
+    #[OA\Patch(
+        path: '/notifications/{id}/read',
+        summary: 'Marcar notificación como leída',
+        description: 'Marca una notificación como leída.',
+        security: [['sanctum' => []]],
+        tags: ['Notifications']
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        description: 'ID de la notificación',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'integer')
+    )]
+    #[OA\Response(response: 200, description: 'Notificación marcada como leída')]
+    #[OA\Response(response: 401, description: 'No autenticado')]
+    #[OA\Response(response: 403, description: 'No autorizado')]
+    #[OA\Response(response: 404, description: 'Notificación no encontrada')]
+    public function markAsRead(int $id): JsonResponse
+    {
+        $updated = $this->notificationService->markAsRead($id);
+
+        if (!$updated) {
+            return $this->error(
+                'Notificación no encontrada.',
+                404
+            );
+        }
+
+        return $this->success(
+            null,
+            'Notificación marcada como leída.'
         );
     }
 }

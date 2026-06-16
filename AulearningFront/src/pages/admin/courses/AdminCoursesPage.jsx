@@ -40,6 +40,7 @@ export default function AdminCoursesPage() {
 
   const [courseToDelete, setCourseToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [teachersLoading, setTeachersLoading] = useState(false);
 
   const buildParams = () => {
     const params = {
@@ -72,18 +73,27 @@ export default function AdminCoursesPage() {
 
   const loadTeachers = async () => {
     try {
+      setTeachersLoading(true);
+
       const response = await UserService.paginate({
         type: 'teacher',
-        active: 1,
-        per_page: 100,
+        per_page: 200,
       });
 
-      setTeachers(response.data?.items ?? []);
-    } catch {
+      const items =
+        response.data?.data?.data ??
+        response.data?.data ??
+        response.data?.items ??
+        [];
+
+      setTeachers(items);
+    } catch (error) {
+      console.error(error);
       showError('No se pudieron cargar los profesores.');
+    } finally {
+      setTeachersLoading(false);
     }
   };
-
   useEffect(() => {
     loadCourses();
   }, [filters.page, filters.per_page]);
@@ -285,6 +295,8 @@ export default function AdminCoursesPage() {
         onSearchSubmit={handleSearch}
         createLabel="Nuevo curso"
         onCreate={openCreate}
+        loading={tableLoading || teachersLoading}
+        createDisabled={tableLoading || teachersLoading}
         filters={
           <>
             <div className="col-md-2">

@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Mappers\Interfaces\INotificationMapper;
+use App\Models\Notification;
+use App\Models\User;
 use App\Repositories\Interfaces\INotificationRepository;
 use App\Services\Interfaces\INotificationService;
 use Illuminate\Support\Collection;
@@ -22,26 +23,43 @@ class NotificationService extends BaseService implements INotificationService
 
     public function getByUser(int $userId): Collection
     {
-        return $this->notificationRepository->getByUser($userId);
+        return Notification::query()
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhereNull('user_id');
+            })
+            ->latest()
+            ->get();
     }
 
     public function getUnreadByUser(int $userId): Collection
     {
-        return $this->notificationRepository->getUnreadByUser($userId);
+        return Notification::query()
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhereNull('user_id');
+            })
+            ->whereNull('read_at')
+            ->latest()
+            ->get();
     }
 
     public function markAsRead(int $notificationId): bool
     {
-        return $this->notificationRepository->markAsRead($notificationId);
+        return Notification::query()
+            ->where('id', $notificationId)
+            ->update([
+                'read_at' => now(),
+            ]) > 0;
     }
 
     public function createForUser(
         User $user,
         string $title,
         string $content,
-        string $type = 'system'
+        string $type = 'info'
     ): void {
-        $this->notificationRepository->create([
+        Notification::query()->create([
             'title' => $title,
             'content' => $content,
             'type' => $type,
@@ -53,9 +71,9 @@ class NotificationService extends BaseService implements INotificationService
     public function createGlobal(
         string $title,
         string $content,
-        string $type = 'system'
+        string $type = 'info'
     ): void {
-        $this->notificationRepository->create([
+        Notification::query()->create([
             'title' => $title,
             'content' => $content,
             'type' => $type,

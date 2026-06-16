@@ -1,26 +1,31 @@
 import { useEffect, useState } from 'react';
 
+import LoadingButton from '../../../components/common/LoadingButton';
+import PageLoader from '../../../components/common/PageLoader';
 import DataTable from '../../../components/table/DataTable';
 import TableActionButtons from '../../../components/table/TableActionButtons';
 import TableEntityCell from '../../../components/table/TableEntityCell';
+
 import { useUI } from '../../../hooks/useUI';
 
-import RoleService from '../../../services/RoleService';
 import PermissionService from '../../../services/PermissionService';
-import LoadingButton from '../../../components/common/LoadingButton';
+import RoleService from '../../../services/RoleService';
 
 export default function AdminRolesPage() {
-  const { showError, setLoading } = useUI();
+  const { showError } = useUI();
+
+  const [pageLoading, setPageLoading] = useState(true);
+  const [savingPermissions, setSavingPermissions] = useState(false);
 
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
+
   const [selectedRole, setSelectedRole] = useState(null);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
-  const [savingPermissions, setSavingPermissions] = useState(false);
 
   const loadData = async () => {
     try {
-      setLoading(true);
+      setPageLoading(true);
 
       const [rolesResponse, permissionsResponse] = await Promise.all([
         RoleService.paginate(),
@@ -32,7 +37,7 @@ export default function AdminRolesPage() {
     } catch {
       showError('No se pudieron cargar roles y permisos.');
     } finally {
-      setLoading(false);
+      setPageLoading(false);
     }
   };
 
@@ -42,10 +47,19 @@ export default function AdminRolesPage() {
 
   const openPermissions = (role) => {
     setSelectedRole(role);
-    setSelectedPermissions(role.permissions?.map((p) => p.name) ?? []);
+    setSelectedPermissions(role.permissions?.map((permission) => permission.name) ?? []);
+  };
+
+  const closePermissions = () => {
+    if (savingPermissions) return;
+
+    setSelectedRole(null);
+    setSelectedPermissions([]);
   };
 
   const togglePermission = (permissionName) => {
+    if (savingPermissions) return;
+
     setSelectedPermissions((prev) =>
       prev.includes(permissionName)
         ? prev.filter((item) => item !== permissionName)
@@ -54,6 +68,8 @@ export default function AdminRolesPage() {
   };
 
   const savePermissions = async () => {
+    if (!selectedRole) return;
+
     try {
       setSavingPermissions(true);
 
@@ -63,6 +79,7 @@ export default function AdminRolesPage() {
       );
 
       setSelectedRole(null);
+      setSelectedPermissions([]);
 
       await loadData();
     } catch {
@@ -97,7 +114,7 @@ export default function AdminRolesPage() {
       label: 'Permisos',
       render: (role) => (
         <span className="text-muted">
-          {role.permissions?.slice(0, 4).map((p) => p.name).join(', ')}
+          {role.permissions?.slice(0, 4).map((permission) => permission.name).join(', ')}
 
           {(role.permissions?.length ?? 0) > 4 && '...'}
         </span>
@@ -119,6 +136,15 @@ export default function AdminRolesPage() {
       ),
     },
   ];
+
+  if (pageLoading) {
+    return (
+      <PageLoader
+        title="Cargando roles"
+        message="Preparando permisos y configuración..."
+      />
+    );
+  }
 
   return (
     <div>
@@ -145,7 +171,8 @@ export default function AdminRolesPage() {
               <button
                 type="button"
                 className="btn-close"
-                onClick={() => setSelectedRole(null)}
+                onClick={closePermissions}
+                disabled={savingPermissions}
               />
             </div>
 
@@ -159,6 +186,7 @@ export default function AdminRolesPage() {
                       <input
                         type="checkbox"
                         checked={selectedPermissions.includes(permission.name)}
+                        disabled={savingPermissions}
                         onChange={() => togglePermission(permission.name)}
                       />
 
@@ -173,7 +201,8 @@ export default function AdminRolesPage() {
               <button
                 type="button"
                 className="btn btn-outline-secondary"
-                onClick={() => setSelectedRole(null)}
+                onClick={closePermissions}
+                disabled={savingPermissions}
               >
                 Cancelar
               </button>

@@ -84,32 +84,36 @@ class CourseController extends BaseApiController
     {
         $data = $request->validated();
 
-        $course = $this->courseService->create($request->validated());
+        $course = $this->courseService->create(new CourseDto(
+            id: null,
+            name: $data['name'],
+            description: $data['description'] ?? null,
+            startDate: $data['start_date'],
+            endDate: $data['end_date'],
+            teacherId: $data['teacher_id'] ?? null,
+        ));
+
+        $courseModel = Course::query()
+            ->with('teacher')
+            ->find($course->id);
 
         $this->notificationService->createGlobal(
             'Nuevo curso creado',
             "Se ha creado el curso {$course->name}.",
-            'course_created'
+            'info'
         );
 
-        if ($course->teacher) {
+        if ($courseModel?->teacher) {
             $this->notificationService->createForUser(
-                $course->teacher,
+                $courseModel->teacher,
                 'Nuevo curso asignado',
                 "Se te ha asignado el curso {$course->name}.",
-                'course_assigned'
+                'info'
             );
         }
 
         return $this->success(
-            $this->courseService->create(new CourseDto(
-                id: null,
-                name: $data['name'],
-                description: $data['description'] ?? null,
-                startDate: $data['start_date'],
-                endDate: $data['end_date'],
-                teacherId: $data['teacher_id'],
-            )),
+            $course,
             'Curso creado correctamente.',
             201
         );

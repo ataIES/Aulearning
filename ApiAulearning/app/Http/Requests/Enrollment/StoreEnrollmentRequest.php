@@ -15,7 +15,6 @@ class StoreEnrollmentRequest extends FormRequest
     public function rules(): array
     {
         $studentId = $this->input('student_id');
-        $courseId = $this->input('course_id');
 
         return [
             'student_id' => [
@@ -30,16 +29,6 @@ class StoreEnrollmentRequest extends FormRequest
                 Rule::exists('courses', 'id'),
                 Rule::unique('enrollments', 'course_id')
                     ->where('student_id', $studentId),
-            ],
-
-            'enrollment_date' => [
-                'nullable',
-                'date',
-            ],
-
-            'active' => [
-                'nullable',
-                'boolean',
             ],
         ];
     }

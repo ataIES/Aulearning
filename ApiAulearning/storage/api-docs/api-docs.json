@@ -541,13 +541,12 @@
                     "Enrollments"
                 ],
                 "summary": "Listar matrículas",
-                "description": "Obtiene una lista paginada de matrículas. Permite filtrar por curso, alumno y búsqueda por datos del alumno.",
+                "description": "Obtiene una lista paginada de matrículas. Permite filtrar por curso, alumno, profesor y búsqueda general.",
                 "operationId": "46f86247fae90db42c50de2b294234ad",
                 "parameters": [
                     {
                         "name": "course_id",
                         "in": "query",
-                        "description": "ID del curso",
                         "required": false,
                         "schema": {
                             "type": "integer"
@@ -556,7 +555,14 @@
                     {
                         "name": "student_id",
                         "in": "query",
-                        "description": "ID del alumno",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "teacher_id",
+                        "in": "query",
                         "required": false,
                         "schema": {
                             "type": "integer"
@@ -565,7 +571,6 @@
                     {
                         "name": "search",
                         "in": "query",
-                        "description": "Buscar por nombre, apellidos o email del alumno",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -574,7 +579,6 @@
                     {
                         "name": "per_page",
                         "in": "query",
-                        "description": "Número de registros por página",
                         "required": false,
                         "schema": {
                             "type": "integer",
@@ -584,35 +588,10 @@
                     {
                         "name": "page",
                         "in": "query",
-                        "description": "Número de página",
                         "required": false,
                         "schema": {
                             "type": "integer",
                             "default": 1
-                        }
-                    },
-                    {
-                        "name": "sortBy",
-                        "in": "query",
-                        "description": "Campo por el que ordenar",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "default": "id"
-                        }
-                    },
-                    {
-                        "name": "sortDirection",
-                        "in": "query",
-                        "description": "Dirección de ordenación",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "default": "desc",
-                            "enum": [
-                                "asc",
-                                "desc"
-                            ]
                         }
                     }
                 ],
@@ -657,17 +636,6 @@
                                     "course_id": {
                                         "type": "integer",
                                         "example": 3
-                                    },
-                                    "enrollment_date": {
-                                        "type": "string",
-                                        "format": "date-time",
-                                        "example": "2026-06-14 10:30:00",
-                                        "nullable": true
-                                    },
-                                    "active": {
-                                        "type": "boolean",
-                                        "example": true,
-                                        "nullable": true
                                     }
                                 },
                                 "type": "object"
@@ -678,12 +646,6 @@
                 "responses": {
                     "201": {
                         "description": "Alumno matriculado correctamente"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "No autorizado"
                     },
                     "422": {
                         "description": "Error de validación"
@@ -708,7 +670,6 @@
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID de la matrícula",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -718,12 +679,6 @@
                 "responses": {
                     "200": {
                         "description": "Matrícula eliminada correctamente"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "No autorizado"
                     },
                     "404": {
                         "description": "Matrícula no encontrada"
@@ -1313,167 +1268,17 @@
                     "Notifications"
                 ],
                 "summary": "Listar notificaciones",
+                "description": "Obtiene todas las notificaciones del usuario autenticado, incluyendo las globales.",
                 "operationId": "b1274a2aaae8a4295a7e1925e8d8090f",
-                "parameters": [
-                    {
-                        "name": "search",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "user_id",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "type",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "read",
-                        "in": "query",
-                        "schema": {
-                            "type": "boolean"
-                        }
-                    },
-                    {
-                        "name": "created_from",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "name": "created_to",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "$ref": "#/components/parameters/PerPage"
-                    },
-                    {
-                        "$ref": "#/components/parameters/SortBy"
-                    },
-                    {
-                        "$ref": "#/components/parameters/SortDirection"
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "Listado de notificaciones"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Notifications"
-                ],
-                "summary": "Crear notificación",
-                "operationId": "0faafeb87df4ff1447878720cce80571",
-                "responses": {
-                    "201": {
-                        "description": "Notificación creada"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/notifications/{id}": {
-            "get": {
-                "tags": [
-                    "Notifications"
-                ],
-                "summary": "Ver notificación",
-                "operationId": "6293e7ffc395913cd17da6467e486699",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Notificación encontrada"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Notifications"
-                ],
-                "summary": "Eliminar notificación",
-                "operationId": "0f28a0400610f81f01e2d25ce4e0edff",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Notificación eliminada"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/notifications/{id}/read": {
-            "patch": {
-                "tags": [
-                    "Notifications"
-                ],
-                "summary": "Marcar como leída",
-                "operationId": "356012fe06901053b88e36ec633c6524",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Notificación leída"
+                        "description": "Notificaciones obtenidas correctamente"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "No autorizado"
                     }
                 },
                 "security": [
@@ -1489,7 +1294,7 @@
                     "Notifications"
                 ],
                 "summary": "Listar notificaciones no leídas",
-                "description": "Obtiene las notificaciones no leídas del usuario autenticado.",
+                "description": "Obtiene las notificaciones no leídas del usuario autenticado, incluyendo las globales.",
                 "operationId": "614996c6742b6424819d7ef04bb7c1df",
                 "responses": {
                     "200": {
@@ -1500,6 +1305,46 @@
                     },
                     "403": {
                         "description": "No autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/notifications/{id}/read": {
+            "patch": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Marcar notificación como leída",
+                "description": "Marca una notificación como leída.",
+                "operationId": "356012fe06901053b88e36ec633c6524",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la notificación",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notificación marcada como leída"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "No autorizado"
+                    },
+                    "404": {
+                        "description": "Notificación no encontrada"
                     }
                 },
                 "security": [

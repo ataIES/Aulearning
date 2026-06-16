@@ -62,7 +62,7 @@ export default function AdminUsersPage() {
 
             setUsers(response.data?.data ?? response.data?.items ?? []);
             setMeta(response.data?.meta ?? response.data?.pagination ?? null);
-            
+
         } catch {
             showError('No se pudo cargar la lista de usuarios.');
         } finally {
@@ -223,6 +223,8 @@ export default function AdminUsersPage() {
                 onSearchSubmit={handleSearch}
                 createLabel="Nuevo usuario"
                 onCreate={openCreate}
+                loading={tableLoading}
+                createDisabled={tableLoading}
                 filters={
                     <>
                         <div className="col-md-2">

@@ -1,12 +1,13 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import Loader from '../components/common/Loader';
+
 import { useAuth } from '../hooks/useAuth';
+import { getHomeByRole } from '../utils/redirectByRole';
 
 export default function AdminRoute() {
   const { user, checkingAuth, isAuthenticated } = useAuth();
 
   if (checkingAuth) {
-    return <Loader />;
+    return null;
   }
 
   if (!isAuthenticated) {
@@ -15,5 +16,5 @@ export default function AdminRoute() {
 
   return user?.type === 'admin'
     ? <Outlet />
-    : <Navigate to="/login" replace />;
+    : <Navigate to={getHomeByRole(user)} replace />;
 }

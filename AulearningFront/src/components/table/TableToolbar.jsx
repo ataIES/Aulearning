@@ -9,6 +9,8 @@ export default function TableToolbar({
   actions,
   createLabel = 'Nuevo',
   onCreate,
+  createDisabled = false,
+  loading = false,
 }) {
   return (
     <div className="admin-panel-card mb-3">
@@ -19,7 +21,12 @@ export default function TableToolbar({
         </div>
 
         {onCreate && (
-          <button className="btn btn-primary" onClick={onCreate}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={onCreate}
+            disabled={createDisabled || loading}
+          >
             <i className="bi bi-plus-lg me-1" />
             {createLabel}
           </button>
@@ -27,26 +34,28 @@ export default function TableToolbar({
       </div>
 
       <form onSubmit={onSearchSubmit} noValidate>
-        <div className="row g-2">
-          <div className="col-md-4">
-            <input
-              className="form-control"
-              value={search}
-              placeholder={searchPlaceholder}
-              onChange={(event) => onSearchChange(event.target.value)}
-            />
+        <fieldset disabled={loading}>
+          <div className="row g-2">
+            <div className="col-md-4">
+              <input
+                className="form-control"
+                value={search}
+                placeholder={searchPlaceholder}
+                onChange={(event) => onSearchChange(event.target.value)}
+              />
+            </div>
+
+            {filters}
+
+            <div className="col-md-2 d-flex gap-2">
+              <button className="btn btn-outline-primary w-100" type="submit">
+                Filtrar
+              </button>
+
+              {actions}
+            </div>
           </div>
-
-          {filters}
-
-          <div className="col-md-2 d-flex gap-2">
-            <button className="btn btn-outline-primary w-100" type="submit">
-              Filtrar
-            </button>
-
-            {actions}
-          </div>
-        </div>
+        </fieldset>
       </form>
     </div>
   );

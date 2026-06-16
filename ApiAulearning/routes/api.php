@@ -76,6 +76,9 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('roles', RoleController::class);
             Route::get('/permissions', [PermissionController::class, 'index']);
             Route::put('/roles/{role}/permissions', [RoleController::class, 'syncPermissions']);
+            Route::get('/enrollments', [EnrollmentController::class, 'index']);
+            Route::post('/enrollments', [EnrollmentController::class, 'store']);
+            Route::delete('/enrollments/{id}', [EnrollmentController::class, 'destroy']);
         });
 
         /*

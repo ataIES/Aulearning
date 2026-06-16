@@ -1,12 +1,13 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import Loader from '../components/common/Loader';
+
 import { useAuth } from '../hooks/useAuth';
+import { getHomeByRole } from '../utils/redirectByRole';
 
 export default function TeacherRoute() {
   const { user, checkingAuth, isAuthenticated } = useAuth();
 
   if (checkingAuth) {
-    return <Loader />;
+    return null;
   }
 
   if (!isAuthenticated) {
@@ -15,5 +16,5 @@ export default function TeacherRoute() {
 
   return user?.type === 'teacher'
     ? <Outlet />
-    : <Navigate to="/login" replace />;
+    : <Navigate to={getHomeByRole(user)} replace />;
 }
