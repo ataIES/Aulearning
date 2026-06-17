@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import LearningHeader from './LearningHeader';
+
+import LearningHeader from '../../components/learning/LearningHeader';
 import LearningSidebar from './LearningSidebar';
 
 export default function LearningLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="learning-shell">
+    <div className="learning-layout">
       <LearningSidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -15,7 +16,9 @@ export default function LearningLayout() {
 
       <main className="learning-main">
         <LearningHeader
-          onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+          title="Dashboard"
+          subtitle="Bienvenido a tu espacio académico"
+          onToggleSidebar={() => setSidebarOpen(true)}
         />
 
         <section className="learning-content">

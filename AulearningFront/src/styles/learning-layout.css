@@ -351,3 +351,14 @@
   font-weight: 800;
   white-space: nowrap;
 }
+
+.learning-main {
+  flex: 1;
+  min-width: 0;
+  padding: 24px;
+  background: #f4f6fb;
+}
+
+.learning-content {
+  position: relative;
+}

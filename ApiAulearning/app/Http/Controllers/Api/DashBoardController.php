@@ -42,19 +42,21 @@ class DashBoardController extends BaseApiController
 
     #[OA\Get(
         path: '/dashboard/teacher',
-        summary: 'Dashboard del profesor',
-        description: 'Obtiene el dashboard del profesor autenticado con resumen de cursos, tareas, entregas, alumnos y actividad reciente.',
+        summary: 'Dashboard profesor',
+        description: 'Obtiene estadísticas y datos principales del profesor autenticado.',
         security: [['sanctum' => []]],
         tags: ['Dashboard']
     )]
-    #[OA\Response(response: 200, description: 'Dashboard del profesor obtenido correctamente')]
+    #[OA\Response(response: 200, description: 'Dashboard profesor obtenido correctamente')]
     #[OA\Response(response: 401, description: 'No autenticado')]
     #[OA\Response(response: 403, description: 'No autorizado')]
-    public function getTeacherDashBoard(Request $request): JsonResponse
+    public function teacher(Request $request): JsonResponse
     {
         return $this->success(
-            $this->dashboardService->getTeacherDashboard($request->user()),
-            'Dashboard del profesor obtenido correctamente.'
+            $this->dashboardService->teacherDashboard(
+                $request->user()->id
+            ),
+            'Dashboard profesor obtenido correctamente.'
         );
     }
 

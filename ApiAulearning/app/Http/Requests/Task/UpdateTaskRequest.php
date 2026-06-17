@@ -23,8 +23,9 @@ class UpdateTaskRequest extends BaseApiRequest
             ],
 
             'due_date' => [
-                'sometimes',
+                'nullable',
                 'date',
+                'required_unless:type,APUNTES',
             ],
 
             'course_id' => [
@@ -41,10 +42,9 @@ class UpdateTaskRequest extends BaseApiRequest
             'type' => [
                 'sometimes',
                 Rule::in([
-                    'activity',
-                    'practice',
-                    'exam',
-                    'project',
+                    'TAREA',
+                    'EXAMEN',
+                    'APUNTES',
                 ]),
             ],
 
@@ -69,6 +69,28 @@ class UpdateTaskRequest extends BaseApiRequest
                     'graded',
                 ]),
             ],
+
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+
+            'title.max' => 'El título no puede superar los 255 caracteres.',
+
+            'due_date.required_unless' =>
+                'La fecha de entrega es obligatoria salvo para apuntes.',
+
+            'course_id.exists' =>
+                'El curso seleccionado no existe.',
+
+            'student_id.exists' =>
+                'El alumno seleccionado no existe.',
+
+            'type.in' =>
+                'El tipo de tarea seleccionado no es válido.',
+
         ];
     }
 }

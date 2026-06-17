@@ -45,69 +45,70 @@ class DashBoardService implements IDashBoardService
         );
     }
 
-    public function getTeacherDashboard(User $teacher): array
+    public function teacherDashboard(int $teacherId): array
     {
         $courseIds = Course::query()
-            ->where('teacher_id', $teacher->id)
+            ->where('teacher_id', $teacherId)
             ->pluck('id');
 
-        $taskIds = Task::query()
+        $courses = Course::query()
+            ->where('teacher_id', $teacherId)
+            ->withCount([
+                'enrollments',
+                'tasks',
+            ])
+            ->latest()
+            ->limit(4)
+            ->get();
+
+        $tasksCount = Task::query()
             ->whereIn('course_id', $courseIds)
-            ->pluck('id');
+            ->count();
+
+        $studentsCount = Enrollment::query()
+            ->whereIn('course_id', $courseIds)
+            ->distinct('student_id')
+            ->count('student_id');
+
+        $pendingDeliveries = DeliveryTask::query()
+            ->whereHas('task', function ($query) use ($courseIds) {
+                $query->whereIn('course_id', $courseIds);
+            })
+            ->whereNull('grade')
+            ->count();
+
+        $latestDeliveries = DeliveryTask::query()
+            ->with([
+                'student:id,name,last_name,email',
+                'task:id,title,course_id',
+                'task.course:id,name',
+            ])
+            ->whereHas('task', function ($query) use ($courseIds) {
+                $query->whereIn('course_id', $courseIds);
+            })
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        $upcomingTasks = Task::query()
+            ->with('course:id,name')
+            ->whereIn('course_id', $courseIds)
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '>=', now())
+            ->orderBy('due_date')
+            ->limit(5)
+            ->get();
 
         return [
             'summary' => [
                 'courses' => $courseIds->count(),
-
-                'tasks' => Task::query()
-                    ->whereIn('course_id', $courseIds)
-                    ->count(),
-
-                'deliveries' => DeliveryTask::query()
-                    ->whereIn('task_id', $taskIds)
-                    ->count(),
-
-                'students' => Enrollment::query()
-                    ->whereIn('course_id', $courseIds)
-                    ->distinct('student_id')
-                    ->count('student_id'),
+                'students' => $studentsCount,
+                'tasks' => $tasksCount,
+                'pending_deliveries' => $pendingDeliveries,
             ],
-
-            'latest_tasks' => Task::query()
-                ->whereIn('course_id', $courseIds)
-                ->latest()
-                ->limit(5)
-                ->get([
-                    'id',
-                    'title',
-                    'course_id',
-                    'type',
-                    'created_at',
-                ]),
-
-            'latest_deliveries' => DeliveryTask::query()
-                ->with(['student:id,name,email', 'task:id,title'])
-                ->whereIn('task_id', $taskIds)
-                ->latest()
-                ->limit(5)
-                ->get([
-                    'id',
-                    'student_id',
-                    'task_id',
-                    'submitted_at',
-                    'grade',
-                    'created_at',
-                ]),
-
-            'latest_courses' => Course::query()
-                ->whereIn('id', $courseIds)
-                ->latest()
-                ->limit(5)
-                ->get([
-                    'id',
-                    'name',
-                    'created_at',
-                ]),
+            'courses' => $courses,
+            'latest_deliveries' => $latestDeliveries,
+            'upcoming_tasks' => $upcomingTasks,
         ];
     }
 

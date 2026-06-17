@@ -1,35 +1,104 @@
-import SidebarNavigation from '../../components/common/SidebarNavigation';
-import UserProfileCard from '../../components/common/UserProfileCard';
-import { useAuth } from '../../hooks/useAuth';
-import {
-  studentNavigation,
-  teacherNavigation,
-} from '../../navigation';
+import { NavLink } from 'react-router-dom';
 
-export default function LearningSidebar({ open, onClose }) {
+import { useAuth } from '../../hooks/useAuth';
+
+export default function LearningSidebar({ open = false, onClose }) {
   const { user } = useAuth();
 
-  const sections =
-    user?.type === 'teacher'
-      ? teacherNavigation
-      : studentNavigation;
+  const isTeacher = user?.type === 'teacher';
+
+  const links = isTeacher
+    ? [
+        {
+          label: 'Dashboard',
+          icon: 'bi-speedometer2',
+          to: '/teacher/dashboard',
+        },
+        {
+          label: 'Mis cursos',
+          icon: 'bi-journal-bookmark-fill',
+          to: '/teacher/courses',
+        },
+        {
+          label: 'Tareas',
+          icon: 'bi-list-task',
+          to: '/teacher/tasks',
+        },
+        {
+          label: 'Entregas',
+          icon: 'bi-inbox-fill',
+          to: '/teacher/deliveries',
+        },
+      ]
+    : [
+        {
+          label: 'Dashboard',
+          icon: 'bi-speedometer2',
+          to: '/student/dashboard',
+        },
+        {
+          label: 'Mis cursos',
+          icon: 'bi-journal-bookmark-fill',
+          to: '/student/courses',
+        },
+        {
+          label: 'Tareas',
+          icon: 'bi-list-task',
+          to: '/student/tasks',
+        },
+        {
+          label: 'Calificaciones',
+          icon: 'bi-award-fill',
+          to: '/student/grades',
+        },
+      ];
 
   return (
     <>
-      <div
-        className={`sidebar-backdrop ${open ? 'show' : ''}`}
-        onClick={onClose}
-      />
+      <aside className={`learning-sidebar ${open ? 'open' : ''}`}>
+        <div className="learning-sidebar-brand">
+          <div className="learning-sidebar-logo">A</div>
 
-      <aside className={`learning-sidebar ${open ? 'show' : ''}`}>
-        <UserProfileCard />
+          <div>
+            <h4>Aulearning</h4>
+            <span>{isTeacher ? 'Profesor' : 'Alumno'}</span>
+          </div>
 
-        <SidebarNavigation
-          sections={sections}
-          linkClassName="learning-link"
-          onClose={onClose}
-        />
+          <button
+            type="button"
+            className="learning-sidebar-close"
+            onClick={onClose}
+            aria-label="Cerrar menú"
+          >
+            <i className="bi bi-x-lg" />
+          </button>
+        </div>
+
+        <nav className="learning-sidebar-nav">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `learning-sidebar-link ${isActive ? 'active' : ''}`
+              }
+            >
+              <i className={`bi ${link.icon}`} />
+              <span>{link.label}</span>
+            </NavLink>
+          ))}
+        </nav>
       </aside>
+
+      {open && (
+        <button
+          type="button"
+          className="learning-sidebar-backdrop"
+          onClick={onClose}
+          aria-label="Cerrar menú"
+        />
+      )}
     </>
   );
 }

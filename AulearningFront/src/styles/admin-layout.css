@@ -47,7 +47,23 @@
   padding: 28px;
   position: relative;
 }
+.mobile-menu-btn {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 12px;
+  background: #f3f4f6;
+  color: #1f2937;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
 
+.mobile-menu-btn:hover {
+  background: #e5e7eb;
+}
 .admin-nav {
   display: flex;
   flex-direction: column;

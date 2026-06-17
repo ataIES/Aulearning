@@ -20,6 +20,16 @@ class CourseService extends BaseService implements ICourseService
     {
         return $this->courseRepository
             ->getByTeacher($teacherId)
-            ->map(fn ($course) => $this->mapper->toDto($course));
+            ->map(fn($course) => $this->mapper->toDto($course));
+    }
+
+    public function getTeacherCourseDetail(
+        int $courseId,
+        int $teacherId
+    ): mixed {
+        return $this->courseRepository->getTeacherCourseDetail(
+            $courseId,
+            $teacherId
+        );
     }
 }

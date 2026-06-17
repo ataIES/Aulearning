@@ -10,7 +10,7 @@ interface IDashBoardService
 
     public function clearAdminDashboardCache(): void;
 
-    public function getTeacherDashboard(User $teacher): array;
+    public function teacherDashboard(int $teacherId): array;
 
     public function getStudentDashboard(User $student): array;
 }

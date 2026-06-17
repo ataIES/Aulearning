@@ -51,4 +51,21 @@ export const ENDPOINTS = {
         unread: '/notifications/unread',
         markAsRead: (id) => `/notifications/${id}/read`,
     },
+    files: {
+        list: '/files',
+        create: '/files',
+        detail: (id) => `/files/${id}`,
+        update: (id) => `/files/${id}`,
+        delete: (id) => `/files/${id}`,
+    },
+    teacher: {
+        courses: '/teacher/courses',
+    },
+    tasks: {
+        list: '/tasks',
+        create: '/tasks',
+        detail: (id) => `/tasks/${id}`,
+        update: (id) => `/tasks/${id}`,
+        delete: (id) => `/tasks/${id}`,
+    },
 };

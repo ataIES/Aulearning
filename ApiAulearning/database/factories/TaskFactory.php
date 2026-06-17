@@ -30,10 +30,7 @@ class TaskFactory extends Factory
                 ->value('id'),
 
             'type' => fake()->randomElement([
-                'activity',
-                'practice',
-                'exam',
-                'project'
+                'TAREA', 'EXAMEN', 'APUNTES'
             ]),
 
             'gradable' => true,

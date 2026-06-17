@@ -457,6 +457,45 @@
                 ]
             }
         },
+        "/teacher/courses/{id}": {
+            "get": {
+                "tags": [
+                    "Courses"
+                ],
+                "summary": "Detalle de curso del profesor",
+                "description": "Obtiene el detalle de un curso asignado al profesor autenticado.",
+                "operationId": "0fb8fbd90c660927422dacc732818eb9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Curso obtenido correctamente"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "No autorizado"
+                    },
+                    "404": {
+                        "description": "Curso no encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/dashboard/admin": {
             "get": {
                 "tags": [
@@ -488,12 +527,12 @@
                 "tags": [
                     "Dashboard"
                 ],
-                "summary": "Dashboard del profesor",
-                "description": "Obtiene el dashboard del profesor autenticado con resumen de cursos, tareas, entregas, alumnos y actividad reciente.",
-                "operationId": "27c7da54c4c354d7912db56e98625e68",
+                "summary": "Dashboard profesor",
+                "description": "Obtiene estadísticas y datos principales del profesor autenticado.",
+                "operationId": "b1f28eb19609a50b07b3c0d06ee1ddfb",
                 "responses": {
                     "200": {
-                        "description": "Dashboard del profesor obtenido correctamente"
+                        "description": "Dashboard profesor obtenido correctamente"
                     },
                     "401": {
                         "description": "No autenticado"

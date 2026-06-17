@@ -20,6 +20,10 @@ import AdminRolesPage from '../pages/admin/roles/AdminRolesPage';
 import AdminCourseEnrollmentsPage from '../pages/admin/enrollments/AdminCourseEnrollmentsPage';
 import AdminNotificationsPage from '../pages/admin/notifications/AdminNotificationsPage';
 import AdminEnrollmentsPage from '../pages/admin/enrollments/AdminEnrollmentsPage';
+import AdminFilesPage from '../pages/admin/files/AdminFilesPage';
+import TeacherCoursesPage from '../pages/teacher/courses/TeacherCoursesPage';
+import TeacherCourseDetailPage from '../pages/teacher/courses/TeacherCourseDetailPage';
+import TeacherCourseTasksPage from '../pages/teacher/tasks/TeacherCourseTasksPage';
 
 import { getHomeByRole } from '../utils/redirectByRole';
 
@@ -65,12 +69,16 @@ export default function AppRouter() {
               <Route path="/admin/roles" element={<AdminRolesPage />} />
               <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
               <Route path="/admin/enrollments" element={<AdminEnrollmentsPage />} />
+              <Route path="/admin/files" element={<AdminFilesPage />} />
             </Route>
           </Route>
 
           <Route element={<TeacherRoute />}>
             <Route element={<LearningLayout />}>
               <Route path="/teacher/dashboard" element={<TeacherDashboardPage />} />
+              <Route path="/teacher/courses" element={<TeacherCoursesPage />} />
+              <Route path="/teacher/courses/:courseId" element={<TeacherCourseDetailPage />} />
+              <Route path="/teacher/courses/:courseId/tasks" element={<TeacherCourseTasksPage />} />
             </Route>
           </Route>
 

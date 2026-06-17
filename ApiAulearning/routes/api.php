@@ -3,59 +3,47 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\CourseController;
-use App\Http\Controllers\Api\EnrollmentController;
-use App\Http\Controllers\Api\GradeController;
-use App\Http\Controllers\Api\TaskController;
-use App\Http\Controllers\Api\FileController;
-use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ChatGroupController;
+use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\DashBoardController;
-use App\Http\Controllers\Api\ParticipantController;
+use App\Http\Controllers\Api\EnrollmentController;
+use App\Http\Controllers\Api\FileController;
+use App\Http\Controllers\Api\GradeController;
 use App\Http\Controllers\Api\MessageController;
-use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\ParticipantController;
 use App\Http\Controllers\Api\PermissionController;
+use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\UserController;
 
 Route::prefix('v1')->group(function () {
 
+    /*
+    |--------------------------------------------------------------------------
+    | AUTH
+    |--------------------------------------------------------------------------
+    */
+
     Route::prefix('auth')->group(function () {
+
         Route::post('/login', [AuthController::class, 'login']);
 
         Route::middleware('auth:sanctum')->group(function () {
+
             Route::get('/me', [AuthController::class, 'me']);
             Route::post('/logout', [AuthController::class, 'logout']);
             Route::post('/logout-all', [AuthController::class, 'logoutAll']);
+
         });
+
     });
 
-    Route::middleware([
-        'auth:sanctum',
-        'role.exists'
-    ])->group(function () {
-
-        Route::middleware('role:admin')->get(
-            '/dashboard/admin',
-            [
-                DashBoardController::class,
-                'getAdminDashboard'
-            ]
-        );
-
-        Route::middleware('role:teacher')->get(
-            '/dashboard/teacher',
-            [DashBoardController::class, 'getTeacherDashBoard']
-        );
-
-        Route::middleware('role:student')->get(
-            '/dashboard/student',
-            [DashBoardController::class, 'getStudentDashBoard']
-        );
-
-        Route::get('/notifications', [NotificationController::class, 'index']);
-        Route::get('/notifications/unread', [NotificationController::class, 'unread']);
-        Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
-    });
+    /*
+    |--------------------------------------------------------------------------
+    | PROTECTED
+    |--------------------------------------------------------------------------
+    */
 
     Route::middleware([
         'auth:sanctum',
@@ -64,21 +52,104 @@ Route::prefix('v1')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | ADMIN ONLY
+        | DASHBOARDS
+        |--------------------------------------------------------------------------
+        */
+
+        Route::middleware('role:admin')
+            ->get('/dashboard/admin', [
+                DashBoardController::class,
+                'getAdminDashboard',
+            ]);
+
+        Route::middleware('role:teacher')
+            ->get('/dashboard/teacher', [
+                DashBoardController::class,
+                'teacher',
+            ]);
+
+        Route::middleware('role:student')
+            ->get('/dashboard/student', [
+                DashBoardController::class,
+                'getStudentDashBoard',
+            ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | TEACHER
+        |--------------------------------------------------------------------------
+        */
+
+        Route::middleware('role:teacher')
+            ->get('/teacher/courses/{id}', [
+                CourseController::class,
+                'teacherCourseDetail',
+            ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | NOTIFICATIONS
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/notifications',
+            [NotificationController::class, 'index']
+        );
+
+        Route::get(
+            '/notifications/unread',
+            [NotificationController::class, 'unread']
+        );
+
+        Route::patch(
+            '/notifications/{id}/read',
+            [NotificationController::class, 'markAsRead']
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADMIN
         |--------------------------------------------------------------------------
         */
 
         Route::middleware('role:admin')->group(function () {
-            Route::apiResource('users', UserController::class);
-            Route::get('/enrollments', [EnrollmentController::class, 'index']);
-            Route::post('/enrollments', [EnrollmentController::class, 'store']);
-            Route::delete('/enrollments/{id}', [EnrollmentController::class, 'destroy']);
-            Route::apiResource('roles', RoleController::class);
-            Route::get('/permissions', [PermissionController::class, 'index']);
-            Route::put('/roles/{role}/permissions', [RoleController::class, 'syncPermissions']);
-            Route::get('/enrollments', [EnrollmentController::class, 'index']);
-            Route::post('/enrollments', [EnrollmentController::class, 'store']);
-            Route::delete('/enrollments/{id}', [EnrollmentController::class, 'destroy']);
+
+            Route::apiResource(
+                'users',
+                UserController::class
+            );
+
+            Route::apiResource(
+                'roles',
+                RoleController::class
+            );
+
+            Route::get(
+                '/permissions',
+                [PermissionController::class, 'index']
+            );
+
+            Route::put(
+                '/roles/{role}/permissions',
+                [RoleController::class, 'syncPermissions']
+            );
+
+            Route::get(
+                '/enrollments',
+                [EnrollmentController::class, 'index']
+            );
+
+            Route::post(
+                '/enrollments',
+                [EnrollmentController::class, 'store']
+            );
+
+            Route::delete(
+                '/enrollments/{id}',
+                [EnrollmentController::class, 'destroy']
+            );
+
         });
 
         /*
@@ -88,31 +159,90 @@ Route::prefix('v1')->group(function () {
         */
 
         Route::middleware('role:admin|teacher')->group(function () {
-            Route::apiResource('courses', CourseController::class)->except(['index', 'show']);
-            Route::apiResource('grades', GradeController::class)->except(['index', 'show']);
-            Route::apiResource('tasks', TaskController::class)->except(['index', 'show']);
-            Route::apiResource('notifications', NotificationController::class)->except(['index', 'show', 'update']);
+
+            Route::apiResource(
+                'courses',
+                CourseController::class
+            )->except([
+                'index',
+                'show',
+            ]);
+
+            Route::apiResource(
+                'tasks',
+                TaskController::class
+            )->except([
+                'index',
+                'show',
+            ]);
+
+            Route::apiResource(
+                'grades',
+                GradeController::class
+            )->except([
+                'index',
+                'show',
+            ]);
+
         });
 
         /*
         |--------------------------------------------------------------------------
-        | ADMIN + TEACHER + STUDENT
+        | ALL AUTHENTICATED
         |--------------------------------------------------------------------------
         */
 
-        Route::apiResource('courses', CourseController::class)->only(['index', 'show']);
-        Route::apiResource('tasks', TaskController::class)->only(['index', 'show']);
-        Route::apiResource('grades', GradeController::class)->only(['index', 'show']);
-        Route::apiResource('files', FileController::class)->except(['update']);
-        Route::apiResource('notifications', NotificationController::class)->only(['index', 'show', 'destroy']);
+        Route::apiResource(
+            'courses',
+            CourseController::class
+        )->only([
+            'index',
+            'show',
+        ]);
 
-        Route::patch(
-            '/notifications/{id}/read',
-            [NotificationController::class, 'markAsRead']
+        Route::apiResource(
+            'tasks',
+            TaskController::class
+        )->only([
+            'index',
+            'show',
+        ]);
+
+        Route::apiResource(
+            'grades',
+            GradeController::class
+        )->only([
+            'index',
+            'show',
+        ]);
+
+        Route::apiResource(
+            'files',
+            FileController::class
+        )->except([
+            'update',
+        ]);
+
+        Route::apiResource(
+            'chat-groups',
+            ChatGroupController::class
         );
 
-        Route::apiResource('chat-groups', ChatGroupController::class);
-        Route::apiResource('participants', ParticipantController::class)->except(['show', 'update']);
-        Route::apiResource('messages', MessageController::class)->except(['update']);
+        Route::apiResource(
+            'participants',
+            ParticipantController::class
+        )->except([
+            'show',
+            'update',
+        ]);
+
+        Route::apiResource(
+            'messages',
+            MessageController::class
+        )->except([
+            'update',
+        ]);
+
     });
+
 });

@@ -10,7 +10,6 @@ class StoreTaskRequest extends BaseApiRequest
     public function rules(): array
     {
         return [
-
             'title' => [
                 'required',
                 'string',
@@ -23,8 +22,9 @@ class StoreTaskRequest extends BaseApiRequest
             ],
 
             'due_date' => [
-                'required',
+                'nullable',
                 'date',
+                'required_unless:type,APUNTES',
             ],
 
             'course_id' => [
@@ -40,10 +40,9 @@ class StoreTaskRequest extends BaseApiRequest
             'type' => [
                 'required',
                 Rule::in([
-                    'activity',
-                    'practice',
-                    'exam',
-                    'project',
+                    'TAREA',
+                    'EXAMEN',
+                    'APUNTES',
                 ]),
             ],
 
@@ -67,6 +66,19 @@ class StoreTaskRequest extends BaseApiRequest
                     'graded',
                 ]),
             ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'title.required' => 'El título es obligatorio.',
+            'description.required' => 'La descripción es obligatoria.',
+            'due_date.required_unless' => 'La fecha de entrega es obligatoria salvo para apuntes.',
+            'course_id.required' => 'El curso es obligatorio.',
+            'course_id.exists' => 'El curso seleccionado no existe.',
+            'type.required' => 'El tipo de tarea es obligatorio.',
+            'type.in' => 'El tipo de tarea seleccionado no es válido.',
         ];
     }
 }

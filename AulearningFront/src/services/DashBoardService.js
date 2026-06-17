@@ -7,12 +7,10 @@ class DashboardService {
     return data;
   }
   async teacher() {
-    const { data } = await axiosClient.get(
-      ENDPOINTS.dashboard.teacher
-    );
-
+    const { data } = await axiosClient.get(ENDPOINTS.dashboard.teacher);
     return data;
   }
+
 
   async student() {
     const { data } = await axiosClient.get(

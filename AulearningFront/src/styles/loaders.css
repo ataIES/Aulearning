@@ -1,0 +1,48 @@
+/* ======================================================
+   CONTENT LOADER
+====================================================== */
+
+.content-loader {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.content-loader-spinner {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 4px solid #dbeafe;
+  border-top-color: #2563eb;
+  animation: contentLoaderSpin .8s linear infinite;
+}
+
+.content-loader h5 {
+  margin: 0;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.content-loader p {
+  margin: 0;
+  color: #6b7280;
+}
+
+@keyframes contentLoaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width:768px){
+
+    .content-loader{
+        min-height:180px;
+        padding:20px;
+        text-align:center;
+    }
+
+}

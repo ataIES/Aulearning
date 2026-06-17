@@ -9,7 +9,9 @@ import './styles/auth.css';
 import './styles/components.css';
 import './styles/admin-layout.css';
 import './styles/learning-layout.css';
+import './styles/learning-dashboard.css';
 import './styles/responsive.css';
+import './styles/loaders.css';
 
 import App from './App.jsx';
 

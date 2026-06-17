@@ -211,4 +211,43 @@ class CourseController extends BaseApiController
             ? $this->success(null, 'Curso eliminado correctamente.')
             : $this->error('Curso no encontrado.', 404);
     }
+
+    #[OA\Get(
+        path: '/teacher/courses/{id}',
+        summary: 'Detalle de curso del profesor',
+        description: 'Obtiene el detalle de un curso asignado al profesor autenticado.',
+        security: [['sanctum' => []]],
+        tags: ['Courses']
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'integer')
+    )]
+    #[OA\Response(response: 200, description: 'Curso obtenido correctamente')]
+    #[OA\Response(response: 401, description: 'No autenticado')]
+    #[OA\Response(response: 403, description: 'No autorizado')]
+    #[OA\Response(response: 404, description: 'Curso no encontrado')]
+    public function teacherCourseDetail(
+        Request $request,
+        int $id
+    ): JsonResponse {
+        $course = $this->courseService->getTeacherCourseDetail(
+            $id,
+            $request->user()->id
+        );
+
+        if (!$course) {
+            return $this->error(
+                'Curso no encontrado o no asignado a este profesor.',
+                404
+            );
+        }
+
+        return $this->success(
+            $course,
+            'Curso obtenido correctamente.'
+        );
+    }
 }

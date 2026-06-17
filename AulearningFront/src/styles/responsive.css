@@ -1,30 +1,29 @@
-.mobile-menu-btn {
-  display: none;
-  width: 42px;
-  height: 42px;
-  border: none;
-  border-radius: 12px;
-  background: #f3f4f6;
-  align-items: center;
-  justify-content: center;
+/* ===========================================================
+   <= 1200px
+=========================================================== */
+
+@media (max-width: 1200px) {
+  .learning-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teacher-course-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.mobile-menu-btn i {
-  font-size: 1.4rem;
-}
-
-.sidebar-backdrop {
-  display: none;
-}
+/* ===========================================================
+   <= 992px
+=========================================================== */
 
 @media (max-width: 992px) {
+  /* ---------- ADMIN ---------- */
+
   .mobile-menu-btn {
     display: flex;
   }
 
-  .admin-sidebar,
-  .learning-sidebar {
-    display: block;
+  .admin-sidebar {
     position: fixed;
     top: 0;
     left: -290px;
@@ -35,8 +34,7 @@
     transition: left 0.3s ease;
   }
 
-  .admin-sidebar.show,
-  .learning-sidebar.show {
+  .admin-sidebar.show {
     left: 0;
   }
 
@@ -56,94 +54,82 @@
     visibility: visible;
   }
 
-  .admin-main,
-  .learning-main {
+  .admin-main {
     width: 100%;
   }
 
-  .admin-header,
-  .learning-header {
+  .admin-header {
     padding: 0 16px;
+    min-height: 76px;
+    height:120px;
   }
 
   .admin-email {
     display: none;
   }
 
-  .admin-content,
-  .learning-content {
+  .admin-content {
     padding: 18px;
   }
 
-  .sidebar-profile {
-    padding: 16px;
-    margin-bottom: 20px;
+  /* ---------- LEARNING ---------- */
+
+  .learning-layout {
+    display: flex;
+    min-height: 100vh;
+    overflow: hidden;
   }
 
-  .sidebar-avatar {
-    width: 58px;
-    height: 58px;
-    font-size: 23px;
-  }
-
-  .sidebar-profile h6 {
-    font-size: 0.95rem;
-  }
-
-  .sidebar-profile small {
-    font-size: 0.72rem;
-  }
-}
-
-@media (max-width: 520px) {
-  .admin-header,
-  .learning-header {
-    height: 64px;
-    min-height: 64px;
-  }
-
-  .admin-header h5,
-  .learning-header h5 {
-    font-size: 0.95rem;
-  }
-
-  .admin-header small,
-  .learning-header small {
-    font-size: 0.72rem;
-  }
-
-  .admin-content,
-  .learning-content {
-    padding: 14px;
-  }
-
-  .admin-sidebar,
   .learning-sidebar {
-    width: 82vw;
-    min-width: 82vw;
-    left: -85vw;
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 280px;
+    max-width: 85vw;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 11000;
   }
 
-  .learning-hero {
-    padding: 24px;
-    border-radius: 20px;
+  .learning-sidebar.open {
+    transform: translateX(0);
   }
 
-  .learning-hero i {
-    display: none;
+  .learning-sidebar-close {
+    display: grid;
+    place-items: center;
   }
 
-  .error-modal {
-    padding: 28px 22px;
+  .learning-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    border: none;
+    background: rgba(15, 23, 42, 0.55);
+    z-index: 10900;
   }
 
-  .loader-card {
-    width: 190px;
-    padding: 26px 20px;
+  .learning-main {
+    width: 100%;
+    height: 100vh;
+    min-height: 100vh;
+    padding: 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .learning-menu-button {
+    display: grid !important;
   }
 }
+
+/* ===========================================================
+   <= 768px
+=========================================================== */
 
 @media (max-width: 768px) {
+  /* ---------- ADMIN ---------- */
+
   .admin-dashboard-header {
     flex-direction: column;
     align-items: flex-start;
@@ -165,24 +151,7 @@
   .admin-latest-item {
     flex-direction: column;
   }
-}
-@media (max-width: 768px) {
-  .learning-hero {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 18px;
-  }
 
-  .learning-hero i {
-    font-size: 44px;
-  }
-
-  .learning-task-item {
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 768px) {
   .table-entity-icon {
     width: 40px;
     height: 40px;
@@ -202,9 +171,6 @@
     padding: 6px 9px;
     font-size: 0.78rem;
   }
-}
-
-@media (max-width: 768px) {
 
   .course-period {
     min-width: 180px;
@@ -213,12 +179,9 @@
   }
 
   .course-period strong {
-    font-size: .82rem;
+    font-size: 0.82rem;
   }
 
-}
-
-@media (max-width: 768px) {
   .table-toolbar-header {
     flex-direction: column;
     align-items: stretch;
@@ -227,31 +190,13 @@
   .table-toolbar-header .btn {
     width: 100%;
   }
-}
 
-@media (max-width: 768px) {
-  .course-detail-header {
-    flex-direction: column;
-  }
-
+  .course-detail-header,
   .course-detail-list-item {
     flex-direction: column;
     align-items: flex-start;
   }
-}
 
-@media (max-width: 768px) {
-  .course-detail-header {
-    flex-direction: column;
-  }
-
-  .course-detail-list-item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-@media (max-width: 768px) {
   .permissions-grid {
     grid-template-columns: 1fr;
   }
@@ -259,39 +204,29 @@
   .permissions-modal {
     width: 96vw;
   }
-}
-@media (max-width: 768px) {
+
+  /* ---------- LOADERS ---------- */
+
   .login-loader-overlay {
     padding: 18px;
   }
 
-  .login-loader-card {
+  .login-loader-card,
+  .page-content-loader-card {
     width: 100%;
     padding: 22px;
     flex-direction: column;
     text-align: center;
   }
 
-  .login-loader-spinner {
+  .login-loader-spinner,
+  .page-content-loader-spinner {
     width: 42px;
     height: 42px;
   }
 
   .page-content-loader {
     padding: 16px;
-  }
-
-  .page-content-loader-card {
-    width: 100%;
-    max-width: 360px;
-    padding: 22px;
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .page-content-loader-spinner {
-    width: 42px;
-    height: 42px;
   }
 
   .table-page-loader {
@@ -310,23 +245,365 @@
     width: 22px;
     height: 22px;
   }
+
+  /* ---------- LEARNING ---------- */
+
+  .learning-header {
+    padding: 14px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+
+  .learning-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .learning-header-left {
+    flex: 1;
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .learning-header-left > div {
+    min-width: 0;
+  }
+
+  .learning-header-left h2 {
+    font-size: 1.05rem;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .learning-header-left small {
+    font-size: 0.74rem;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .learning-header-right {
+    flex-shrink: 0;
+    gap: 6px;
+  }
+
+  .learning-profile {
+    padding: 0;
+  }
+
+  .learning-profile-text {
+    display: none;
+  }
+
+  .learning-avatar,
+  .learning-logout-button,
+  .notification-button,
+  .learning-menu-button {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+  }
+
+  .learning-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px;
+    border-radius: 22px;
+    gap: 18px;
+  }
+
+  .learning-hero h2 {
+    font-size: 1.45rem;
+  }
+
+  .learning-hero p {
+    font-size: 0.92rem;
+  }
+
+  .learning-hero-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    font-size: 28px;
+  }
+
+  .learning-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .learning-stat-card {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .learning-panel {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .learning-panel-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .learning-panel-header .btn {
+    width: 100%;
+  }
+
+  .teacher-course-card,
+  .learning-list-item {
+    flex-direction: row;
+    align-items: flex-start;
+  }
 }
 
-@media (max-width: 480px) {
-  .login-loader-card,
-  .page-content-loader-card {
+/* ===========================================================
+   <= 576px
+=========================================================== */
+
+@media (max-width: 576px) {
+  .learning-main {
+    padding: 12px;
+  }
+
+  .learning-header {
+    padding: 12px;
     border-radius: 18px;
-    padding: 20px 18px;
   }
 
-  .login-loader-card h5,
-  .page-content-loader-card h5 {
-    font-size: 1rem;
+  .learning-header-top {
+    gap: 8px;
   }
 
-  .login-loader-card p,
-  .page-content-loader-card p,
-  .table-page-loader p {
+  .learning-header-left {
+    gap: 8px;
+  }
+
+  .learning-header-left h2 {
+    font-size: 0.98rem;
+  }
+
+  .learning-header-left small {
+    display: none;
+  }
+
+  .learning-avatar,
+  .learning-logout-button,
+  .notification-button,
+  .learning-menu-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+  }
+
+  .learning-hero {
+    padding: 20px;
+  }
+
+  .learning-hero h2 {
+    font-size: 1.28rem;
+  }
+
+  .learning-hero p {
     font-size: 0.88rem;
   }
+
+  .learning-stat-card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .learning-stat-card > i {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    font-size: 18px;
+  }
+
+  .learning-panel {
+    padding: 16px;
+  }
+
+  .teacher-course-card,
+  .learning-list-item {
+    flex-direction: column;
+  }
+
+  .teacher-course-meta {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .learning-action {
+    padding: 14px;
+    font-size: 0.9rem;
+  }
+
+  .learning-action i {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+  }
+  .learning-task-card-header {
+  flex-direction: column;
+}
+
+.learning-task-actions {
+  flex-direction: column;
+}
+
+.learning-task-actions .btn {
+  width: 100%;
+}
+}
+
+/* ===========================================================
+   <= 420px
+=========================================================== */
+
+@media (max-width: 420px) {
+  .learning-header-left h2 {
+    max-width: 105px;
+  }
+
+  .learning-header-right {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 992px) {
+  .login-page {
+    padding: 24px;
+  }
+
+  .login-card {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+  }
+
+  .login-info {
+    padding: 32px;
+    min-height: auto;
+  }
+
+  .login-form-area {
+    padding: 32px;
+  }
+}
+
+@media (max-width: 576px) {
+  .login-page {
+    min-height: 100vh;
+    padding: 0;
+    background: #f4f6fb;
+    align-items: stretch;
+  }
+
+  .login-card {
+    width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .login-info {
+    padding: 28px 22px;
+    border-radius: 0 0 28px 28px;
+    display:none;
+  }
+
+  .login-logo {
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    font-size: 1.4rem;
+  }
+
+  .login-info h1 {
+    font-size: 1.75rem;
+  }
+
+  .login-info p {
+    font-size: 0.95rem;
+  }
+
+  .login-points {
+    gap: 8px;
+  }
+
+  .login-points span {
+    font-size: 0.85rem;
+  }
+
+  .login-form-area {
+    padding: 28px 22px 34px;
+    background: linear-gradient(160deg, #2563eb, #1e40af);
+  }
+
+  .login-form-area > form{
+    background:white;
+    padding:1em;
+    border-radius:1em;
+  }
+
+  .login-form-title{
+    text-align:center;
+    padding:1em;
+    background:white;
+    border-radius:1em;
+  }
+
+  .login-form-title h2 {
+    font-size: 1.45rem;
+  }
+
+  .input-icon .form-control {
+    min-height: 50px;
+  }
+
+  .login-submit {
+    width: 100%;
+    min-height: 52px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .login-info {
+    padding: 24px 18px;
+  }
+
+  .login-form-area {
+    padding: 24px 18px 30px;
+  }
+
+  .login-info h1 {
+    font-size: 1.55rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .learning-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .learning-filter-bar .btn {
+    width: 100%;
+  }
+}
+.learning-filter-bar {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.learning-filter-bar .btn {
+  width: 100%;
 }

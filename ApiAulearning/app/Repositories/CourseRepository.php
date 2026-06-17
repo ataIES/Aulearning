@@ -38,4 +38,32 @@ class CourseRepository extends BaseRepository implements ICourseRepository
 
         return $query->paginate($filter?->perPage ?? 15);
     }
+
+    public function getTeacherCourseDetail(
+        int $courseId,
+        int $teacherId
+    ): mixed {
+        return $this->model
+            ->query()
+            ->where('id', $courseId)
+            ->where('teacher_id', $teacherId)
+            ->with([
+                'teacher:id,name,last_name,email',
+
+                'enrollments' => fn($query) => $query
+                    ->latest()
+                    ->limit(8),
+
+                'enrollments.student:id,name,last_name,email,type',
+
+                'tasks' => fn($query) => $query
+                    ->latest()
+                    ->limit(8),
+            ])
+            ->withCount([
+                'enrollments',
+                'tasks',
+            ])
+            ->first();
+    }
 }
