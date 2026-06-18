@@ -128,6 +128,32 @@
 =========================================================== */
 
 @media (max-width: 768px) {
+
+  .learning-material-card {
+  align-items: flex-start;
+}
+
+.learning-material-actions {
+  flex-direction: column;
+}
+
+  .learning-filter-select {
+  max-width: none;
+  width: 100%;
+}
+
+.learning-delivery-body {
+  grid-template-columns: 1fr;
+}
+
+.learning-delivery-header {
+  flex-wrap: wrap;
+}
+
+.learning-delivery-header .ms-auto {
+  margin-left: 0 !important;
+  width: 100%;
+}
   /* ---------- ADMIN ---------- */
 
   .admin-dashboard-header {
@@ -362,6 +388,10 @@
     flex-direction: row;
     align-items: flex-start;
   }
+
+  .learning-student-card {
+  align-items: flex-start;
+}
 }
 
 /* ===========================================================
@@ -372,6 +402,29 @@
   .learning-main {
     padding: 12px;
   }
+  .learning-material-card {
+  flex-direction: column;
+}
+
+.learning-material-actions,
+.learning-material-actions .btn {
+  width: 100%;
+}
+.learning-student-card {
+  flex-direction: column;
+}
+
+.learning-student-actions,
+.learning-student-actions .btn {
+  width: 100%;
+}
+  .learning-delivery-actions {
+  flex-direction: column;
+}
+
+.learning-delivery-actions .btn {
+  width: 100%;
+}
 
   .learning-header {
     padding: 12px;
@@ -506,6 +559,23 @@
     align-items: stretch;
   }
 
+  .learning-profile-hero {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 22px;
+}
+
+.learning-profile-avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 22px;
+  font-size: 1.5rem;
+}
+
+.learning-security-box {
+  flex-direction: column;
+}
+
   .login-card {
     width: 100%;
     min-height: 100vh;
@@ -607,3 +677,4 @@
 .learning-filter-bar .btn {
   width: 100%;
 }
+

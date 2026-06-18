@@ -3,16 +3,14 @@
 namespace App\Mappers;
 
 use App\DTOs\FileDto;
-use App\DTOs\Interfaces\IBaseDto;
+use App\Mappers\Interfaces\IFileMapper;
 use App\Models\File;
-use App\Mappers\Interfaces\IBaseMapper;
-use Illuminate\Database\Eloquent\Model;
-
-class FileMapper extends BaseMapper implements IBaseMapper
+class FileMapper extends BaseMapper implements IFileMapper
 {
-    public function toDto(Model $model): IBaseDto
+    public function toDto(mixed $model): FileDto
     {
         /** @var File $model */
+
         return new FileDto(
             id: $model->id,
             name: $model->name,
@@ -21,12 +19,14 @@ class FileMapper extends BaseMapper implements IBaseMapper
             mimeType: $model->mime_type,
             size: $model->size,
             taskId: $model->task_id,
+            url: $model->url ?? null,
         );
     }
 
-    public function toArray(IBaseDto $dto): array
+    public function toArray(mixed $dto): array
     {
         /** @var FileDto $dto */
+
         return $this->removeNulls([
             'name' => $dto->name,
             'path' => $dto->path,

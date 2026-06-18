@@ -362,3 +362,50 @@
 .learning-content {
   position: relative;
 }
+
+.learning-task-files {
+  margin-top: 14px;
+  background: white;
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.learning-task-files > strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #111827;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.learning-task-files > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.learning-task-file,
+.task-current-file {
+  text-decoration: none;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  padding: 8px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  font-size: 0.84rem;
+}
+
+.learning-task-file:hover,
+.task-current-file:hover {
+  background: #dbeafe;
+}
+
+.task-current-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

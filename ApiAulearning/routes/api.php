@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ChatGroupController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\DashBoardController;
+use App\Http\Controllers\Api\DeliverTaskController;
 use App\Http\Controllers\Api\EnrollmentController;
 use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\GradeController;
@@ -34,9 +35,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/me', [AuthController::class, 'me']);
             Route::post('/logout', [AuthController::class, 'logout']);
             Route::post('/logout-all', [AuthController::class, 'logoutAll']);
-
         });
-
     });
 
     /*
@@ -74,6 +73,8 @@ Route::prefix('v1')->group(function () {
                 'getStudentDashBoard',
             ]);
 
+
+
         /*
         |--------------------------------------------------------------------------
         | TEACHER
@@ -85,7 +86,10 @@ Route::prefix('v1')->group(function () {
                 CourseController::class,
                 'teacherCourseDetail',
             ]);
-
+        Route::apiResource(
+            'deliveries',
+            DeliverTaskController::class
+        );
         /*
         |--------------------------------------------------------------------------
         | NOTIFICATIONS
@@ -149,7 +153,6 @@ Route::prefix('v1')->group(function () {
                 '/enrollments/{id}',
                 [EnrollmentController::class, 'destroy']
             );
-
         });
 
         /*
@@ -184,6 +187,14 @@ Route::prefix('v1')->group(function () {
                 'show',
             ]);
 
+            Route::middleware('role:admin|teacher')->group(function () {
+                Route::get('/enrollments', [EnrollmentController::class, 'index']);
+            });
+
+            Route::middleware('role:admin|teacher')->group(function () {
+                Route::apiResource('files', FileController::class)
+                    ->only(['index', 'store', 'destroy']);
+            });
         });
 
         /*
@@ -242,7 +253,5 @@ Route::prefix('v1')->group(function () {
         )->except([
             'update',
         ]);
-
     });
-
 });

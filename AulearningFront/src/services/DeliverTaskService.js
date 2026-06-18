@@ -1,9 +1,9 @@
 import axiosClient from '../api/axiosClient';
 import { ENDPOINTS } from '../api/endpoints';
 
-class TaskService {
+class DeliverTaskService {
   async paginate(params = {}) {
-    const { data } = await axiosClient.get(ENDPOINTS.tasks.list, {
+    const { data } = await axiosClient.get(ENDPOINTS.deliveries.list, {
       params,
     });
 
@@ -11,14 +11,16 @@ class TaskService {
   }
 
   async find(id) {
-    const { data } = await axiosClient.get(ENDPOINTS.tasks.detail(id));
+    const { data } = await axiosClient.get(
+      ENDPOINTS.deliveries.detail(id)
+    );
 
     return data;
   }
 
   async create(payload) {
     const { data } = await axiosClient.post(
-      ENDPOINTS.tasks.create,
+      ENDPOINTS.deliveries.create,
       payload
     );
 
@@ -27,7 +29,7 @@ class TaskService {
 
   async update(id, payload) {
     const { data } = await axiosClient.put(
-      ENDPOINTS.tasks.update(id),
+      ENDPOINTS.deliveries.update(id),
       payload
     );
 
@@ -36,7 +38,7 @@ class TaskService {
 
   async delete(id) {
     const { data } = await axiosClient.delete(
-      ENDPOINTS.tasks.delete(id)
+      ENDPOINTS.deliveries.delete(id)
     );
 
     return data;
@@ -50,4 +52,4 @@ class TaskService {
   }
 }
 
-export default new TaskService();
+export default new DeliverTaskService();

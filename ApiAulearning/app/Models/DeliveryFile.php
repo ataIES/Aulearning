@@ -4,26 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class File extends Model
+class DeliveryFile extends Model
 {
     protected $fillable = [
+        'delivery_task_id',
         'name',
         'path',
         'disk',
         'mime_type',
         'size',
-        'task_id',
     ];
 
     protected $appends = [
         'url',
     ];
 
-    public function task()
+    public function delivery()
     {
         return $this->belongsTo(
-            Task::class,
-            'task_id'
+            DeliveryTask::class,
+            'delivery_task_id'
         );
     }
 

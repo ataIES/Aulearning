@@ -24,7 +24,12 @@ import AdminFilesPage from '../pages/admin/files/AdminFilesPage';
 import TeacherCoursesPage from '../pages/teacher/courses/TeacherCoursesPage';
 import TeacherCourseDetailPage from '../pages/teacher/courses/TeacherCourseDetailPage';
 import TeacherCourseTasksPage from '../pages/teacher/tasks/TeacherCourseTasksPage';
-
+import TeacherCourseDeliveriesPage from '../pages/teacher/deliveries/TeacherCourseDeliveriesPage';
+import TeacherCourseMaterialsPage from '../pages/teacher/materials/TeacherCourseMaterialsPage';
+import TeacherCourseStudentsPage from '../pages/teacher/students/TeacherCourseStudentsPage';
+import TeacherProfilePage from '../pages/teacher/profile/TeacherProfilePage';
+import TeacherStudentsPage from '../pages/teacher/students/TeacherStudentsPage';
+import TeacherDeliveriesPage from '../pages/teacher/deliveries/TeacherDeliveriesPage';
 import { getHomeByRole } from '../utils/redirectByRole';
 
 import AdminRoute from './AdminRoute';
@@ -79,8 +84,24 @@ export default function AppRouter() {
               <Route path="/teacher/courses" element={<TeacherCoursesPage />} />
               <Route path="/teacher/courses/:courseId" element={<TeacherCourseDetailPage />} />
               <Route path="/teacher/courses/:courseId/tasks" element={<TeacherCourseTasksPage />} />
+              <Route
+                path="/teacher/courses/:courseId/deliveries"
+                element={<TeacherCourseDeliveriesPage />}
+              />
+              <Route
+                path="/teacher/courses/:courseId/materials"
+                element={<TeacherCourseMaterialsPage />}
+              />
+              <Route
+                path="/teacher/courses/:courseId/students"
+                element={<TeacherCourseStudentsPage />}
+              />
+              <Route path="/teacher/profile" element={<TeacherProfilePage />} />
+              <Route path="/teacher/students" element={<TeacherStudentsPage />} />
+              <Route path="/teacher/deliveries" element={<TeacherDeliveriesPage />} />
             </Route>
           </Route>
+
 
           <Route element={<StudentRoute />}>
             <Route element={<LearningLayout />}>

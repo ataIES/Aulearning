@@ -20,7 +20,7 @@ return new class extends Migration
                 ->constrained('courses')
                 ->cascadeOnDelete();
 
-            $table->timestamp('enrollment_date');
+            $table->datetime('enrollment_date');
 
             $table->boolean('active')
                 ->default(true);

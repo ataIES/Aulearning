@@ -7,13 +7,14 @@ use App\DTOs\Interfaces\IBaseDto;
 class FileDto implements IBaseDto
 {
     public function __construct(
-        public ?int $id,
-        public string $name,
-        public string $path,
-        public string $disk,
-        public ?string $mimeType,
-        public ?int $size,
-        public int $taskId,
+        public readonly ?int $id,
+        public readonly string $name,
+        public readonly string $path,
+        public readonly string $disk,
+        public readonly ?string $mimeType,
+        public readonly ?int $size,
+        public readonly int $taskId,
+        public readonly ?string $url = null,
     ) {}
 
     public function toArray(): array
@@ -26,6 +27,7 @@ class FileDto implements IBaseDto
             'mime_type' => $this->mimeType,
             'size' => $this->size,
             'task_id' => $this->taskId,
+            'url' => $this->url,
         ];
     }
 }

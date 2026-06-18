@@ -68,4 +68,11 @@ export const ENDPOINTS = {
         update: (id) => `/tasks/${id}`,
         delete: (id) => `/tasks/${id}`,
     },
+    deliveries: {
+        list: '/deliveries',
+        create: '/deliveries',
+        detail: (id) => `/deliveries/${id}`,
+        update: (id) => `/deliveries/${id}`,
+        delete: (id) => `/deliveries/${id}`,
+    },
 };

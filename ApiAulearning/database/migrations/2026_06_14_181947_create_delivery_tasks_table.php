@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('entrega_tareas', function (Blueprint $table) {
+        Schema::create('delivery_tasks', function (Blueprint $table) {
             $table->id();
 
             $table->foreignId('student_id')
@@ -19,22 +19,23 @@ return new class extends Migration
                 ->constrained('tasks')
                 ->cascadeOnDelete();
 
-            $table->dateTime('submitted_at')->nullable();
+            $table->date('delivery_date');
+            $table->date('updated_date')->nullable();
 
-            $table->dateTime('updated_delivery_at')->nullable();
-
-            $table->integer('grade')->nullable();
-
+            $table->decimal('grade', 5, 2)->nullable();
             $table->text('comment')->nullable();
 
             $table->timestamps();
 
-            $table->unique(['student_id', 'task_id']);
+            $table->unique([
+                'student_id',
+                'task_id',
+            ]);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('entrega_tareas');
+        Schema::dropIfExists('delivery_tasks');
     }
 };

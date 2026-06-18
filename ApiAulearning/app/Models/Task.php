@@ -45,11 +45,12 @@ class Task extends Model
     }
 
     public function files()
-    {
-        return $this->hasMany(
-            File::class
-        );
-    }
+{
+    return $this->hasMany(
+        File::class,
+        'task_id'
+    );
+}
 
     public function deliveries()
     {

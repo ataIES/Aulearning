@@ -132,12 +132,49 @@ export default function TeacherCourseTasksPage() {
       setSaving(true);
       setFormErrors({});
 
-      const normalizedPayload = normalizePayload(payload);
+      const files = payload.files ?? [];
+
+      const normalizedPayload = normalizePayload({
+        ...payload,
+        files: undefined,
+      });
+
+      let response;
 
       if (selectedTask) {
-        await TeacherService.updateTask(selectedTask.id, normalizedPayload);
+        response = await TeacherService.updateTask(
+          selectedTask.id,
+          normalizedPayload
+        );
+
+        if (files.length > 0) {
+          await Promise.all(
+            files.map((file) =>
+              TeacherService.uploadMaterial({
+                task_id: selectedTask.id,
+                file,
+              })
+            )
+          );
+        }
       } else {
-        await TeacherService.createTask(normalizedPayload);
+        response = await TeacherService.createTask(normalizedPayload);
+
+        const createdTask =
+          response?.data?.data ??
+          response?.data ??
+          response;
+
+        if (createdTask?.id && files.length > 0) {
+          await Promise.all(
+            files.map((file) =>
+              TeacherService.uploadMaterial({
+                task_id: createdTask.id,
+                file,
+              })
+            )
+          );
+        }
       }
 
       setShowForm(false);
@@ -284,6 +321,7 @@ export default function TeacherCourseTasksPage() {
           title="Actualizando tareas..."
           message="Aplicando filtros..."
         >
+
           {tasks.length > 0 ? (
             <div className="learning-task-grid mt-3">
               {tasks.map((task) => (
@@ -334,6 +372,27 @@ export default function TeacherCourseTasksPage() {
                       Eliminar
                     </button>
                   </div>
+
+                  {(task.files ?? []).length > 0 && (
+                    <div className="learning-task-files">
+                      <strong>Archivos adjuntos</strong>
+
+                      <div>
+                        {task.files.map((file) => (
+                          <a
+                            key={file.id}
+                            href={file.url ?? file.path}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="learning-task-file"
+                          >
+                            <i className="bi bi-paperclip" />
+                            <span>{file.name}</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </article>
               ))}
             </div>

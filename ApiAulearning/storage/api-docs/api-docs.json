@@ -574,6 +574,206 @@
                 ]
             }
         },
+        "/deliveries": {
+            "get": {
+                "tags": [
+                    "Deliveries"
+                ],
+                "summary": "Listar entregas",
+                "description": "Obtiene una lista paginada de entregas. Permite filtrar por curso, tarea, alumno, estado y búsqueda general.",
+                "operationId": "38ca13ec3db50f74d14d8cb4c250889b",
+                "parameters": [
+                    {
+                        "name": "course_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "student_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "graded"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/PerPage"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortBy"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Entregas obtenidas correctamente"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "No autorizado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Deliveries"
+                ],
+                "summary": "Crear entrega",
+                "description": "Crea una entrega de una tarea.",
+                "operationId": "8072b252f0135c7300c2d4477072181a",
+                "responses": {
+                    "201": {
+                        "description": "Entrega creada correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/deliveries/{id}": {
+            "get": {
+                "tags": [
+                    "Deliveries"
+                ],
+                "summary": "Obtener entrega",
+                "description": "Obtiene el detalle de una entrega.",
+                "operationId": "7889b80fee9748d087f67d13356fcb41",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Entrega obtenida correctamente"
+                    },
+                    "404": {
+                        "description": "Entrega no encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Deliveries"
+                ],
+                "summary": "Actualizar entrega",
+                "description": "Actualiza una entrega existente.",
+                "operationId": "9f1de74b24f8a4828d8342c7dec9f243",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Entrega actualizada correctamente"
+                    },
+                    "404": {
+                        "description": "Entrega no encontrada"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Deliveries"
+                ],
+                "summary": "Eliminar entrega",
+                "description": "Elimina una entrega.",
+                "operationId": "fdd425ab1370919bba5b383e2386c0eb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Entrega eliminada correctamente"
+                    },
+                    "404": {
+                        "description": "Entrega no encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/enrollments": {
             "get": {
                 "tags": [
@@ -737,62 +937,9 @@
                 ],
                 "summary": "Listar archivos",
                 "operationId": "483dc41aae90d4e129f56bbdbb646ae5",
-                "parameters": [
-                    {
-                        "name": "search",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "task_id",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "mime_type",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "disk",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "min_size",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "max_size",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "$ref": "#/components/parameters/PerPage"
-                    },
-                    {
-                        "$ref": "#/components/parameters/SortBy"
-                    },
-                    {
-                        "$ref": "#/components/parameters/SortDirection"
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "Listado de archivos"
+                        "description": "Archivos obtenidos correctamente"
                     }
                 },
                 "security": [
@@ -806,97 +953,10 @@
                     "Files"
                 ],
                 "summary": "Subir archivo",
-                "description": "Sube un archivo y lo guarda en storage/app/public/tasks. Devuelve la ruta relativa y la URL pública.",
                 "operationId": "b188b4e883de24b3ffb1ba36098c5a72",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "file",
-                                    "task_id"
-                                ],
-                                "properties": {
-                                    "file": {
-                                        "description": "Archivo a subir",
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "task_id": {
-                                        "description": "ID de la tarea asociada",
-                                        "type": "integer",
-                                        "example": 1
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "201": {
-                        "description": "Archivo subido correctamente",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Archivo subido correctamente."
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "tema1.pdf"
-                                                },
-                                                "path": {
-                                                    "type": "string",
-                                                    "example": "tasks/abc123.pdf"
-                                                },
-                                                "disk": {
-                                                    "type": "string",
-                                                    "example": "public"
-                                                },
-                                                "mime_type": {
-                                                    "type": "string",
-                                                    "example": "application/pdf"
-                                                },
-                                                "size": {
-                                                    "type": "integer",
-                                                    "example": 152634
-                                                },
-                                                "task_id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "url": {
-                                                    "type": "string",
-                                                    "example": "http://localhost:8000/storage/tasks/abc123.pdf"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    },
-                    "401": {
-                        "description": "No autenticado"
+                        "description": "Archivo subido correctamente"
                     }
                 },
                 "security": [
@@ -907,63 +967,25 @@
             }
         },
         "/files/{id}": {
-            "get": {
-                "tags": [
-                    "Files"
-                ],
-                "summary": "Ver archivo",
-                "operationId": "96453911ed535b22cfebc831f23d74d3",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID del archivo",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Archivo encontrado"
-                    },
-                    "404": {
-                        "description": "Archivo no encontrado"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
             "delete": {
                 "tags": [
                     "Files"
                 ],
                 "summary": "Eliminar archivo",
-                "description": "Elimina el archivo físico del storage y después elimina su registro en base de datos.",
                 "operationId": "af774334bc652b31c15a83bdffb37809",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID del archivo",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "example": 1
+                            "type": "integer"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Archivo eliminado"
-                    },
-                    "404": {
-                        "description": "Archivo no encontrado"
+                        "description": "Archivo eliminado correctamente"
                     }
                 },
                 "security": [
@@ -2226,6 +2248,10 @@
         {
             "name": "Dashboard",
             "description": "Dashboard"
+        },
+        {
+            "name": "Deliveries",
+            "description": "Deliveries"
         },
         {
             "name": "Enrollments",

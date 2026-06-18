@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import PageLoader from '../../components/common/PageLoader';
 import ActivityItem from '../../components/learning/ActivityItem';
@@ -9,16 +9,25 @@ import LearningPanel from '../../components/learning/LearningPanel';
 import LearningStatCard from '../../components/learning/LearningStatCard';
 import QuickAction from '../../components/learning/QuickAction';
 
+import TaskFormModal from './tasks/TaskFormModal';
+
 import { useAuth } from '../../hooks/useAuth';
 import { useUI } from '../../hooks/useUI';
 import DashboardService from '../../services/DashboardService';
+import TeacherService from '../../services/TeacherService';
 
 export default function TeacherDashboardPage() {
+  const navigate = useNavigate();
+
   const { user } = useAuth();
   const { showError } = useUI();
 
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState(null);
+
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [savingTask, setSavingTask] = useState(false);
+  const [taskErrors, setTaskErrors] = useState({});
 
   const loadDashboard = async () => {
     try {
@@ -44,6 +53,86 @@ export default function TeacherDashboardPage() {
   useEffect(() => {
     loadDashboard();
   }, []);
+
+  const getFirstCourseId = () => {
+    const courses = dashboard?.courses ?? [];
+
+    return courses.length > 0 ? courses[0].id : null;
+  };
+
+  const normalizeTaskPayload = (payload) => ({
+    title: payload.title,
+    description: payload.description,
+    due_date: payload.type === 'APUNTES' ? null : payload.due_date || null,
+    course_id: Number(payload.course_id),
+    student_id: payload.student_id ?? null,
+    type: payload.type,
+    gradable: payload.type === 'APUNTES' ? false : payload.gradable,
+    comment: payload.comment ?? null,
+    status: payload.status ?? 'pending',
+  });
+
+  const handleOpenCreateTask = () => {
+    const courses = dashboard?.courses ?? [];
+
+    if (courses.length === 0) {
+      showError('No puedes crear una tarea porque no tienes cursos asignados.');
+      return;
+    }
+
+    setTaskErrors({});
+    setShowTaskModal(true);
+  };
+
+  const handleCreateTask = async (payload) => {
+    try {
+      setSavingTask(true);
+      setTaskErrors({});
+
+      const files = payload.files ?? [];
+      const firstCourseId = getFirstCourseId();
+
+      const response = await TeacherService.createTask(
+        normalizeTaskPayload(payload)
+      );
+
+      const createdTask =
+        response?.data?.data ??
+        response?.data ??
+        response ??
+        null;
+
+      if (createdTask?.id && files.length > 0) {
+        await Promise.all(
+          files.map((file) =>
+            TeacherService.uploadMaterial({
+              task_id: createdTask.id,
+              file,
+            })
+          )
+        );
+      }
+
+      setShowTaskModal(false);
+      await loadDashboard();
+    } catch (error) {
+      const response = error.response?.data;
+
+      if (response?.errors) {
+        setTaskErrors(response.errors);
+
+        const firstKey = Object.keys(response.errors)[0];
+        const firstMessage = response.errors[firstKey]?.[0];
+
+        showError(firstMessage ?? response.message, 'Error de validación');
+        return;
+      }
+
+      showError(response?.message ?? 'No se pudo crear la tarea.');
+    } finally {
+      setSavingTask(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -146,15 +235,15 @@ export default function TeacherDashboardPage() {
               />
 
               <QuickAction
-                to="/teacher/tasks"
                 icon="bi-plus-square"
                 label="Crear tarea"
+                onClick={handleOpenCreateTask}
               />
 
               <QuickAction
-                to="/teacher/deliveries"
                 icon="bi-inbox"
                 label="Corregir entregas"
+                onClick={() => navigate('/teacher/deliveries?status=pending')}
               />
             </div>
           </LearningPanel>
@@ -171,12 +260,10 @@ export default function TeacherDashboardPage() {
                   <ActivityItem
                     key={delivery.id}
                     icon="bi-upload"
-                    title={`${delivery.student?.name ?? ''} ${
-                      delivery.student?.last_name ?? ''
-                    }`}
-                    subtitle={`${delivery.task?.title ?? 'Tarea'} · ${
-                      delivery.task?.course?.name ?? 'Curso'
-                    }`}
+                    title={`${delivery.student?.name ?? ''} ${delivery.student?.last_name ?? ''
+                      }`}
+                    subtitle={`${delivery.task?.title ?? 'Tarea'} · ${delivery.task?.course?.name ?? 'Curso'
+                      }`}
                   />
                 ))
               ) : (
@@ -203,11 +290,10 @@ export default function TeacherDashboardPage() {
                     icon="bi-calendar-event"
                     variant="purple"
                     title={task.title}
-                    subtitle={`${task.course?.name ?? 'Curso'} · ${
-                      task.due_date
-                        ? new Date(task.due_date).toLocaleDateString()
-                        : 'Sin fecha'
-                    }`}
+                    subtitle={`${task.course?.name ?? 'Curso'} · ${task.due_date
+                      ? new Date(task.due_date).toLocaleDateString()
+                      : 'Sin fecha'
+                      }`}
                   />
                 ))
               ) : (
@@ -221,6 +307,21 @@ export default function TeacherDashboardPage() {
           </LearningPanel>
         </div>
       </div>
+
+      <TaskFormModal
+        show={showTaskModal}
+        task={null}
+        courses={dashboard?.courses ?? []}
+        showCourseSelect
+        errors={taskErrors}
+        loading={savingTask}
+        onClose={() => {
+          if (!savingTask) {
+            setShowTaskModal(false);
+          }
+        }}
+        onSubmit={handleCreateTask}
+      />
     </div>
   );
 }

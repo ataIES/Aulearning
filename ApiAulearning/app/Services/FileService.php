@@ -3,47 +3,55 @@
 namespace App\Services;
 
 use App\DTOs\FileDto;
-use App\Mappers\FileMapper;
+use App\Filters\FileFilter;
+use App\Mappers\Interfaces\IFileMapper;
 use App\Repositories\Interfaces\IFileRepository;
 use App\Services\Interfaces\IFileService;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
 class FileService extends BaseService implements IFileService
 {
     public function __construct(
         private readonly IFileRepository $fileRepository,
-        FileMapper $mapper,
+        IFileMapper $fileMapper,
     ) {
-        parent::__construct($fileRepository, $mapper);
+        parent::__construct(
+            $fileRepository,
+            $fileMapper
+        );
     }
 
-    public function upload(
-        UploadedFile $uploadedFile,
-        int $taskId,
-        string $directory = 'tasks'
-    ): FileDto {
+    public function paginateFiles(
+        FileFilter $filter,
+        array $relations = []
+    ): LengthAwarePaginator {
+        return $this->fileRepository->paginate(
+            $filter,
+            $relations
+        );
+    }
 
-        $path = $uploadedFile->store(
-            $directory,
+    public function uploadMaterial(
+        UploadedFile $file,
+        int $taskId
+    ): FileDto {
+        $path = $file->store(
+            "uploads/course-materials/{$taskId}",
             'public'
         );
 
-        $dto = new FileDto(
-            id: null,
-            name: $uploadedFile->getClientOriginalName(),
-            path: $path,
-            disk: 'public',
-            mimeType: $uploadedFile->getMimeType(),
-            size: $uploadedFile->getSize(),
-            taskId: $taskId,
-        );
+        $model = $this->fileRepository->create([
+            'name' => $file->getClientOriginalName(),
+            'path' => $path,
+            'disk' => 'public',
+            'mime_type' => $file->getMimeType(),
+            'size' => $file->getSize(),
+            'task_id' => $taskId,
+        ]);
 
-        /** @var FileDto $file */
-        $file = $this->create($dto);
-
-        return $file;
+        return $this->mapper->toDto($model);
     }
 
     public function delete(int $id): bool
@@ -54,19 +62,8 @@ class FileService extends BaseService implements IFileService
             return false;
         }
 
-        Storage::disk($file->disk)
-            ->delete($file->path);
+        Storage::disk($file->disk)->delete($file->path);
 
         return $this->fileRepository->delete($id);
-    }
-
-    public function getByTask(int $taskId): Collection
-    {
-        return $this->fileRepository
-            ->getByTask($taskId)
-            ->map(
-                fn ($file) =>
-                $this->mapper->toDto($file)
-            );
     }
 }

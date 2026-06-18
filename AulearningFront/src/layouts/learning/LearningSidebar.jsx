@@ -20,14 +20,14 @@ export default function LearningSidebar({ open = false, onClose }) {
           to: '/teacher/courses',
         },
         {
-          label: 'Tareas',
-          icon: 'bi-list-task',
-          to: '/teacher/tasks',
+          label: 'Mis alumnos',
+          icon: 'bi-people-fill',
+          to: '/teacher/students',
         },
         {
-          label: 'Entregas',
-          icon: 'bi-inbox-fill',
-          to: '/teacher/deliveries',
+          label: 'Perfil',
+          icon: 'bi-person-circle',
+          to: '/teacher/profile',
         },
       ]
     : [
