@@ -215,43 +215,56 @@ class DashBoardService implements IDashBoardService
             ->whereIn('course_id', $courseIds)
             ->pluck('id');
 
+        $deliveredTaskIds = DeliveryTask::query()
+            ->where('student_id', $student->id)
+            ->pluck('task_id');
+
         return [
             'summary' => [
                 'courses' => $courseIds->count(),
 
                 'pending_tasks' => Task::query()
                     ->whereIn('course_id', $courseIds)
-                    ->whereNotIn('id', function ($query) use ($student) {
-                        $query->select('task_id')
-                            ->from('entrega_tareas')
-                            ->where('student_id', $student->id);
-                    })
+                    ->whereNotIn('id', $deliveredTaskIds)
+                    ->count(),
+
+                'deliveries' => DeliveryTask::query()
+                    ->where('student_id', $student->id)
+                    ->count(),
+
+                'graded_deliveries' => DeliveryTask::query()
+                    ->where('student_id', $student->id)
+                    ->whereNotNull('grade')
                     ->count(),
 
                 'materials' => File::query()
                     ->whereIn('task_id', $taskIds)
                     ->count(),
-
-                'grades' => DeliveryTask::query()
-                    ->where('student_id', $student->id)
-                    ->whereNotNull('grade')
-                    ->count(),
             ],
 
             'upcoming_tasks' => Task::query()
+                ->with([
+                    'course:id,name',
+                ])
                 ->whereIn('course_id', $courseIds)
-                ->latest()
+                ->whereNotIn('id', $deliveredTaskIds)
+                ->orderByRaw('due_date IS NULL')
+                ->orderBy('due_date')
                 ->limit(5)
                 ->get([
                     'id',
                     'title',
                     'course_id',
                     'type',
+                    'due_date',
                     'created_at',
                 ]),
 
             'latest_grades' => DeliveryTask::query()
-                ->with(['task:id,title'])
+                ->with([
+                    'task:id,title,course_id',
+                    'task.course:id,name',
+                ])
                 ->where('student_id', $student->id)
                 ->whereNotNull('grade')
                 ->latest()
@@ -265,12 +278,25 @@ class DashBoardService implements IDashBoardService
                 ]),
 
             'courses' => Course::query()
+                ->with([
+                    'teacher:id,name,last_name,email',
+                ])
+                ->withCount([
+                    'tasks',
+                    'tasks as pending_tasks_count' => function ($query) use ($deliveredTaskIds) {
+                        $query->whereNotIn('id', $deliveredTaskIds);
+                    },
+                ])
                 ->whereIn('id', $courseIds)
                 ->latest()
                 ->limit(5)
                 ->get([
                     'id',
                     'name',
+                    'description',
+                    'teacher_id',
+                    'start_date',
+                    'end_date',
                     'created_at',
                 ]),
         ];

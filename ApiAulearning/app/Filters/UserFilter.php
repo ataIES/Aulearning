@@ -11,7 +11,7 @@ class UserFilter extends BaseFilter
         public readonly ?string $type = null,
         public readonly ?bool $active = null,
         ?int $perPage = 15,
-        ?string $sortBy = 'id',
+        ?string $sortBy = 'name',
         ?string $sortDirection = 'desc',
     ) {
         parent::__construct($perPage, $sortBy, $sortDirection);

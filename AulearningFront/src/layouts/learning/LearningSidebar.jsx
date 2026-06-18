@@ -7,51 +7,63 @@ export default function LearningSidebar({ open = false, onClose }) {
 
   const isTeacher = user?.type === 'teacher';
 
-  const links = isTeacher
-    ? [
-        {
-          label: 'Dashboard',
-          icon: 'bi-speedometer2',
-          to: '/teacher/dashboard',
-        },
-        {
-          label: 'Mis cursos',
-          icon: 'bi-journal-bookmark-fill',
-          to: '/teacher/courses',
-        },
-        {
-          label: 'Mis alumnos',
-          icon: 'bi-people-fill',
-          to: '/teacher/students',
-        },
-        {
-          label: 'Perfil',
-          icon: 'bi-person-circle',
-          to: '/teacher/profile',
-        },
-      ]
-    : [
-        {
-          label: 'Dashboard',
-          icon: 'bi-speedometer2',
-          to: '/student/dashboard',
-        },
-        {
-          label: 'Mis cursos',
-          icon: 'bi-journal-bookmark-fill',
-          to: '/student/courses',
-        },
-        {
-          label: 'Tareas',
-          icon: 'bi-list-task',
-          to: '/student/tasks',
-        },
-        {
-          label: 'Calificaciones',
-          icon: 'bi-award-fill',
-          to: '/student/grades',
-        },
-      ];
+  const teacherLinks = [
+    {
+      label: 'Dashboard',
+      icon: 'bi-speedometer2',
+      to: '/teacher/dashboard',
+    },
+    {
+      label: 'Mis cursos',
+      icon: 'bi-journal-bookmark-fill',
+      to: '/teacher/courses',
+    },
+    {
+      label: 'Mis alumnos',
+      icon: 'bi-people-fill',
+      to: '/teacher/students',
+    },
+    {
+      label: 'Entregas',
+      icon: 'bi-inbox-fill',
+      to: '/teacher/deliveries',
+    },
+    {
+      label: 'Perfil',
+      icon: 'bi-person-circle',
+      to: '/teacher/profile',
+    },
+  ];
+
+  const studentLinks = [
+    {
+      label: 'Dashboard',
+      icon: 'bi-speedometer2',
+      to: '/student/dashboard',
+    },
+    {
+      label: 'Mis cursos',
+      icon: 'bi-journal-bookmark-fill',
+      to: '/student/courses',
+    },
+    {
+      label: 'Mis tareas',
+      icon: 'bi-list-task',
+      to: '/student/tasks',
+    },
+    {
+      label: 'Calificaciones',
+      icon: 'bi-award-fill',
+      to: '/student/grades',
+    },
+    {
+      label: 'Perfil',
+      icon: 'bi-person-circle',
+      to: '/student/profile',
+    },
+  ];
+
+  const links = isTeacher ? teacherLinks : studentLinks;
 
   return (
     <>

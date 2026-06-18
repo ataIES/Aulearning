@@ -11,7 +11,7 @@ class RoleFilter extends BaseFilter
         public readonly ?string $guardName = null,
         ?int $perPage = 15,
         ?string $sortBy = 'id',
-        ?string $sortDirection = 'desc',
+        ?string $sortDirection = 'name',
     ) {
         parent::__construct($perPage, $sortBy, $sortDirection);
     }

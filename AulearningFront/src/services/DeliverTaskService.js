@@ -19,18 +19,54 @@ class DeliverTaskService {
   }
 
   async create(payload) {
+    const formData = new FormData();
+
+    Object.keys(payload).forEach((key) => {
+      if (key === 'files') {
+        payload.files.forEach((file) => {
+          formData.append('files[]', file);
+        });
+      } else if (payload[key] !== null && payload[key] !== undefined) {
+        formData.append(key, payload[key]);
+      }
+    });
+
     const { data } = await axiosClient.post(
       ENDPOINTS.deliveries.create,
-      payload
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
     );
 
     return data;
   }
 
   async update(id, payload) {
-    const { data } = await axiosClient.put(
+    const formData = new FormData();
+
+    Object.keys(payload).forEach((key) => {
+      if (key === 'files') {
+        payload.files.forEach((file) => {
+          formData.append('files[]', file);
+        });
+      } else if (payload[key] !== null && payload[key] !== undefined) {
+        formData.append(key, payload[key]);
+      }
+    });
+
+    formData.append('_method', 'PUT');
+
+    const { data } = await axiosClient.post(
       ENDPOINTS.deliveries.update(id),
-      payload
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
     );
 
     return data;
@@ -44,9 +80,9 @@ class DeliverTaskService {
     return data;
   }
 
-  async getByCourse(courseId, params = {}) {
+  async getByStudent(studentId, params = {}) {
     return this.paginate({
-      course_id: courseId,
+      student_id: studentId,
       ...params,
     });
   }

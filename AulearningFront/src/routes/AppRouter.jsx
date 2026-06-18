@@ -30,6 +30,11 @@ import TeacherCourseStudentsPage from '../pages/teacher/students/TeacherCourseSt
 import TeacherProfilePage from '../pages/teacher/profile/TeacherProfilePage';
 import TeacherStudentsPage from '../pages/teacher/students/TeacherStudentsPage';
 import TeacherDeliveriesPage from '../pages/teacher/deliveries/TeacherDeliveriesPage';
+import StudentCoursesPage from '../pages/student/courses/StudentCoursesPage';
+import StudentCourseDetailPage from '../pages/student/courses/StudentCourseDetailPage';
+import StudentTasksPage from '../pages/student/tasks/StudentTasksPage';
+import StudentGradesPage from '../pages/student/grades/StudentGradesPage';
+import StudentProfilePage from '../pages/student/profile/StudentProfilePage';
 import { getHomeByRole } from '../utils/redirectByRole';
 
 import AdminRoute from './AdminRoute';
@@ -106,6 +111,11 @@ export default function AppRouter() {
           <Route element={<StudentRoute />}>
             <Route element={<LearningLayout />}>
               <Route path="/student/dashboard" element={<StudentDashboardPage />} />
+              <Route path="/student/courses" element={<StudentCoursesPage />} />
+              <Route path="/student/courses/:courseId" element={<StudentCourseDetailPage />} />
+              <Route path="/student/tasks" element={<StudentTasksPage />} />
+              <Route path="/student/grades" element={<StudentGradesPage />} />
+              <Route path="/student/profile" element={<StudentProfilePage />} />
             </Route>
           </Route>
         </Route>

@@ -62,6 +62,9 @@ class CourseController extends BaseApiController
             teacherId: $request->query('teacher_id')
                 ? (int) $request->query('teacher_id')
                 : null,
+            studentId: $request->query('student_id')
+                ? (int) $request->query('student_id')
+                : null,
             startDateFrom: $request->query('start_date_from'),
             startDateTo: $request->query('start_date_to'),
             endDateFrom: $request->query('end_date_from'),
@@ -73,7 +76,7 @@ class CourseController extends BaseApiController
 
         return $this->success(
             $this->paginated(
-                $this->courseService->paginate($filter, ['teacher'])
+               $this->courseService->paginate($filter, ['teacher', 'tasks'])
             ),
             'Cursos obtenidos correctamente.'
         );

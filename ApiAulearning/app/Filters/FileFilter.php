@@ -11,7 +11,7 @@ class FileFilter extends BaseFilter
         public readonly ?int $courseId = null,
         public readonly ?string $search = null,
         ?int $perPage = 15,
-        ?string $sortBy = 'id',
+        ?string $sortBy = 'created_at',
         ?string $sortDirection = 'desc',
     ) {
         parent::__construct($perPage, $sortBy, $sortDirection);

@@ -16,15 +16,33 @@ abstract class BaseFilter
 
     protected function applySorting(
         Builder $query,
-        array $allowedSorts = ['id', 'created_at']
+        array $allowedSorts = []
     ): Builder {
-        $sortBy = in_array($this->sortBy, $allowedSorts, true)
-            ? $this->sortBy
-            : 'id';
+        $sortBy = $this->sortBy ?: 'id';
 
-        $direction = strtolower($this->sortDirection ?? 'desc') === 'asc'
-            ? 'asc'
-            : 'desc';
+        $direction = strtolower($this->sortDirection ?? 'desc');
+
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'desc';
+        }
+
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = in_array('created_at', $allowedSorts)
+                ? 'created_at'
+                : 'id';
+        }
+
+        if ($sortBy === 'due_date') {
+            return $query
+                ->orderByRaw('due_date IS NULL')
+                ->orderBy('due_date', $direction);
+        }
+
+        if ($sortBy === 'grade') {
+            return $query
+                ->orderByRaw('grade IS NULL')
+                ->orderBy('grade', $direction);
+        }
 
         return $query->orderBy($sortBy, $direction);
     }

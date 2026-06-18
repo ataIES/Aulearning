@@ -6,17 +6,14 @@ class DashboardService {
     const { data } = await axiosClient.get(ENDPOINTS.dashboard.admin);
     return data;
   }
+
   async teacher() {
     const { data } = await axiosClient.get(ENDPOINTS.dashboard.teacher);
     return data;
   }
 
-
   async student() {
-    const { data } = await axiosClient.get(
-      ENDPOINTS.dashboard.student
-    );
-
+    const { data } = await axiosClient.get(ENDPOINTS.dashboard.student);
     return data;
   }
 }
