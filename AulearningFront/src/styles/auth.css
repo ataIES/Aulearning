@@ -1,0 +1,118 @@
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.35), transparent 35%),
+    radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.35), transparent 35%),
+    linear-gradient(135deg, #0f172a, #1e293b);
+}
+
+.login-card {
+  width: min(980px, 100%);
+  min-height: 610px;
+  background: white;
+  border-radius: 30px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.35);
+}
+
+.login-info {
+  background: linear-gradient(160deg, #2563eb, #1e40af);
+  color: white;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: white;
+  color: #2563eb;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  font-weight: 900;
+  margin-bottom: 24px;
+}
+
+.login-info h1 {
+  font-size: 42px;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.login-info p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  opacity: 0.92;
+}
+
+.login-points {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 34px;
+}
+
+.login-points span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.login-form-area {
+  padding: 50px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-form-title {
+  margin-bottom: 32px;
+}
+
+.login-form-title h2 {
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.login-form-title p {
+  color: #6b7280;
+  margin: 0;
+}
+
+.input-icon {
+  position: relative;
+}
+
+.input-icon i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+}
+
+.input-icon .form-control {
+  padding-left: 44px;
+  height: 48px;
+  border-radius: 14px;
+}
+
+.login-submit {
+  height: 50px;
+  width: 100%;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 700;
+}
