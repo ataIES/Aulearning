@@ -6,7 +6,9 @@ use App\DTOs\DeliverTaskDto;
 use App\Filters\DeliverTaskFilter;
 use App\Http\Requests\DeliverTask\StoreDeliverTaskRequest;
 use App\Http\Requests\DeliverTask\UpdateDeliverTaskRequest;
+use App\Models\DeliveryTask;
 use App\Services\Interfaces\IDeliverTaskService;
+use App\Services\Interfaces\INotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,7 +17,8 @@ use OpenApi\Attributes as OA;
 class DeliverTaskController extends BaseApiController
 {
     public function __construct(
-        private readonly IDeliverTaskService $deliverTaskService
+        private readonly IDeliverTaskService $deliverTaskService,
+        private readonly INotificationService $notificationService
     ) {}
 
     #[OA\Get(
@@ -28,6 +31,7 @@ class DeliverTaskController extends BaseApiController
     #[OA\Parameter(name: 'course_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
     #[OA\Parameter(name: 'task_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
     #[OA\Parameter(name: 'student_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'teacher_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
     #[OA\Parameter(name: 'status', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['pending', 'graded']))]
     #[OA\Parameter(name: 'search', in: 'query', required: false, schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(ref: '#/components/parameters/PerPage')]
@@ -101,6 +105,28 @@ class DeliverTaskController extends BaseApiController
             )
         );
 
+        $deliveryModel = DeliveryTask::query()
+            ->with([
+                'student',
+                'task',
+                'task.course',
+                'task.course.teacher',
+            ])
+            ->find($delivery->id);
+
+        if ($deliveryModel?->task?->course?->teacher) {
+            $studentName = trim(
+                "{$deliveryModel->student?->name} {$deliveryModel->student?->last_name}"
+            );
+
+            $this->notificationService->createForUser(
+                $deliveryModel->task->course->teacher,
+                'Nueva entrega recibida',
+                "{$studentName} ha entregado la tarea \"{$deliveryModel->task->title}\" del curso \"{$deliveryModel->task->course->name}\".",
+                'delivery'
+            );
+        }
+
         return $this->success(
             $delivery,
             'Entrega creada correctamente.',
@@ -165,6 +191,17 @@ class DeliverTaskController extends BaseApiController
             );
         }
 
+        $oldDelivery = DeliveryTask::query()
+            ->with([
+                'student',
+                'task',
+                'task.course',
+                'task.course.teacher',
+            ])
+            ->find($id);
+
+        $oldGrade = $oldDelivery?->grade;
+
         $data = array_merge(
             $current->toArray(),
             $request->validated()
@@ -184,6 +221,50 @@ class DeliverTaskController extends BaseApiController
                 comment: $data['comment'] ?? null,
             )
         );
+
+        $deliveryModel = DeliveryTask::query()
+            ->with([
+                'student',
+                'task',
+                'task.course',
+                'task.course.teacher',
+            ])
+            ->find($id);
+
+        if ($deliveryModel) {
+            $newGrade = $deliveryModel->grade;
+
+            $isGradedNow =
+                is_null($oldGrade) &&
+                !is_null($newGrade);
+
+            $gradeChanged =
+                !is_null($oldGrade) &&
+                !is_null($newGrade) &&
+                (float) $oldGrade !== (float) $newGrade;
+
+            if (($isGradedNow || $gradeChanged) && $deliveryModel->student) {
+                $this->notificationService->createForUser(
+                    $deliveryModel->student,
+                    $gradeChanged ? 'Calificación actualizada' : 'Tarea corregida',
+                    "Tu entrega de la tarea \"{$deliveryModel->task?->title}\" ha sido "
+                    . ($gradeChanged ? 'actualizada' : 'corregida')
+                    . ". Nota: {$newGrade}.",
+                    'grade'
+                );
+            } elseif ($deliveryModel->task?->course?->teacher) {
+                $studentName = trim(
+                    "{$deliveryModel->student?->name} {$deliveryModel->student?->last_name}"
+                );
+
+                $this->notificationService->createForUser(
+                    $deliveryModel->task->course->teacher,
+                    'Entrega actualizada',
+                    "{$studentName} ha actualizado su entrega de la tarea \"{$deliveryModel->task->title}\".",
+                    'delivery'
+                );
+            }
+        }
 
         return $this->success(
             $delivery,

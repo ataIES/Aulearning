@@ -101,19 +101,25 @@ class EnrollmentController extends BaseApiController
             'course.teacher:id,name,last_name,email',
         ]);
 
-        $this->notificationService->createForUser(
-            $enrollment->student,
-            'Nueva matrícula',
-            "Has sido matriculado en el curso {$enrollment->course->name}.",
-            'info'
-        );
+        if ($enrollment->student && $enrollment->course) {
+            $this->notificationService->createForUser(
+                $enrollment->student,
+                'Nueva matrícula',
+                "Has sido matriculado en el curso \"{$enrollment->course->name}\".",
+                'enrollment'
+            );
+        }
 
-        if ($enrollment->course->teacher) {
+        if ($enrollment->course?->teacher && $enrollment->student) {
+            $studentName = trim(
+                "{$enrollment->student->name} {$enrollment->student->last_name}"
+            );
+
             $this->notificationService->createForUser(
                 $enrollment->course->teacher,
                 'Nuevo alumno matriculado',
-                "{$enrollment->student->name} {$enrollment->student->last_name} ha sido matriculado en {$enrollment->course->name}.",
-                'info'
+                "{$studentName} ha sido matriculado en el curso \"{$enrollment->course->name}\".",
+                'enrollment'
             );
         }
 
@@ -153,6 +159,7 @@ class EnrollmentController extends BaseApiController
 
         $student = $enrollment->student;
         $course = $enrollment->course;
+        $teacher = $course?->teacher;
 
         $enrollment->delete();
 
@@ -160,8 +167,21 @@ class EnrollmentController extends BaseApiController
             $this->notificationService->createForUser(
                 $student,
                 'Matrícula eliminada',
-                "Tu matrícula en el curso {$course->name} ha sido eliminada.",
-                'warning'
+                "Tu matrícula en el curso \"{$course->name}\" ha sido eliminada.",
+                'enrollment'
+            );
+        }
+
+        if ($teacher && $student && $course) {
+            $studentName = trim(
+                "{$student->name} {$student->last_name}"
+            );
+
+            $this->notificationService->createForUser(
+                $teacher,
+                'Alumno eliminado del curso',
+                "{$studentName} ya no está matriculado en el curso \"{$course->name}\".",
+                'enrollment'
             );
         }
 

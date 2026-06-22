@@ -1,0 +1,26 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f4f6fb;
+  color: #111827;
+  overflow: hidden;
+}
+
+.page-title {
+  margin-bottom: 24px;
+}
+
+.page-title h3 {
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.page-title p {
+  color: #6b7280;
+  margin: 0;
+}

@@ -25,4 +25,6 @@ interface INotificationService extends IBaseService
         string $content,
         string $type = 'system'
     ): void;
+
+    public function markAllAsRead(int $userId);
 }

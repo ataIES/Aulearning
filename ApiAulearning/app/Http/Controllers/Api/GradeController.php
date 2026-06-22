@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\DTOs\GradeDto;
 use App\Filters\GradeFilter;
+use App\Models\Grade;
 use App\Services\Interfaces\IGradeService;
+use App\Services\Interfaces\INotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -12,29 +14,14 @@ use OpenApi\Attributes as OA;
 class GradeController extends BaseApiController
 {
     public function __construct(
-        private readonly IGradeService $gradeService
+        private readonly IGradeService $gradeService,
+        private readonly INotificationService $notificationService
     ) {}
 
-    #[OA\Parameter(
-        name: 'student_id',
-        in: 'query',
-        schema: new OA\Schema(type: 'integer')
-    )]
-    #[OA\Parameter(
-        name: 'course_id',
-        in: 'query',
-        schema: new OA\Schema(type: 'integer')
-    )]
-    #[OA\Parameter(
-        name: 'min_grade',
-        in: 'query',
-        schema: new OA\Schema(type: 'number')
-    )]
-    #[OA\Parameter(
-        name: 'max_grade',
-        in: 'query',
-        schema: new OA\Schema(type: 'number')
-    )]
+    #[OA\Parameter(name: 'student_id', in: 'query', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'course_id', in: 'query', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'min_grade', in: 'query', schema: new OA\Schema(type: 'number'))]
+    #[OA\Parameter(name: 'max_grade', in: 'query', schema: new OA\Schema(type: 'number'))]
     #[OA\Parameter(ref: '#/components/parameters/PerPage')]
     #[OA\Parameter(ref: '#/components/parameters/SortBy')]
     #[OA\Parameter(ref: '#/components/parameters/SortDirection')]
@@ -89,13 +76,28 @@ class GradeController extends BaseApiController
             'course_id' => ['required', 'exists:courses,id'],
         ]);
 
+        $grade = $this->gradeService->create(new GradeDto(
+            id: null,
+            grade: (float) $data['grade'],
+            studentId: $data['student_id'],
+            courseId: $data['course_id'],
+        ));
+
+        $gradeModel = Grade::query()
+            ->with(['student', 'course'])
+            ->find($grade->id);
+
+        if ($gradeModel?->student && $gradeModel?->course) {
+            $this->notificationService->createForUser(
+                $gradeModel->student,
+                'Nueva calificación',
+                "Has recibido una calificación de {$gradeModel->grade}/10 en el curso \"{$gradeModel->course->name}\".",
+                'grade'
+            );
+        }
+
         return $this->success(
-            $this->gradeService->create(new GradeDto(
-                id: null,
-                grade: (float) $data['grade'],
-                studentId: $data['student_id'],
-                courseId: $data['course_id'],
-            )),
+            $grade,
             'Calificación creada correctamente.',
             201
         );
@@ -124,19 +126,42 @@ class GradeController extends BaseApiController
             return $this->error('Calificación no encontrada.', 404);
         }
 
+        $oldGrade = Grade::query()
+            ->with(['student', 'course'])
+            ->find($id);
+
         $data = array_merge($current->toArray(), $request->validate([
             'grade' => ['sometimes', 'numeric', 'min:0', 'max:10'],
             'student_id' => ['sometimes', 'exists:users,id'],
             'course_id' => ['sometimes', 'exists:courses,id'],
         ]));
 
+        $grade = $this->gradeService->update($id, new GradeDto(
+            id: $id,
+            grade: (float) $data['grade'],
+            studentId: $data['student_id'],
+            courseId: $data['course_id'],
+        ));
+
+        $gradeModel = Grade::query()
+            ->with(['student', 'course'])
+            ->find($id);
+
+        if (
+            $gradeModel?->student &&
+            $gradeModel?->course &&
+            (!$oldGrade || (float) $oldGrade->grade !== (float) $gradeModel->grade)
+        ) {
+            $this->notificationService->createForUser(
+                $gradeModel->student,
+                'Calificación actualizada',
+                "Tu calificación del curso \"{$gradeModel->course->name}\" ha sido actualizada a {$gradeModel->grade}/10.",
+                'grade'
+            );
+        }
+
         return $this->success(
-            $this->gradeService->update($id, new GradeDto(
-                id: $id,
-                grade: (float) $data['grade'],
-                studentId: $data['student_id'],
-                courseId: $data['course_id'],
-            )),
+            $grade,
             'Calificación actualizada correctamente.'
         );
     }
@@ -146,8 +171,28 @@ class GradeController extends BaseApiController
     #[OA\Response(response: 200, description: 'Calificación eliminada')]
     public function destroy(int $id): JsonResponse
     {
-        return $this->gradeService->delete($id)
-            ? $this->success(null, 'Calificación eliminada correctamente.')
-            : $this->error('Calificación no encontrada.', 404);
+        $grade = Grade::query()
+            ->with(['student', 'course'])
+            ->find($id);
+
+        $deleted = $this->gradeService->delete($id);
+
+        if (!$deleted) {
+            return $this->error('Calificación no encontrada.', 404);
+        }
+
+        if ($grade?->student && $grade?->course) {
+            $this->notificationService->createForUser(
+                $grade->student,
+                'Calificación eliminada',
+                "Se ha eliminado una calificación del curso \"{$grade->course->name}\".",
+                'grade'
+            );
+        }
+
+        return $this->success(
+            null,
+            'Calificación eliminada correctamente.'
+        );
     }
 }

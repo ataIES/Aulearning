@@ -21,8 +21,6 @@ class NotificationController extends BaseApiController
         tags: ['Notifications']
     )]
     #[OA\Response(response: 200, description: 'Notificaciones obtenidas correctamente')]
-    #[OA\Response(response: 401, description: 'No autenticado')]
-    #[OA\Response(response: 403, description: 'No autorizado')]
     public function index(Request $request): JsonResponse
     {
         return $this->success(
@@ -41,18 +39,14 @@ class NotificationController extends BaseApiController
         tags: ['Notifications']
     )]
     #[OA\Response(response: 200, description: 'Notificaciones no leídas obtenidas correctamente')]
-    #[OA\Response(response: 401, description: 'No autenticado')]
-    #[OA\Response(response: 403, description: 'No autorizado')]
     public function unread(Request $request): JsonResponse
     {
-         $notification= $this->success(
+        return $this->success(
             $this->notificationService->getUnreadByUser(
                 $request->user()->id
             ),
             'Notificaciones no leídas obtenidas correctamente.'
         );
-
-        return $notification;
     }
 
     #[OA\Patch(
@@ -70,8 +64,6 @@ class NotificationController extends BaseApiController
         schema: new OA\Schema(type: 'integer')
     )]
     #[OA\Response(response: 200, description: 'Notificación marcada como leída')]
-    #[OA\Response(response: 401, description: 'No autenticado')]
-    #[OA\Response(response: 403, description: 'No autorizado')]
     #[OA\Response(response: 404, description: 'Notificación no encontrada')]
     public function markAsRead(int $id): JsonResponse
     {
@@ -87,6 +79,26 @@ class NotificationController extends BaseApiController
         return $this->success(
             null,
             'Notificación marcada como leída.'
+        );
+    }
+
+    #[OA\Patch(
+        path: '/notifications/read-all',
+        summary: 'Marcar todas las notificaciones como leídas',
+        description: 'Marca como leídas todas las notificaciones del usuario autenticado.',
+        security: [['sanctum' => []]],
+        tags: ['Notifications']
+    )]
+    #[OA\Response(response: 200, description: 'Notificaciones marcadas como leídas')]
+    public function markAllAsRead(Request $request): JsonResponse
+    {
+        $this->notificationService->markAllAsRead(
+            $request->user()->id
+        );
+
+        return $this->success(
+            null,
+            'Todas las notificaciones han sido marcadas como leídas.'
         );
     }
 }

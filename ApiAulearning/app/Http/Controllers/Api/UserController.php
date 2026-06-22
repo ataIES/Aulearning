@@ -6,15 +6,19 @@ use App\DTOs\UserDto;
 use App\Filters\UserFilter;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Models\User;
 use App\Services\Interfaces\IUserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
+use App\Services\Interfaces\INotificationService;
 
 class UserController extends BaseApiController
 {
+
     public function __construct(
-        private readonly IUserService $userService
+        private readonly IUserService $userService,
+        private readonly INotificationService $notificationService
     ) {}
     #[OA\Parameter(
         name: 'search',
@@ -102,8 +106,23 @@ class UserController extends BaseApiController
             password: $data['password'],
         );
 
+        $user = $this->userService->create($dto);
+
+        $userModel = User::find($user->id);
+
+        if ($userModel) {
+            $userModel->syncRoles([$userModel->type]);
+
+            $this->notificationService->createForUser(
+                $userModel,
+                'Bienvenido a Aulearning',
+                'Tu cuenta ha sido creada correctamente. Ya puedes acceder a la plataforma.',
+                'user'
+            );
+        }
+
         return $this->success(
-            $this->userService->create($dto),
+            $user,
             'Usuario creado correctamente.',
             201
         );
@@ -146,6 +165,8 @@ class UserController extends BaseApiController
             return $this->error('Usuario no encontrado.', 404);
         }
 
+        $oldUser = User::find($id);
+
         $data = array_merge($current->toArray(), $request->validated());
 
         $dto = new UserDto(
@@ -158,8 +179,16 @@ class UserController extends BaseApiController
             password: $data['password'] ?? null,
         );
 
+        $user = $this->userService->update($id, $dto);
+
+        $userModel = \App\Models\User::find($id);
+
+        if ($userModel) {
+            $userModel->syncRoles([$userModel->type]);
+        }
+
         return $this->success(
-            $this->userService->update($id, $dto),
+            $user,
             'Usuario actualizado correctamente.'
         );
     }
@@ -175,10 +204,24 @@ class UserController extends BaseApiController
     #[OA\Response(response: 404, description: 'Usuario no encontrado')]
     public function destroy(int $id): JsonResponse
     {
+        $user = User::find($id);
+
         if (!$this->userService->delete($id)) {
-            return $this->error('Usuario no encontrado.', 404);
+            return $this->error(
+                'Usuario no encontrado.',
+                404
+            );
         }
 
-        return $this->success(null, 'Usuario eliminado correctamente.');
+        $this->notificationService->createGlobal(
+            'Usuario eliminado',
+            "Se ha eliminado el usuario {$user?->name} {$user?->last_name}.",
+            'user'
+        );
+
+        return $this->success(
+            null,
+            'Usuario eliminado correctamente.'
+        );
     }
 }

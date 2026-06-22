@@ -1,13 +1,19 @@
 import { createContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import AuthService from '../services/AuthService';
 import { clearAuth, getToken, getUser, saveAuth } from '../utils/storage';
+import { useUI } from '../hooks/useUI';
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
+
   const [user, setUser] = useState(getUser());
   const [token, setToken] = useState(getToken());
   const [checkingAuth, setCheckingAuth] = useState(true);
+
+  const { showLoader, hideLoader } = useUI();
 
   const login = async (credentials, remember = false) => {
     const response = await AuthService.login(credentials);
@@ -23,13 +29,20 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
+      showLoader('Cerrando sesión...');
+
       await AuthService.logout();
-    } catch {
-      //
+    } catch (error) {
+      console.error(error);
     } finally {
       clearAuth();
+
       setUser(null);
       setToken(null);
+
+      hideLoader();
+
+      window.location.replace('/login');
     }
   };
 

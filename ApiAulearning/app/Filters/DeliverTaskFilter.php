@@ -4,7 +4,7 @@ namespace App\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 
-class DeliveryTaskFilter extends BaseFilter
+class DeliverTaskFilter extends BaseFilter
 {
     public function __construct(
         public readonly ?int $courseId = null,

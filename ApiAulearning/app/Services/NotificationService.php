@@ -81,4 +81,17 @@ class NotificationService extends BaseService implements INotificationService
             'read_at' => null,
         ]);
     }
+
+    public function markAllAsRead(int $userId): bool
+    {
+        return Notification::query()
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhereNull('user_id');
+            })
+            ->whereNull('read_at')
+            ->update([
+                'read_at' => now(),
+            ]) > 0;
+    }
 }
