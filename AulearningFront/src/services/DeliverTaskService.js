@@ -72,12 +72,19 @@ class DeliverTaskService {
     return data;
   }
 
-  async delete(id) {
+ async delete(id) {
     const { data } = await axiosClient.delete(
       ENDPOINTS.deliveries.delete(id)
     );
 
     return data;
+  }
+
+  async getByCourse(courseId, params = {}) {
+    return this.paginate({
+      course_id: courseId,
+      ...params,
+    });
   }
 
   async getByStudent(studentId, params = {}) {

@@ -11,6 +11,8 @@ import TeacherService from '../../../services/TeacherService';
 
 const defaultFilters = {
   search: '',
+  sort_by: 'name',
+  sort_direction: 'asc',
 };
 
 export default function TeacherCourseStudentsPage() {
@@ -20,23 +22,32 @@ export default function TeacherCourseStudentsPage() {
 
   const [course, setCourse] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
-
   const [filters, setFilters] = useState(defaultFilters);
 
   const [loadingPage, setLoadingPage] = useState(true);
   const [loadingResults, setLoadingResults] = useState(false);
 
   const extractData = (response) =>
-    response?.data?.data ??
-    response?.data ??
-    response ??
-    null;
+    response?.data?.data ?? response?.data ?? response ?? null;
 
   const extractItems = (response) =>
     response?.data?.data?.data ??
     response?.data?.data ??
     response?.data?.items ??
+    response?.items ??
+    response ??
     [];
+
+  const sortEnrollmentsByStudentName = (items) =>
+    [...items].sort((a, b) => {
+      const studentA = a.student ?? a.user ?? {};
+      const studentB = b.student ?? b.user ?? {};
+
+      const nameA = `${studentA.name ?? ''} ${studentA.last_name ?? ''}`.trim();
+      const nameB = `${studentB.name ?? ''} ${studentB.last_name ?? ''}`.trim();
+
+      return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
+    });
 
   const loadPage = async () => {
     try {
@@ -46,11 +57,15 @@ export default function TeacherCourseStudentsPage() {
         TeacherService.courseDetail(courseId),
         TeacherService.courseStudents(courseId, {
           per_page: 200,
+          sort_by: 'name',
+          sort_direction: 'asc',
         }),
       ]);
 
       setCourse(extractData(courseResponse));
-      setEnrollments(extractItems(studentsResponse));
+
+      const items = extractItems(studentsResponse);
+      setEnrollments(sortEnrollmentsByStudentName(items));
     } catch (error) {
       console.error(error);
       showError('No se pudieron cargar los alumnos del curso.');
@@ -59,16 +74,19 @@ export default function TeacherCourseStudentsPage() {
     }
   };
 
-  const loadStudents = async (params = {}) => {
+  const loadStudents = async (customFilters = filters) => {
     try {
       setLoadingResults(true);
 
       const response = await TeacherService.courseStudents(courseId, {
         per_page: 200,
-        ...params,
+        sort_by: customFilters.sort_by,
+        sort_direction: customFilters.sort_direction,
+        search: customFilters.search || undefined,
       });
 
-      setEnrollments(extractItems(response));
+      const items = extractItems(response);
+      setEnrollments(sortEnrollmentsByStudentName(items));
     } catch (error) {
       console.error(error);
       showError('No se pudieron actualizar los alumnos.');
@@ -85,14 +103,14 @@ export default function TeacherCourseStudentsPage() {
     event.preventDefault();
     event.stopPropagation();
 
-    loadStudents({
-      search: filters.search,
-    });
+    loadStudents(filters);
   };
 
   const handleReset = () => {
-    setFilters(defaultFilters);
-    loadStudents();
+    const reset = { ...defaultFilters };
+
+    setFilters(reset);
+    loadStudents(reset);
   };
 
   const goToDeliveries = (studentId) => {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
+import PageLoader from '../../../components/common/PageLoader';
 import CourseStatusBadge from '../../../components/table/CourseStatusBadge';
 import TableStatPill from '../../../components/table/TableStatPill';
 import TableUserCell from '../../../components/table/TableUserCell';
@@ -10,9 +11,10 @@ import CourseService from '../../../services/CourseService';
 
 export default function AdminCourseDetailPage() {
   const { courseId } = useParams();
-  const { setLoading, showError } = useUI();
+  const { showError } = useUI();
 
   const [course, setCourse] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const loadCourse = async () => {
     try {
@@ -31,6 +33,15 @@ export default function AdminCourseDetailPage() {
   useEffect(() => {
     loadCourse();
   }, [courseId]);
+
+  if (loading) {
+    return (
+      <PageLoader
+        title="Cargando curso"
+        message="Preparando la información del curso..."
+      />
+    );
+  }
 
   if (!course) return null;
 
@@ -131,15 +142,11 @@ export default function AdminCourseDetailPage() {
 
                 {course.teacher ? (
                   <TableUserCell
-                    name={`${course.teacher.name ?? ''} ${
-                      course.teacher.last_name ?? ''
-                    }`}
+                    name={`${course.teacher.name ?? ''} ${course.teacher.last_name ?? ''}`}
                     email={course.teacher.email}
                   />
                 ) : (
-                  <strong className="text-muted">
-                    Sin profesor asignado
-                  </strong>
+                  <strong className="text-muted">Sin profesor asignado</strong>
                 )}
               </div>
 
@@ -213,14 +220,9 @@ export default function AdminCourseDetailPage() {
             {(course.enrollments ?? []).length > 0 ? (
               <div className="course-detail-list">
                 {course.enrollments.slice(0, 5).map((enrollment) => (
-                  <div
-                    className="course-detail-list-item"
-                    key={enrollment.id}
-                  >
+                  <div className="course-detail-list-item" key={enrollment.id}>
                     <TableUserCell
-                      name={`${enrollment.student?.name ?? ''} ${
-                        enrollment.student?.last_name ?? ''
-                      }`}
+                      name={`${enrollment.student?.name ?? ''} ${enrollment.student?.last_name ?? ''}`}
                       email={enrollment.student?.email}
                     />
 
@@ -228,9 +230,7 @@ export default function AdminCourseDetailPage() {
                       icon="bi-calendar-check"
                       value={
                         enrollment.enrollment_date
-                          ? new Date(
-                              enrollment.enrollment_date
-                            ).toLocaleDateString()
+                          ? new Date(enrollment.enrollment_date).toLocaleDateString()
                           : '-'
                       }
                       variant="blue"
@@ -239,9 +239,7 @@ export default function AdminCourseDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-muted mb-0">
-                No hay alumnos matriculados.
-              </p>
+              <p className="text-muted mb-0">No hay alumnos matriculados.</p>
             )}
           </div>
         </div>
@@ -270,9 +268,7 @@ export default function AdminCourseDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-muted mb-0">
-                No hay tareas en este curso.
-              </p>
+              <p className="text-muted mb-0">No hay tareas en este curso.</p>
             )}
           </div>
         </div>

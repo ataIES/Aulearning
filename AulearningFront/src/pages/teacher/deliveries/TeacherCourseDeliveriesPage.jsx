@@ -13,9 +13,9 @@ import GradeDeliveryModal from './GradeDeliveryModal';
 
 const defaultFilters = {
   search: '',
-  status: '',
+  status: 'pending',
   task_id: '',
-  student_id: ''
+  student_id: '',
 };
 
 export default function TeacherCourseDeliveriesPage() {
@@ -50,7 +50,30 @@ export default function TeacherCourseDeliveriesPage() {
     response?.data?.data?.data ??
     response?.data?.data ??
     response?.data?.items ??
+    response?.data ??
+    response?.items ??
     [];
+
+  const sortByDeliveryDateDesc = (items) =>
+    [...items].sort((a, b) => {
+      const dateA = a.delivery_date ? new Date(a.delivery_date).getTime() : 0;
+      const dateB = b.delivery_date ? new Date(b.delivery_date).getTime() : 0;
+
+      return dateB - dateA;
+    });
+
+  const buildFilters = (currentFilters = filters) => ({
+    per_page: 200,
+    status: currentFilters.status || undefined,
+    search: currentFilters.search || undefined,
+    task_id: currentFilters.task_id || undefined,
+    student_id:
+      currentFilters.student_id ||
+      studentIdFromUrl ||
+      undefined,
+    sort_by: 'delivery_date',
+    sort_direction: 'desc',
+  });
 
   const loadPage = async () => {
     try {
@@ -61,15 +84,18 @@ export default function TeacherCourseDeliveriesPage() {
           TeacherService.courseDetail(courseId),
           TeacherService.courseTasks(courseId, {
             per_page: 200,
+            sort_by: 'title',
+            sort_direction: 'asc',
           }),
-          TeacherService.courseDeliveries(courseId, {
-            student_id: studentIdFromUrl || undefined,
-          }),
+          TeacherService.courseDeliveries(courseId, buildFilters({
+            ...defaultFilters,
+            student_id: studentIdFromUrl,
+          })),
         ]);
 
       setCourse(extractData(courseResponse));
       setTasks(extractItems(tasksResponse));
-      setDeliveries(extractItems(deliveriesResponse));
+      setDeliveries(sortByDeliveryDateDesc(extractItems(deliveriesResponse)));
     } catch (error) {
       console.error(error);
       showError('No se pudieron cargar las entregas del curso.');
@@ -78,13 +104,16 @@ export default function TeacherCourseDeliveriesPage() {
     }
   };
 
-  const loadDeliveries = async (params = {}) => {
+  const loadDeliveries = async (currentFilters = filters) => {
     try {
       setLoadingResults(true);
 
-      const response = await TeacherService.courseDeliveries(courseId, params);
+      const response = await TeacherService.courseDeliveries(
+        courseId,
+        buildFilters(currentFilters)
+      );
 
-      setDeliveries(extractItems(response));
+      setDeliveries(sortByDeliveryDateDesc(extractItems(response)));
     } catch (error) {
       console.error(error);
       showError('No se pudieron actualizar las entregas.');
@@ -95,7 +124,7 @@ export default function TeacherCourseDeliveriesPage() {
 
   useEffect(() => {
     loadPage();
-  }, [courseId]);
+  }, [courseId, studentIdFromUrl]);
 
   const updateFilter = (key, value) => {
     setFilters((prev) => ({
@@ -104,33 +133,21 @@ export default function TeacherCourseDeliveriesPage() {
     }));
   };
 
-  const buildFilters = () => {
-    const params = {};
-
-    if (filters.search) params.search = filters.search;
-    if (filters.status) params.status = filters.status;
-    if (filters.task_id) params.task_id = filters.task_id;
-    if (filters.student_id) params.student_id = filters.student_id;
-
-    return params;
-  };
-
   const handleSearch = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    loadDeliveries(buildFilters());
+    loadDeliveries(filters);
   };
 
   const handleReset = () => {
-    setFilters({
+    const reset = {
       ...defaultFilters,
       student_id: studentIdFromUrl,
-    });
+    };
 
-    loadDeliveries({
-      student_id: studentIdFromUrl || undefined,
-    });
+    setFilters(reset);
+    loadDeliveries(reset);
   };
 
   const openGradeModal = (delivery) => {
@@ -161,7 +178,7 @@ export default function TeacherCourseDeliveriesPage() {
 
       setSelectedDelivery(null);
 
-      await loadDeliveries(buildFilters());
+      await loadDeliveries(filters);
     } catch (error) {
       const response = error.response?.data;
 
@@ -227,7 +244,7 @@ export default function TeacherCourseDeliveriesPage() {
           <h2>{course?.name ?? 'Curso'}</h2>
 
           <p>
-            Revisa las entregas de tus alumnos y registra sus calificaciones.
+            Revisa las entregas pendientes de tus alumnos y registra sus calificaciones.
           </p>
         </div>
 
@@ -238,7 +255,7 @@ export default function TeacherCourseDeliveriesPage() {
 
       <LearningPanel
         title="Entregas"
-        subtitle="Filtra por tarea, alumno o estado de corrección."
+        subtitle="Por defecto se muestran las pendientes, ordenadas por fecha de entrega más reciente."
         action={
           <Link
             to={`/teacher/courses/${courseId}`}
@@ -342,10 +359,16 @@ export default function TeacherCourseDeliveriesPage() {
                       </div>
 
                       <div>
-                        <span>Fecha entrega</span>
+                        <span>Entregado el</span>
                         <strong>
                           {delivery.delivery_date
-                            ? new Date(delivery.delivery_date).toLocaleDateString()
+                            ? new Date(delivery.delivery_date).toLocaleString('es-ES', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
                             : '-'}
                         </strong>
                       </div>
@@ -396,7 +419,7 @@ export default function TeacherCourseDeliveriesPage() {
             <EmptyLearningState
               icon="bi-inbox"
               title="Sin entregas"
-              message="Todavía no hay entregas para este curso."
+              message="No hay entregas con los filtros seleccionados."
             />
           )}
         </ContentLoader>

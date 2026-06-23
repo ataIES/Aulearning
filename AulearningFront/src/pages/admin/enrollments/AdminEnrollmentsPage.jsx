@@ -24,6 +24,8 @@ const defaultFilters = {
   teacher_id: '',
   per_page: 10,
   page: 1,
+  sort_by: 'enrollment_date',
+  sort_direction: 'desc',
 };
 
 export default function AdminEnrollmentsPage() {
@@ -58,6 +60,8 @@ export default function AdminEnrollmentsPage() {
     const params = {
       page: filters.page,
       per_page: filters.per_page,
+      sort_by: filters.sort_by,
+      sort_direction: filters.sort_direction,
     };
 
     if (filters.search) params.search = filters.search;
@@ -93,11 +97,23 @@ export default function AdminEnrollmentsPage() {
     }
   };
 
-  const loadEnrollments = async () => {
+  const loadEnrollments = async (customFilters = filters) => {
     try {
       setTableLoading(true);
 
-      const response = await EnrollmentService.paginate(buildParams());
+      const params = {
+        page: customFilters.page,
+        per_page: customFilters.per_page,
+        sort_by: customFilters.sort_by,
+        sort_direction: customFilters.sort_direction,
+      };
+
+      if (customFilters.search) params.search = customFilters.search;
+      if (customFilters.student_id) params.student_id = customFilters.student_id;
+      if (customFilters.course_id) params.course_id = customFilters.course_id;
+      if (customFilters.teacher_id) params.teacher_id = customFilters.teacher_id;
+
+      const response = await EnrollmentService.paginate(params);
 
       setEnrollments(response.data?.data ?? response.data?.items ?? []);
       setMeta(response.data?.meta ?? response.data?.pagination ?? null);
@@ -135,8 +151,13 @@ export default function AdminEnrollmentsPage() {
   };
 
   const handleReset = () => {
-    setFilters(defaultFilters);
-    setTimeout(loadEnrollments, 0);
+    const reset = {
+      ...defaultFilters,
+    };
+
+    setFilters(reset);
+
+    loadEnrollments(reset);
   };
 
   const openCreate = () => {

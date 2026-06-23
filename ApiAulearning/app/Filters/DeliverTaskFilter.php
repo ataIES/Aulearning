@@ -14,8 +14,8 @@ class DeliverTaskFilter extends BaseFilter
         public readonly ?string $status = null,
         public readonly ?string $search = null,
         ?int $perPage = 15,
-        ?string $sortBy = 'created_at',
-        ?string $sortDirection = 'asc',
+        ?string $sortBy = 'delivery_date',
+        ?string $sortDirection = 'desc',
     ) {
         parent::__construct($perPage, $sortBy, $sortDirection);
     }
@@ -59,13 +59,15 @@ class DeliverTaskFilter extends BaseFilter
                 });
             });
 
-        return $this->applySorting($query, [
-            'id',
-            'delivery_date',
-            'updated_date',
-            'grade',
-            'created_at',
-            'updated_at',
-        ]);
+        if (!$this->status) {
+            return $query
+                ->orderByRaw('CASE WHEN grade IS NULL THEN 0 ELSE 1 END')
+                ->orderByDesc('delivery_date')
+                ->orderByDesc('created_at');
+        }
+
+        return $query
+            ->orderByDesc('delivery_date')
+            ->orderByDesc('created_at');
     }
 }

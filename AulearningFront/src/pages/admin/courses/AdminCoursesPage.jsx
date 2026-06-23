@@ -21,6 +21,8 @@ const defaultFilters = {
   search: '',
   per_page: 10,
   page: 1,
+  sort_by: 'name',
+  sort_direction: 'asc',
 };
 
 export default function AdminCoursesPage() {
@@ -31,6 +33,7 @@ export default function AdminCoursesPage() {
   const [teachers, setTeachers] = useState([]);
   const [meta, setMeta] = useState(null);
   const [filters, setFilters] = useState(defaultFilters);
+  const [appliedFilters, setAppliedFilters] = useState(defaultFilters);
   const [tableLoading, setTableLoading] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
@@ -44,12 +47,14 @@ export default function AdminCoursesPage() {
 
   const buildParams = () => {
     const params = {
-      page: filters.page,
-      per_page: filters.per_page,
+      page: appliedFilters.page,
+      per_page: appliedFilters.per_page,
+      sort_by: appliedFilters.sort_by ?? 'name',
+      sort_direction: appliedFilters.sort_direction ?? 'asc',
     };
 
-    if (filters.search) {
-      params.search = filters.search;
+    if (appliedFilters.search) {
+      params.search = appliedFilters.search;
     }
 
     return params;
@@ -63,7 +68,6 @@ export default function AdminCoursesPage() {
 
       setCourses(response.data?.data ?? response.data?.items ?? []);
       setMeta(response.data?.meta ?? response.data?.pagination ?? null);
-      setTeachers(response.data?.data ?? response.data?.data ?? []);
     } catch {
       showError('No se pudo cargar la lista de cursos.');
     } finally {
@@ -77,7 +81,10 @@ export default function AdminCoursesPage() {
 
       const response = await UserService.paginate({
         type: 'teacher',
+        active: 1,
         per_page: 200,
+        sort_by: 'name',
+        sort_direction: 'asc',
       });
 
       const items =
@@ -94,9 +101,10 @@ export default function AdminCoursesPage() {
       setTeachersLoading(false);
     }
   };
+
   useEffect(() => {
     loadCourses();
-  }, [filters.page, filters.per_page]);
+  }, [appliedFilters]);
 
   useEffect(() => {
     loadTeachers();
@@ -113,12 +121,16 @@ export default function AdminCoursesPage() {
   const handleSearch = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    loadCourses();
+
+    setAppliedFilters({
+      ...filters,
+      page: 1,
+    });
   };
 
   const handleReset = () => {
-    setFilters(defaultFilters);
-    setTimeout(loadCourses, 0);
+    setFilters({ ...defaultFilters });
+    setAppliedFilters({ ...defaultFilters });
   };
 
   const openCreate = () => {
@@ -148,6 +160,7 @@ export default function AdminCoursesPage() {
       setSelectedCourse(null);
 
       await loadCourses();
+      await loadTeachers();
     } catch (error) {
       const response = error.response?.data;
 
@@ -318,6 +331,7 @@ export default function AdminCoursesPage() {
             className="btn btn-outline-secondary"
             type="button"
             onClick={handleReset}
+            disabled={tableLoading}
           >
             <i className="bi bi-arrow-clockwise" />
           </button>
@@ -330,7 +344,7 @@ export default function AdminCoursesPage() {
         <TablePagination
           meta={meta}
           onPageChange={(page) =>
-            setFilters((prev) => ({
+            setAppliedFilters((prev) => ({
               ...prev,
               page,
             }))

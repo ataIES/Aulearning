@@ -10,7 +10,7 @@ class TaskDto implements IBaseDto
         public ?int $id,
         public string $title,
         public string $description,
-        public string $dueDate,
+        public ?string $dueDate,
         public int $courseId,
         public ?int $studentId,
         public string $type,

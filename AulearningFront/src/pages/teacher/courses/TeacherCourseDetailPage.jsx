@@ -142,6 +142,13 @@ export default function TeacherCourseDetailPage() {
           label="Fecha inicio"
           variant="warning"
         />
+
+         <LearningStatCard
+          icon="bi-calendar-event"
+          value={course.end_date ?? '-'}
+          label="Fecha Fin"
+          variant="warning"
+        />
       </section>
 
       <div className="row g-4 mt-1">

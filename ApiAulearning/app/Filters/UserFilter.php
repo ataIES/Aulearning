@@ -8,10 +8,11 @@ class UserFilter extends BaseFilter
 {
     public function __construct(
         public readonly ?string $search = null,
+        public readonly ?string $searchBy = 'all',
         public readonly ?string $type = null,
         public readonly ?bool $active = null,
         ?int $perPage = 15,
-        ?string $sortBy = 'name',
+        ?string $sortBy = 'id',
         ?string $sortDirection = 'desc',
     ) {
         parent::__construct($perPage, $sortBy, $sortDirection);
@@ -20,24 +21,40 @@ class UserFilter extends BaseFilter
     public function apply(Builder $query): Builder
     {
         $query
-            ->when($this->search, function (Builder $query) {
-                $query->where(function (Builder $query) {
-                    $query
-                        ->where('name', 'like', "%{$this->search}%")
-                        ->orWhere('last_name', 'like', "%{$this->search}%")
-                        ->orWhere('email', 'like', "%{$this->search}%");
-                });
+            ->when($this->search, function ($query) {
+                $search = "%{$this->search}%";
+
+                if ($this->searchBy === 'name') {
+                    $query->where(function ($query) use ($search) {
+                        $query->where('name', 'like', $search)
+                            ->orWhere('last_name', 'like', $search);
+                    });
+                } elseif ($this->searchBy === 'email') {
+                    $query->where('email', 'like', $search);
+                } else {
+                    $query->where(function ($query) use ($search) {
+                        $query->where('name', 'like', $search)
+                            ->orWhere('last_name', 'like', $search)
+                            ->orWhere('email', 'like', $search);
+                    });
+                }
             })
-            ->when($this->type, fn (Builder $query) =>
+            ->when($this->type, fn ($query) =>
                 $query->where('type', $this->type)
             )
-            ->when($this->active !== null, fn (Builder $query) =>
+            ->when(!is_null($this->active), fn ($query) =>
                 $query->where('active', $this->active)
             );
 
-        return $this->applySorting(
-            $query,
-            ['id', 'name', 'last_name', 'email', 'type', 'active', 'created_at']
-        );
+        return $this->applySorting($query, [
+            'id',
+            'name',
+            'last_name',
+            'email',
+            'type',
+            'active',
+            'created_at',
+            'updated_at',
+        ]);
     }
 }

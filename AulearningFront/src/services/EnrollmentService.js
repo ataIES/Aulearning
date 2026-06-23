@@ -16,6 +16,23 @@ class EnrollmentService {
       ...params,
     });
   }
+
+  async create(payload) {
+    const { data } = await axiosClient.post(
+      ENDPOINTS.enrollments.create,
+      payload
+    );
+
+    return data;
+  }
+
+  async delete(id) {
+    const { data } = await axiosClient.delete(
+      ENDPOINTS.enrollments.delete(id)
+    );
+
+    return data;
+  }
 }
 
 export default new EnrollmentService();

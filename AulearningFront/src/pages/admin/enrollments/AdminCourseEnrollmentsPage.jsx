@@ -31,6 +31,7 @@ export default function AdminCourseEnrollmentsPage() {
 
   const [meta, setMeta] = useState(null);
   const [filters, setFilters] = useState(defaultFilters);
+  const [appliedFilters, setAppliedFilters] = useState(defaultFilters);
   const [tableLoading, setTableLoading] = useState(false);
 
   const [enrollmentToDelete, setEnrollmentToDelete] = useState(null);
@@ -40,12 +41,14 @@ export default function AdminCourseEnrollmentsPage() {
   const buildParams = () => {
     const params = {
       course_id: courseId,
-      page: filters.page,
-      per_page: filters.per_page,
+      page: appliedFilters.page,
+      per_page: appliedFilters.per_page,
+      sort_by: 'name',
+      sort_direction: 'asc',
     };
 
-    if (filters.search) {
-      params.search = filters.search;
+    if (appliedFilters.search) {
+      params.search = appliedFilters.search;
     }
 
     return params;
@@ -81,10 +84,19 @@ export default function AdminCourseEnrollmentsPage() {
         type: 'student',
         active: 1,
         per_page: 200,
+        sort_by: 'name',
+        sort_direction: 'asc',
       });
 
-      setStudents(response.data?.data ?? response.data?.items ?? []);
-    } catch {
+      const items =
+        response.data?.data?.data ??
+        response.data?.data ??
+        response.data?.items ??
+        [];
+
+      setStudents(items);
+    } catch (error) {
+      console.error(error);
       showError('No se pudieron cargar los alumnos.');
     }
   };
@@ -96,7 +108,7 @@ export default function AdminCourseEnrollmentsPage() {
 
   useEffect(() => {
     loadEnrollments();
-  }, [courseId, filters.page, filters.per_page]);
+  }, [courseId, appliedFilters]);
 
   const updateFilter = (key, value) => {
     setFilters((prev) => ({
@@ -109,12 +121,16 @@ export default function AdminCourseEnrollmentsPage() {
   const handleSearch = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    loadEnrollments();
+
+    setAppliedFilters({
+      ...filters,
+      page: 1,
+    });
   };
 
   const handleReset = () => {
-    setFilters(defaultFilters);
-    setTimeout(loadEnrollments, 0);
+    setFilters({ ...defaultFilters });
+    setAppliedFilters({ ...defaultFilters });
   };
 
   const handleEnroll = async (event) => {
@@ -176,9 +192,8 @@ export default function AdminCourseEnrollmentsPage() {
       label: 'Alumno',
       render: (enrollment) => (
         <TableUserCell
-          name={`${enrollment.student?.name ?? ''} ${
-            enrollment.student?.last_name ?? ''
-          }`}
+          name={`${enrollment.student?.name ?? ''} ${enrollment.student?.last_name ?? ''
+            }`}
           email={enrollment.student?.email}
         />
       ),
@@ -296,7 +311,7 @@ export default function AdminCourseEnrollmentsPage() {
         <TablePagination
           meta={meta}
           onPageChange={(page) =>
-            setFilters((prev) => ({
+            setAppliedFilters((prev) => ({
               ...prev,
               page,
             }))

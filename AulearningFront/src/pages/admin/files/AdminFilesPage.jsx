@@ -14,6 +14,8 @@ const defaultFilters = {
   search: '',
   per_page: 10,
   page: 1,
+  sort_by: 'created_at',
+  sort_direction: 'desc',
 };
 
 export default function AdminFilesPage() {
@@ -27,22 +29,28 @@ export default function AdminFilesPage() {
   const [fileToDelete, setFileToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const buildParams = () => {
+  const buildParams = (currentFilters = filters) => {
     const params = {
-      page: filters.page,
-      per_page: filters.per_page,
+      page: currentFilters.page,
+      per_page: currentFilters.per_page,
+      sort_by: currentFilters.sort_by,
+      sort_direction: currentFilters.sort_direction,
     };
 
-    if (filters.search) params.search = filters.search;
+    if (currentFilters.search) {
+      params.search = currentFilters.search;
+    }
 
     return params;
   };
 
-  const loadFiles = async () => {
+  const loadFiles = async (currentFilters = filters) => {
     try {
       setTableLoading(true);
 
-      const response = await FileService.paginate(buildParams());
+      const response = await FileService.paginate(
+        buildParams(currentFilters)
+      );
 
       setFiles(response.data?.data ?? response.data?.items ?? []);
       setMeta(response.data?.meta ?? response.data?.pagination ?? null);
@@ -69,12 +77,25 @@ export default function AdminFilesPage() {
   const handleSearch = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    loadFiles();
+
+    setFilters((prev) => ({
+      ...prev,
+      page: 1,
+    }));
+
+    loadFiles({
+      ...filters,
+      page: 1,
+    });
   };
 
   const handleReset = () => {
-    setFilters(defaultFilters);
-    setTimeout(loadFiles, 0);
+    const reset = {
+      ...defaultFilters,
+    };
+
+    setFilters(reset);
+    loadFiles(reset);
   };
 
   const handleDelete = async () => {

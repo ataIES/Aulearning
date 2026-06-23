@@ -52,13 +52,14 @@ class UserController extends BaseApiController
     {
         $filter = new UserFilter(
             search: $request->query('search'),
+            searchBy: $request->query('searchBy', 'all'),
             type: $request->query('type'),
             active: $request->has('active')
                 ? $request->boolean('active')
                 : null,
             perPage: (int) $request->query('per_page', 15),
-            sortBy: $request->query('sort_by', 'id'),
-            sortDirection: $request->query('sort_direction', 'desc'),
+            sortBy: $request->query('sort_by', 'name'),
+            sortDirection: $request->query('sort_direction', 'asc'),
         );
 
         return $this->success(
