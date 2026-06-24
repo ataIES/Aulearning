@@ -9,6 +9,7 @@ import ContentLoader from '../../../components/common/ContentLoader';
 import { useAuth } from '../../../hooks/useAuth';
 import { useUI } from '../../../hooks/useUI';
 import TeacherService from '../../../services/TeacherService';
+import { Helmet } from 'react-helmet-async';
 
 export default function TeacherCoursesPage() {
   const { user } = useAuth();
@@ -100,76 +101,81 @@ export default function TeacherCoursesPage() {
   }
 
   return (
-    <div className="learning-dashboard">
-      <section className="learning-hero">
-        <div>
-          <span className="learning-kicker">Mis cursos</span>
-          <h2>Tus cursos asignados</h2>
-          <p>
-            Accede a los cursos activos que tienes asignados para gestionar
-            tareas, alumnos y entregas.
-          </p>
-        </div>
-
-        <div className="learning-hero-icon">
-          <i className="bi bi-journal-bookmark-fill" />
-        </div>
-      </section>
-
-      <LearningPanel
-        title="Cursos activos"
-        subtitle="Solo se muestran cursos cuya fecha actual está entre la fecha de inicio y fin."
-      >
-        <form className="learning-filter-bar" onSubmit={handleSubmit}>
-          <div className="learning-filter-input">
-            <i className="bi bi-search" />
-
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar curso..."
-              disabled={loadingResults}
-            />
+    <>
+    <Helmet>
+      <title>Listar Cursos</title>
+    </Helmet>
+      <div className="learning-dashboard">
+        <section className="learning-hero">
+          <div>
+            <span className="learning-kicker">Mis cursos</span>
+            <h2>Tus cursos asignados</h2>
+            <p>
+              Accede a los cursos activos que tienes asignados para gestionar
+              tareas, alumnos y entregas.
+            </p>
           </div>
 
-          <button className="btn btn-primary" type="submit" disabled={loadingResults}>
-            Buscar
-          </button>
+          <div className="learning-hero-icon">
+            <i className="bi bi-journal-bookmark-fill" />
+          </div>
+        </section>
 
-          <button
-            className="btn btn-outline-secondary"
-            type="button"
-            onClick={handleReset}
-            disabled={loadingResults}
-          >
-            Limpiar
-          </button>
-        </form>
-
-        <ContentLoader
-          loading={loadingResults}
-          title="Actualizando cursos..."
-          message="Aplicando filtros..."
+        <LearningPanel
+          title="Cursos activos"
+          subtitle="Solo se muestran cursos cuya fecha actual está entre la fecha de inicio y fin."
         >
-          {courses.length > 0 ? (
-            <div className="teacher-course-grid mt-3">
-              {courses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  course={course}
-                  to={`/teacher/courses/${course.id}`}
-                />
-              ))}
+          <form className="learning-filter-bar" onSubmit={handleSubmit}>
+            <div className="learning-filter-input">
+              <i className="bi bi-search" />
+
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Buscar curso..."
+                disabled={loadingResults}
+              />
             </div>
-          ) : (
-            <EmptyLearningState
-              icon="bi-journal-x"
-              title="Sin cursos activos"
-              message="No tienes cursos activos actualmente."
-            />
-          )}
-        </ContentLoader>
-      </LearningPanel>
-    </div>
+
+            <button className="btn btn-primary" type="submit" disabled={loadingResults}>
+              Buscar
+            </button>
+
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={handleReset}
+              disabled={loadingResults}
+            >
+              Limpiar
+            </button>
+          </form>
+
+          <ContentLoader
+            loading={loadingResults}
+            title="Actualizando cursos..."
+            message="Aplicando filtros..."
+          >
+            {courses.length > 0 ? (
+              <div className="teacher-course-grid mt-3">
+                {courses.map((course) => (
+                  <CourseCard
+                    key={course.id}
+                    course={course}
+                    to={`/teacher/courses/${course.id}`}
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyLearningState
+                icon="bi-journal-x"
+                title="Sin cursos activos"
+                message="No tienes cursos activos actualmente."
+              />
+            )}
+          </ContentLoader>
+        </LearningPanel>
+      </div>
+    </>
   );
 }

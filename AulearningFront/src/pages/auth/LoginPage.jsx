@@ -5,6 +5,7 @@ import LoginLoader from '../../components/common/LoginLoader';
 import { useAuth } from '../../hooks/useAuth';
 import { useUI } from '../../hooks/useUI';
 import { getHomeByRole } from '../../utils/redirectByRole';
+import { Helmet } from 'react-helmet-async';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -81,6 +82,9 @@ export default function LoginPage() {
 
   return (
     <>
+    <Helmet>
+        <title>Iniciar sesión</title>
+      </Helmet>
       {loginLoading && (
         <LoginLoader
           title="Iniciando sesión"

@@ -275,30 +275,26 @@ class DashBoardService implements IDashBoardService
                     'grade',
                     'comment',
                     'created_at',
+                    'updated_date',
+                    'updated_at'
                 ]),
 
             'courses' => Course::query()
-                ->with([
-                    'teacher:id,name,last_name,email',
-                ])
+                ->with(['teacher:id,name,last_name,email'])
                 ->withCount([
                     'tasks',
-                    'tasks as pending_tasks_count' => function ($query) use ($deliveredTaskIds) {
-                        $query->whereNotIn('id', $deliveredTaskIds);
+                    'tasks as pending_tasks_count' => function ($query) use ($student) {
+                        $query
+                            ->where('type', '!=', 'APUNTES')
+                            ->whereDoesntHave('deliveries', function ($query) use ($student) {
+                                $query->where('student_id', $student->id);
+                            });
                     },
                 ])
                 ->whereIn('id', $courseIds)
-                ->latest()
+                ->orderByDesc('created_at')
                 ->limit(5)
-                ->get([
-                    'id',
-                    'name',
-                    'description',
-                    'teacher_id',
-                    'start_date',
-                    'end_date',
-                    'created_at',
-                ]),
+                ->get(),
         ];
     }
 

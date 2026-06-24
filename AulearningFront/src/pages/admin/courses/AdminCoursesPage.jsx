@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 import ConfirmModal from '../../../components/common/ConfirmModal';
 import CourseStatusBadge from '../../../components/table/CourseStatusBadge';

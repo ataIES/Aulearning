@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\File;
+use Illuminate\Support\Facades\Storage;
 use App\DTOs\DeliverTaskDto;
 use App\Filters\DeliverTaskFilter;
 use App\Http\Requests\DeliverTask\StoreDeliverTaskRequest;
 use App\Http\Requests\DeliverTask\UpdateDeliverTaskRequest;
+use App\Models\DeliveryFile;
 use App\Models\DeliveryTask;
 use App\Services\Interfaces\IDeliverTaskService;
 use App\Services\Interfaces\INotificationService;
@@ -114,6 +117,13 @@ class DeliverTaskController extends BaseApiController
             ])
             ->find($delivery->id);
 
+        if ($deliveryModel && $request->hasFile('files')) {
+            $this->storeDeliveryFiles(
+                $deliveryModel,
+                $request->file('files')
+            );
+        }
+
         if ($deliveryModel?->task?->course?->teacher) {
             $studentName = trim(
                 "{$deliveryModel->student?->name} {$deliveryModel->student?->last_name}"
@@ -185,10 +195,7 @@ class DeliverTaskController extends BaseApiController
         $current = $this->deliverTaskService->getById($id);
 
         if (!$current) {
-            return $this->error(
-                'Entrega no encontrada.',
-                404
-            );
+            return $this->error('Entrega no encontrada.', 404);
         }
 
         $oldDelivery = DeliveryTask::query()
@@ -202,9 +209,29 @@ class DeliverTaskController extends BaseApiController
 
         $oldGrade = $oldDelivery?->grade;
 
+        $gradedAt = $oldDelivery?->graded_at;
+
+        if (
+            isset($data['grade']) &&
+            $data['grade'] !== null
+        ) {
+            $gradedAt = now();
+        }
+
+        $validated = $request->validated();
+
+        $removedFiles = $validated['removed_files'] ?? [];
+
+        if (!empty($removedFiles)) {
+            DeliveryFile::query()
+                ->where('delivery_task_id', $id)
+                ->whereIn('id', $removedFiles)
+                ->delete();
+        }
+
         $data = array_merge(
             $current->toArray(),
-            $request->validated()
+            $validated
         );
 
         $delivery = $this->deliverTaskService->update(
@@ -216,9 +243,12 @@ class DeliverTaskController extends BaseApiController
                 deliveryDate: !empty($data['delivery_date'])
                     ? Carbon::parse($data['delivery_date'])
                     : null,
-                updatedDate: now(),
+                updatedDate: $data['grade'] !== null
+                    ? now()
+                    : $current->updatedDate,
                 grade: $data['grade'] ?? null,
                 comment: $data['comment'] ?? null,
+                gradedAt: $gradedAt,
             )
         );
 
@@ -230,6 +260,13 @@ class DeliverTaskController extends BaseApiController
                 'task.course.teacher',
             ])
             ->find($id);
+
+        if ($deliveryModel && $request->hasFile('files')) {
+            $this->storeDeliveryFiles(
+                $deliveryModel,
+                $request->file('files')
+            );
+        }
 
         if ($deliveryModel) {
             $newGrade = $deliveryModel->grade;
@@ -248,8 +285,8 @@ class DeliverTaskController extends BaseApiController
                     $deliveryModel->student,
                     $gradeChanged ? 'Calificación actualizada' : 'Tarea corregida',
                     "Tu entrega de la tarea \"{$deliveryModel->task?->title}\" ha sido "
-                    . ($gradeChanged ? 'actualizada' : 'corregida')
-                    . ". Nota: {$newGrade}.",
+                        . ($gradeChanged ? 'actualizada' : 'corregida')
+                        . ". Nota: {$newGrade}.",
                     'grade'
                 );
             } elseif ($deliveryModel->task?->course?->teacher) {
@@ -293,5 +330,20 @@ class DeliverTaskController extends BaseApiController
                 'Entrega no encontrada.',
                 404
             );
+    }
+    private function storeDeliveryFiles(DeliveryTask $delivery, array $files): void
+    {
+        foreach ($files as $uploadedFile) {
+            $path = $uploadedFile->store('deliveries', 'public');
+
+            DeliveryFile::query()->create([
+                'delivery_task_id' => $delivery->id,
+                'name' => $uploadedFile->getClientOriginalName(),
+                'path' => $path,
+                'disk' => 'public',
+                'mime_type' => $uploadedFile->getClientMimeType(),
+                'size' => $uploadedFile->getSize(),
+            ]);
+        }
     }
 }

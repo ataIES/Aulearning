@@ -8,7 +8,7 @@ import LearningPanel from '../../../components/learning/LearningPanel';
 
 import { useUI } from '../../../hooks/useUI';
 import TeacherService from '../../../services/TeacherService';
-
+import { Helmet } from 'react-helmet-async';
 import GradeDeliveryModal from './GradeDeliveryModal';
 
 const defaultFilters = {
@@ -54,13 +54,29 @@ export default function TeacherCourseDeliveriesPage() {
     response?.items ??
     [];
 
-  const sortByDeliveryDateDesc = (items) =>
-    [...items].sort((a, b) => {
-      const dateA = a.delivery_date ? new Date(a.delivery_date).getTime() : 0;
-      const dateB = b.delivery_date ? new Date(b.delivery_date).getTime() : 0;
+  const formatDateTime = (date) => {
+    if (!date) return '-';
 
-      return dateB - dateA;
+    return new Date(date).toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
+  };
+
+  const getSortDate = (delivery, status = filters.status) => {
+    const date =
+      status === 'graded'
+        ? delivery.updated_date
+        : delivery.delivery_date;
+
+    return date ? new Date(date).getTime() : 0;
+  };
+
+  const sortDeliveriesDesc = (items, status = filters.status) =>
+    [...items].sort((a, b) => getSortDate(b, status) - getSortDate(a, status));
 
   const buildFilters = (currentFilters = filters) => ({
     per_page: 200,
@@ -71,13 +87,21 @@ export default function TeacherCourseDeliveriesPage() {
       currentFilters.student_id ||
       studentIdFromUrl ||
       undefined,
-    sort_by: 'delivery_date',
+    sort_by:
+      currentFilters.status === 'graded'
+        ? 'updated_date'
+        : 'delivery_date',
     sort_direction: 'desc',
   });
 
   const loadPage = async () => {
     try {
       setLoadingPage(true);
+
+      const initialFilters = {
+        ...defaultFilters,
+        student_id: studentIdFromUrl,
+      };
 
       const [courseResponse, tasksResponse, deliveriesResponse] =
         await Promise.all([
@@ -87,15 +111,20 @@ export default function TeacherCourseDeliveriesPage() {
             sort_by: 'title',
             sort_direction: 'asc',
           }),
-          TeacherService.courseDeliveries(courseId, buildFilters({
-            ...defaultFilters,
-            student_id: studentIdFromUrl,
-          })),
+          TeacherService.courseDeliveries(
+            courseId,
+            buildFilters(initialFilters)
+          ),
         ]);
 
       setCourse(extractData(courseResponse));
       setTasks(extractItems(tasksResponse));
-      setDeliveries(sortByDeliveryDateDesc(extractItems(deliveriesResponse)));
+      setDeliveries(
+        sortDeliveriesDesc(
+          extractItems(deliveriesResponse),
+          initialFilters.status
+        )
+      );
     } catch (error) {
       console.error(error);
       showError('No se pudieron cargar las entregas del curso.');
@@ -113,7 +142,12 @@ export default function TeacherCourseDeliveriesPage() {
         buildFilters(currentFilters)
       );
 
-      setDeliveries(sortByDeliveryDateDesc(extractItems(response)));
+      setDeliveries(
+        sortDeliveriesDesc(
+          extractItems(response),
+          currentFilters.status
+        )
+      );
     } catch (error) {
       console.error(error);
       showError('No se pudieron actualizar las entregas.');
@@ -173,7 +207,8 @@ export default function TeacherCourseDeliveriesPage() {
         student_id: selectedDelivery.student_id ?? selectedDelivery.student?.id,
         task_id: selectedDelivery.task_id ?? selectedDelivery.task?.id,
         delivery_date: selectedDelivery.delivery_date,
-        ...payload,
+        grade: payload.grade,
+        comment: payload.comment ?? selectedDelivery.comment ?? null,
       });
 
       setSelectedDelivery(null);
@@ -236,203 +271,206 @@ export default function TeacherCourseDeliveriesPage() {
   }
 
   return (
-    <div className="learning-dashboard">
-      <section className="learning-hero">
-        <div>
-          <span className="learning-kicker">Entregas del curso</span>
+    <>
+    <Helmet>
+      <title>Ver Entregas</title>
+    </Helmet>
+      <div className="learning-dashboard">
+        <section className="learning-hero">
+          <div>
+            <span className="learning-kicker">Entregas del curso</span>
 
-          <h2>{course?.name ?? 'Curso'}</h2>
+            <h2>{course?.name ?? 'Curso'}</h2>
 
-          <p>
-            Revisa las entregas pendientes de tus alumnos y registra sus calificaciones.
-          </p>
-        </div>
-
-        <div className="learning-hero-icon">
-          <i className="bi bi-inbox-fill" />
-        </div>
-      </section>
-
-      <LearningPanel
-        title="Entregas"
-        subtitle="Por defecto se muestran las pendientes, ordenadas por fecha de entrega más reciente."
-        action={
-          <Link
-            to={`/teacher/courses/${courseId}`}
-            className="btn btn-outline-secondary btn-sm"
-          >
-            Volver
-          </Link>
-        }
-      >
-        <form className="learning-filter-bar" onSubmit={handleSearch}>
-          <div className="learning-filter-input">
-            <i className="bi bi-search" />
-
-            <input
-              value={filters.search}
-              onChange={(event) => updateFilter('search', event.target.value)}
-              placeholder="Buscar alumno o tarea..."
-              disabled={loadingResults}
-            />
+            <p>
+              Revisa las entregas pendientes de tus alumnos y registra sus calificaciones.
+            </p>
           </div>
 
-          <select
-            className="form-select learning-filter-select"
-            value={filters.task_id}
-            onChange={(event) => updateFilter('task_id', event.target.value)}
-            disabled={loadingResults}
-          >
-            <option value="">Todas las tareas</option>
+          <div className="learning-hero-icon">
+            <i className="bi bi-inbox-fill" />
+          </div>
+        </section>
 
-            {tasks.map((task) => (
-              <option key={task.id} value={task.id}>
-                {task.title}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className="form-select learning-filter-select"
-            value={filters.status}
-            onChange={(event) => updateFilter('status', event.target.value)}
-            disabled={loadingResults}
-          >
-            <option value="">Todos los estados</option>
-            <option value="pending">Pendientes</option>
-            <option value="graded">Calificadas</option>
-          </select>
-
-          <button
-            className="btn btn-primary"
-            type="submit"
-            disabled={loadingResults}
-          >
-            Buscar
-          </button>
-
-          <button
-            className="btn btn-outline-secondary"
-            type="button"
-            onClick={handleReset}
-            disabled={loadingResults}
-          >
-            Limpiar
-          </button>
-        </form>
-
-        <ContentLoader
-          loading={loadingResults}
-          title="Actualizando entregas..."
-          message="Aplicando filtros..."
+        <LearningPanel
+          title="Entregas"
+          subtitle="Por defecto se muestran las pendientes. Las calificadas se ordenan por fecha de calificación."
+          action={
+            <Link
+              to={`/teacher/courses/${courseId}`}
+              className="btn btn-outline-secondary btn-sm"
+            >
+              Volver
+            </Link>
+          }
         >
-          {deliveries.length > 0 ? (
-            <div className="learning-delivery-grid mt-3">
-              {deliveries.map((delivery) => {
-                const files = delivery.files ?? [];
+          <form className="learning-filter-bar" onSubmit={handleSearch}>
+            <div className="learning-filter-input">
+              <i className="bi bi-search" />
 
-                return (
-                  <article className="learning-delivery-card" key={delivery.id}>
-                    <div className="learning-delivery-header">
-                      <div className="learning-list-icon">
-                        <i className="bi bi-upload" />
+              <input
+                value={filters.search}
+                onChange={(event) => updateFilter('search', event.target.value)}
+                placeholder="Buscar alumno o tarea..."
+                disabled={loadingResults}
+              />
+            </div>
+
+            <select
+              className="form-select learning-filter-select"
+              value={filters.task_id}
+              onChange={(event) => updateFilter('task_id', event.target.value)}
+              disabled={loadingResults}
+            >
+              <option value="">Todas las tareas</option>
+
+              {tasks.map((task) => (
+                <option key={task.id} value={task.id}>
+                  {task.title}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="form-select learning-filter-select"
+              value={filters.status}
+              onChange={(event) => updateFilter('status', event.target.value)}
+              disabled={loadingResults}
+            >
+              <option value="">Todos los estados</option>
+              <option value="pending">Pendientes</option>
+              <option value="graded">Calificadas</option>
+            </select>
+
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={loadingResults}
+            >
+              Buscar
+            </button>
+
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={handleReset}
+              disabled={loadingResults}
+            >
+              Limpiar
+            </button>
+          </form>
+
+          <ContentLoader
+            loading={loadingResults}
+            title="Actualizando entregas..."
+            message="Aplicando filtros..."
+          >
+            {deliveries.length > 0 ? (
+              <div className="learning-delivery-grid mt-3">
+                {deliveries.map((delivery) => {
+                  const files = delivery.files ?? [];
+                  const isGraded =
+                    delivery.grade !== null &&
+                    delivery.grade !== undefined;
+
+                  return (
+                    <article className="learning-delivery-card" key={delivery.id}>
+                      <div className="learning-delivery-header">
+                        <div className="learning-list-icon">
+                          <i className="bi bi-upload" />
+                        </div>
+
+                        <div>
+                          <h5>
+                            {delivery.student?.name ?? 'Alumno'}{' '}
+                            {delivery.student?.last_name ?? ''}
+                          </h5>
+
+                          <p>{delivery.student?.email ?? 'Sin email'}</p>
+                        </div>
+
+                        <div className="ms-auto">
+                          {deliveryStatusBadge(delivery)}
+                        </div>
                       </div>
 
-                      <div>
-                        <h5>
-                          {delivery.student?.name ?? 'Alumno'}{' '}
-                          {delivery.student?.last_name ?? ''}
-                        </h5>
+                      <div className="learning-delivery-body">
+                        <div>
+                          <span>Tarea</span>
+                          <strong>{delivery.task?.title ?? '-'}</strong>
+                        </div>
 
-                        <p>{delivery.student?.email ?? 'Sin email'}</p>
+                        <div>
+                          <span>Entregado el</span>
+                          <strong>{formatDateTime(delivery.delivery_date)}</strong>
+                        </div>
+
+                        <div>
+                          <span>Nota</span>
+                          <strong>
+                            {isGraded ? `${delivery.grade}/10` : 'Sin calificar'}
+                          </strong>
+                        </div>
+
+                        {isGraded && (
+                          <div>
+                            <span>Calificada el</span>
+                            <strong>
+                              {formatDateTime(delivery.updated_date)}
+                            </strong>
+                          </div>
+                        )}
                       </div>
 
-                      <div className="ms-auto">
-                        {deliveryStatusBadge(delivery)}
-                      </div>
-                    </div>
-
-                    <div className="learning-delivery-body">
-                      <div>
-                        <span>Tarea</span>
-                        <strong>{delivery.task?.title ?? '-'}</strong>
-                      </div>
-
-                      <div>
-                        <span>Entregado el</span>
-                        <strong>
-                          {delivery.delivery_date
-                            ? new Date(delivery.delivery_date).toLocaleString('es-ES', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })
-                            : '-'}
-                        </strong>
-                      </div>
-
-                      <div>
-                        <span>Nota</span>
-                        <strong>
-                          {delivery.grade !== null && delivery.grade !== undefined
-                            ? `${delivery.grade}/10`
-                            : 'Sin calificar'}
-                        </strong>
-                      </div>
-                    </div>
-
-                    {delivery.comment && (
-                      <p className="learning-delivery-comment">
-                        {delivery.comment}
-                      </p>
-                    )}
-
-                    <div className="learning-delivery-actions">
-                      {files.length > 0 && (
-                        <a
-                          className="btn btn-outline-secondary btn-sm"
-                          href={getFileUrl(files[0])}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Ver archivo
-                        </a>
+                      {delivery.comment && (
+                        <p className="learning-delivery-comment">
+                          {delivery.comment}
+                        </p>
                       )}
 
-                      <button
-                        type="button"
-                        className="btn btn-primary btn-sm"
-                        onClick={() => openGradeModal(delivery)}
-                      >
-                        {delivery.grade !== null && delivery.grade !== undefined
-                          ? 'Editar nota'
-                          : 'Calificar'}
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <EmptyLearningState
-              icon="bi-inbox"
-              title="Sin entregas"
-              message="No hay entregas con los filtros seleccionados."
-            />
-          )}
-        </ContentLoader>
-      </LearningPanel>
+                      <div className="learning-delivery-actions">
+                        {files.length > 0 && (
+                          <a
+                            className="btn btn-outline-secondary btn-sm"
+                            href={getFileUrl(files[0])}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Ver archivo
+                          </a>
+                        )}
 
-      <GradeDeliveryModal
-        show={Boolean(selectedDelivery)}
-        delivery={selectedDelivery}
-        errors={gradeErrors}
-        loading={savingGrade}
-        onClose={closeGradeModal}
-        onSubmit={handleGradeSubmit}
-      />
-    </div>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          onClick={() => openGradeModal(delivery)}
+                        >
+                          {isGraded ? 'Editar nota' : 'Calificar'}
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <EmptyLearningState
+                icon="bi-inbox"
+                title="Sin entregas"
+                message="No hay entregas con los filtros seleccionados."
+              />
+            )}
+          </ContentLoader>
+        </LearningPanel>
+
+        <GradeDeliveryModal
+          show={Boolean(selectedDelivery)}
+          delivery={selectedDelivery}
+          errors={gradeErrors}
+          loading={savingGrade}
+          onClose={closeGradeModal}
+          onSubmit={handleGradeSubmit}
+        />
+      </div>
+    </>
   );
 }

@@ -41,6 +41,8 @@ class UpdateDeliverTaskRequest extends BaseApiRequest
                 'string',
                 'max:500',
             ],
+            'removed_files' => ['nullable', 'array'],
+            'removed_files.*' => ['integer', 'exists:delivery_files,id'],
         ];
     }
 

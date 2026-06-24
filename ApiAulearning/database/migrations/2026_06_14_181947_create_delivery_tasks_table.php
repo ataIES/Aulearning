@@ -19,8 +19,8 @@ return new class extends Migration
                 ->constrained('tasks')
                 ->cascadeOnDelete();
 
-            $table->date('delivery_date');
-            $table->date('updated_date')->nullable();
+            $table->date('delivery_date')->nullable();
+            $table->dateTime('updated_date')->nullable();
 
             $table->decimal('grade', 5, 2)->nullable();
             $table->text('comment')->nullable();

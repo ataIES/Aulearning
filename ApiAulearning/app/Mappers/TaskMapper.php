@@ -17,7 +17,7 @@ class TaskMapper extends BaseMapper implements IBaseMapper
             id: $model->id,
             title: $model->title,
             description: $model->description,
-            dueDate: (string) $model->due_date,
+            dueDate: $model->due_date,
             courseId: $model->course_id,
             studentId: $model->student_id,
             type: $model->type,

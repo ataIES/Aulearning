@@ -23,6 +23,7 @@ export default function TaskFormModal({
 }) {
   const [form, setForm] = useState(emptyForm);
   const isEditing = Boolean(task);
+  const [removedFiles, setRemovedFiles] = useState([]);
 
   useEffect(() => {
     if (task) {
@@ -38,7 +39,15 @@ export default function TaskFormModal({
     } else {
       setForm(emptyForm);
     }
+
+    setRemovedFiles([]);
   }, [task, show]);
+
+  const handleRemoveFile = (fileId) => {
+    setRemovedFiles((prev) =>
+      prev.includes(fileId) ? prev : [...prev, fileId]
+    );
+  };
 
   if (!show) return null;
 
@@ -63,6 +72,7 @@ export default function TaskFormModal({
 
     onSubmit({
       ...form,
+      removed_files: removedFiles,
       course_id: form.course_id ? Number(form.course_id) : null,
     });
   };
@@ -214,18 +224,32 @@ export default function TaskFormModal({
               <label className="form-label">Archivos actuales</label>
 
               <div className="task-current-files">
-                {task.files.map((file) => (
-                  <a
-                    key={file.id}
-                    href={file.url ?? file.path}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="task-current-file"
-                  >
-                    <i className="bi bi-paperclip" />
-                    <span>{file.name}</span>
-                  </a>
-                ))}
+                {task.files
+                  .filter((file) => !removedFiles.includes(file.id))
+                  .map((file) => (
+                    <div
+                      key={file.id}
+                      className="task-current-file d-flex align-items-center justify-content-between"
+                    >
+                      <a
+                        href={file.url ?? file.path}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <i className="bi bi-paperclip me-1" />
+                        {file.name}
+                      </a>
+
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => handleRemoveFile(file.id)}
+                        disabled={loading}
+                      >
+                        <i className="bi bi-trash" />
+                      </button>
+                    </div>
+                  ))}
               </div>
             </div>
           )}

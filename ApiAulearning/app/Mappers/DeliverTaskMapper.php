@@ -33,7 +33,8 @@ class DeliverTaskMapper extends BaseMapper implements IDeliverTaskMapper
 
             grade: $model->grade,
 
-            comment: $model->comment
+            comment: $model->comment,
+            gradedAt: $model->graded_at
 
         );
     }
@@ -57,6 +58,7 @@ class DeliverTaskMapper extends BaseMapper implements IDeliverTaskMapper
             'grade' => $dto->grade,
 
             'comment' => $dto->comment,
+            'graded_at' => $dto->gradedAt
 
         ]);
     }

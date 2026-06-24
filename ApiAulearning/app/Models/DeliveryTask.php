@@ -21,6 +21,7 @@ class DeliveryTask extends Model
     protected $casts = [
         'delivery_date' => 'datetime',
         'updated_date' => 'datetime',
+        'graded_at' => 'datetime',
     ];
 
     public function student()

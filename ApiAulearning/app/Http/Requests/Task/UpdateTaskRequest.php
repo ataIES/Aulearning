@@ -69,6 +69,8 @@ class UpdateTaskRequest extends BaseApiRequest
                     'graded',
                 ]),
             ],
+            'removed_files' => ['nullable', 'array'],
+            'removed_files.*' => ['integer', 'exists:files,id'],
 
         ];
     }
@@ -80,16 +82,16 @@ class UpdateTaskRequest extends BaseApiRequest
             'title.max' => 'El título no puede superar los 255 caracteres.',
 
             'due_date.required_unless' =>
-                'La fecha de entrega es obligatoria salvo para apuntes.',
+            'La fecha de entrega es obligatoria salvo para apuntes.',
 
             'course_id.exists' =>
-                'El curso seleccionado no existe.',
+            'El curso seleccionado no existe.',
 
             'student_id.exists' =>
-                'El alumno seleccionado no existe.',
+            'El alumno seleccionado no existe.',
 
             'type.in' =>
-                'El tipo de tarea seleccionado no es válido.',
+            'El tipo de tarea seleccionado no es válido.',
 
         ];
     }

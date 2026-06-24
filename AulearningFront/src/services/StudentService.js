@@ -50,6 +50,13 @@ class StudentService {
       ...params,
     });
   }
+
+  async grades(studentId, params = {}) {
+    return DeliverTaskService.getByStudent(studentId, {
+      status: 'graded',
+      ...params,
+    });
+  }
 }
 
 export default new StudentService();

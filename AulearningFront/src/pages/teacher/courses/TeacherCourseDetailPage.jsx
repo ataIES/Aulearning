@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 import PageLoader from '../../../components/common/PageLoader';
 import ActivityItem from '../../../components/learning/ActivityItem';
@@ -52,12 +53,31 @@ export default function TeacherCourseDetailPage() {
       setSavingTask(true);
       setTaskErrors({});
 
-      await TeacherService.createTask({
+      const files = payload.files ?? [];
+
+      const taskPayload = {
         ...payload,
+        files: undefined,
         course_id: Number(courseId),
         due_date: payload.type === 'APUNTES' ? null : payload.due_date || null,
         gradable: payload.type === 'APUNTES' ? false : payload.gradable,
-      });
+      };
+
+      const response = await TeacherService.createTask(taskPayload);
+
+      const createdTask =
+        response?.data?.data ??
+        response?.data ??
+        response;
+
+      if (files.length > 0 && createdTask?.id) {
+        for (const file of files) {
+          await TeacherService.uploadMaterial({
+            task_id: createdTask.id,
+            file,
+          });
+        }
+      }
 
       setShowTaskModal(false);
 
@@ -98,177 +118,183 @@ export default function TeacherCourseDetailPage() {
   const tasks = course.tasks ?? [];
 
   return (
-    <div className="learning-dashboard">
-      <section className="learning-hero">
-        <div>
-          <span className="learning-kicker">Detalle del curso</span>
+    <>
 
-          <h2>{course.name}</h2>
+      <Helmet>
+        <title>Detalle Curso</title>
+      </Helmet>
+      
+      <div className="learning-dashboard">
+        <section className="learning-hero">
+          <div>
+            <span className="learning-kicker">Detalle del curso</span>
 
-          <p>
-            Gestiona alumnos, tareas, entregas y materiales de este curso.
-          </p>
-        </div>
+            <h2>{course.name}</h2>
 
-        <div className="learning-hero-icon">
-          <i className="bi bi-journal-bookmark-fill" />
-        </div>
-      </section>
+            <p>
+              Gestiona alumnos, tareas, entregas y materiales de este curso.
+            </p>
+          </div>
 
-      <section className="learning-stats-grid">
-        <LearningStatCard
-          icon="bi-people-fill"
-          value={course.enrollments_count ?? 0}
-          label="Alumnos matriculados"
-        />
+          <div className="learning-hero-icon">
+            <i className="bi bi-journal-bookmark-fill" />
+          </div>
+        </section>
 
-        <LearningStatCard
-          icon="bi-list-task"
-          value={course.tasks_count ?? 0}
-          label="Tareas"
-          variant="purple"
-        />
+        <section className="learning-stats-grid">
+          <LearningStatCard
+            icon="bi-people-fill"
+            value={course.enrollments_count ?? 0}
+            label="Alumnos matriculados"
+          />
 
-        <LearningStatCard
-          icon="bi-person-badge-fill"
-          value={course.teacher ? 1 : 0}
-          label="Profesor asignado"
-          variant="green"
-        />
+          <LearningStatCard
+            icon="bi-list-task"
+            value={course.tasks_count ?? 0}
+            label="Tareas"
+            variant="purple"
+          />
 
-        <LearningStatCard
-          icon="bi-calendar-event"
-          value={course.start_date ?? '-'}
-          label="Fecha inicio"
-          variant="warning"
-        />
+          <LearningStatCard
+            icon="bi-person-badge-fill"
+            value={course.teacher ? 1 : 0}
+            label="Profesor asignado"
+            variant="green"
+          />
 
-         <LearningStatCard
-          icon="bi-calendar-event"
-          value={course.end_date ?? '-'}
-          label="Fecha Fin"
-          variant="warning"
-        />
-      </section>
+          <LearningStatCard
+            icon="bi-calendar-event"
+            value={course.start_date ?? '-'}
+            label="Fecha inicio"
+            variant="warning"
+          />
 
-      <div className="row g-4 mt-1">
-        <div className="col-xl-8">
-          <LearningPanel
-            title="Alumnos recientes"
-            subtitle="Últimos alumnos matriculados en el curso."
-            action={
-              <Link
-                to={`/teacher/courses/${course.id}/students`}
-                className="btn btn-outline-primary btn-sm"
-              >
-                Ver alumnos
-              </Link>
-            }
-          >
-            <div className="learning-list">
-              {enrollments.length > 0 ? (
-                enrollments.map((enrollment) => (
-                  <ActivityItem
-                    key={enrollment.id}
-                    icon="bi-person-fill"
-                    title={`${enrollment.student?.name ?? ''} ${enrollment.student?.last_name ?? ''
-                      }`}
-                    subtitle={enrollment.student?.email ?? 'Sin email'}
+          <LearningStatCard
+            icon="bi-calendar-event"
+            value={course.end_date ?? '-'}
+            label="Fecha Fin"
+            variant="warning"
+          />
+        </section>
+
+        <div className="row g-4 mt-1">
+          <div className="col-xl-8">
+            <LearningPanel
+              title="Alumnos recientes"
+              subtitle="Últimos alumnos matriculados en el curso."
+              action={
+                <Link
+                  to={`/teacher/courses/${course.id}/students`}
+                  className="btn btn-outline-primary btn-sm"
+                >
+                  Ver alumnos
+                </Link>
+              }
+            >
+              <div className="learning-list">
+                {enrollments.length > 0 ? (
+                  enrollments.map((enrollment) => (
+                    <ActivityItem
+                      key={enrollment.id}
+                      icon="bi-person-fill"
+                      title={`${enrollment.student?.name ?? ''} ${enrollment.student?.last_name ?? ''
+                        }`}
+                      subtitle={enrollment.student?.email ?? 'Sin email'}
+                    />
+                  ))
+                ) : (
+                  <EmptyLearningState
+                    icon="bi-people"
+                    title="Sin alumnos"
+                    message="Todavía no hay alumnos matriculados."
                   />
-                ))
-              ) : (
-                <EmptyLearningState
-                  icon="bi-people"
-                  title="Sin alumnos"
-                  message="Todavía no hay alumnos matriculados."
+                )}
+              </div>
+            </LearningPanel>
+          </div>
+
+          <div className="col-xl-4">
+            <LearningPanel
+              title="Acciones rápidas"
+              subtitle="Gestiona el curso rápidamente."
+            >
+              <div className="learning-actions">
+                <QuickAction
+                  icon="bi-plus-square"
+                  label="Crear tarea"
+                  onClick={() => {
+                    setTaskErrors({});
+                    setShowTaskModal(true);
+                  }}
                 />
-              )}
-            </div>
-          </LearningPanel>
-        </div>
 
-        <div className="col-xl-4">
-          <LearningPanel
-            title="Acciones rápidas"
-            subtitle="Gestiona el curso rápidamente."
-          >
-            <div className="learning-actions">
-              <QuickAction
-                icon="bi-plus-square"
-                label="Crear tarea"
-                onClick={() => {
-                  setTaskErrors({});
-                  setShowTaskModal(true);
-                }}
-              />
+                <QuickAction
+                  to={`/teacher/courses/${course.id}/deliveries`}
+                  icon="bi-inbox"
+                  label="Ver entregas"
+                />
 
-              <QuickAction
-                to={`/teacher/courses/${course.id}/deliveries`}
-                icon="bi-inbox"
-                label="Ver entregas"
-              />
+                <QuickAction
+                  to={`/teacher/courses/${course.id}/materials`}
+                  icon="bi-folder-plus"
+                  label="Subir material"
+                />
+              </div>
+            </LearningPanel>
+          </div>
 
-              <QuickAction
-                to={`/teacher/courses/${course.id}/materials`}
-                icon="bi-folder-plus"
-                label="Subir material"
-              />
-            </div>
-          </LearningPanel>
-        </div>
-
-        <div className="col-xl-12">
-          <LearningPanel
-            title="Últimas tareas"
-            subtitle="Tareas creadas recientemente para este curso."
-            action={
-              <Link
-                to={`/teacher/courses/${course.id}/tasks`}
-                className="btn btn-outline-primary btn-sm"
-              >
-                Ver tareas
-              </Link>
-            }
-          >
-            <div className="learning-list">
-              {tasks.length > 0 ? (
-                tasks.map((task) => (
-                  <ActivityItem
-                    key={task.id}
+          <div className="col-xl-12">
+            <LearningPanel
+              title="Últimas tareas"
+              subtitle="Tareas creadas recientemente para este curso."
+              action={
+                <Link
+                  to={`/teacher/courses/${course.id}/tasks`}
+                  className="btn btn-outline-primary btn-sm"
+                >
+                  Ver tareas
+                </Link>
+              }
+            >
+              <div className="learning-list">
+                {tasks.length > 0 ? (
+                  tasks.map((task) => (
+                    <ActivityItem
+                      key={task.id}
+                      icon="bi-list-task"
+                      variant="purple"
+                      title={task.title}
+                      subtitle={
+                        task.due_date
+                          ? `${task.type ?? 'TAREA'} · Con fecha de entrega: ${new Date(task.due_date).toLocaleDateString('es-ES')}`
+                          : `${task.type ?? 'TAREA'} · Sin fecha de entrega`
+                      }
+                    />
+                  ))
+                ) : (
+                  <EmptyLearningState
                     icon="bi-list-task"
-                    variant="purple"
-                    title={task.title}
-                    subtitle={
-                      task.due_date
-                        ? `Entrega: ${new Date(task.due_date).toLocaleDateString()}`
-                        : 'Sin fecha de entrega'
-                    }
+                    title="Sin tareas"
+                    message="Todavía no has creado tareas para este curso."
                   />
-                ))
-              ) : (
-                <EmptyLearningState
-                  icon="bi-list-task"
-                  title="Sin tareas"
-                  message="Todavía no has creado tareas para este curso."
-                />
-              )}
-            </div>
-          </LearningPanel>
+                )}
+              </div>
+            </LearningPanel>
+          </div>
         </div>
+        <TaskFormModal
+          show={showTaskModal}
+          task={null}
+          errors={taskErrors}
+          loading={savingTask}
+          onClose={() => {
+            if (!savingTask) setShowTaskModal(false);
+          }}
+          onSubmit={handleCreateTask}
+        />
       </div>
-      <TaskFormModal
-        show={showTaskModal}
-        task={null}
-        errors={taskErrors}
-        loading={savingTask}
-        onClose={() => {
-          if (!savingTask) setShowTaskModal(false);
-        }}
-        onSubmit={handleCreateTask}
-      />
-    </div>
 
-
+    </>
 
   );
 

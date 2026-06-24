@@ -28,7 +28,46 @@ export default function StudentCoursesPage() {
     response?.data?.data?.data ??
     response?.data?.data ??
     response?.data?.items ??
+    response?.data ??
+    response?.items ??
     [];
+
+  const isCourseActiveToday = (course) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startDate = course.start_date ? new Date(course.start_date) : null;
+    const endDate = course.end_date ? new Date(course.end_date) : null;
+
+    if (startDate) startDate.setHours(0, 0, 0, 0);
+    if (endDate) endDate.setHours(0, 0, 0, 0);
+
+    return (!startDate || startDate <= today) && (!endDate || endDate >= today);
+  };
+
+  const normalizeCourse = (item) => {
+    const course = item.course ?? item;
+
+    return {
+      ...course,
+      pending_tasks_count:
+        course.pending_tasks_count ??
+        item.pending_tasks_count ??
+        course.pending_tasks ??
+        item.pending_tasks ??
+        0,
+    };
+  };
+
+  const prepareCourses = (items) =>
+    items
+      .map(normalizeCourse)
+      .filter(isCourseActiveToday)
+      .sort((a, b) =>
+        (a.name ?? '').localeCompare(b.name ?? '', 'es', {
+          sensitivity: 'base',
+        })
+      );
 
   const loadCourses = async (params = {}, firstLoad = false) => {
     try {
@@ -40,10 +79,12 @@ export default function StudentCoursesPage() {
 
       const response = await StudentService.courses(user.id, {
         per_page: 100,
+        sort_by: 'name',
+        sort_direction: 'asc',
         ...params,
       });
 
-      setCourses(extractItems(response));
+      setCourses(prepareCourses(extractItems(response)));
     } catch (error) {
       console.error(error);
       showError('No se pudieron cargar tus cursos.');
@@ -68,7 +109,7 @@ export default function StudentCoursesPage() {
   };
 
   const handleReset = () => {
-    setFilters(defaultFilters);
+    setFilters({ ...defaultFilters });
     loadCourses();
   };
 
@@ -82,86 +123,91 @@ export default function StudentCoursesPage() {
   }
 
   return (
-    <div className="learning-dashboard">
-      <section className="learning-hero">
-        <div>
-          <span className="learning-kicker">Mis cursos</span>
+    <>
+      <Helmet>
+        <title>Mis Cursos</title>
+      </Helmet>
+      <div className="learning-dashboard">
+        <section className="learning-hero">
+          <div>
+            <span className="learning-kicker">Mis cursos</span>
 
-          <h2>Cursos matriculados</h2>
+            <h2>Cursos activos matriculados</h2>
 
-          <p>
-            Accede a tus cursos, tareas, materiales y próximas entregas.
-          </p>
-        </div>
-
-        <div className="learning-hero-icon">
-          <i className="bi bi-journal-bookmark-fill" />
-        </div>
-      </section>
-
-      <LearningPanel
-        title="Cursos"
-        subtitle="Busca entre los cursos en los que estás matriculado."
-      >
-        <form className="learning-filter-bar" onSubmit={handleSearch}>
-          <div className="learning-filter-input">
-            <i className="bi bi-search" />
-
-            <input
-              value={filters.search}
-              onChange={(event) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  search: event.target.value,
-                }))
-              }
-              placeholder="Buscar curso..."
-              disabled={loadingResults}
-            />
+            <p>
+              Accede a tus cursos activos, tareas, materiales y próximas entregas.
+            </p>
           </div>
 
-          <button
-            className="btn btn-primary"
-            type="submit"
-            disabled={loadingResults}
-          >
-            Buscar
-          </button>
+          <div className="learning-hero-icon">
+            <i className="bi bi-journal-bookmark-fill" />
+          </div>
+        </section>
 
-          <button
-            className="btn btn-outline-secondary"
-            type="button"
-            onClick={handleReset}
-            disabled={loadingResults}
-          >
-            Limpiar
-          </button>
-        </form>
-
-        <ContentLoader
-          loading={loadingResults}
-          title="Actualizando cursos..."
-          message="Aplicando filtros..."
+        <LearningPanel
+          title="Cursos activos"
+          subtitle="Solo se muestran cursos cuya fecha actual está entre la fecha de inicio y fin."
         >
-          {courses.length > 0 ? (
-            <div className="teacher-course-grid mt-3">
-              {courses.map((course) => (
-                <StudentCourseCard
-                  key={course.id}
-                  course={course}
-                  to={`/student/courses/${course.id}`}
-                />
-              ))}
+          <form className="learning-filter-bar" onSubmit={handleSearch}>
+            <div className="learning-filter-input">
+              <i className="bi bi-search" />
+
+              <input
+                value={filters.search}
+                onChange={(event) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    search: event.target.value,
+                  }))
+                }
+                placeholder="Buscar curso..."
+                disabled={loadingResults}
+              />
             </div>
-          ) : (
-            <EmptyLearningState
-              icon="bi-journal-x"
-              title="Sin cursos"
-              message="Todavía no tienes cursos matriculados."
-            />
-          )}
-        </ContentLoader>
-      </LearningPanel>
-    </div>
+
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={loadingResults}
+            >
+              Buscar
+            </button>
+
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={handleReset}
+              disabled={loadingResults}
+            >
+              Limpiar
+            </button>
+          </form>
+
+          <ContentLoader
+            loading={loadingResults}
+            title="Actualizando cursos..."
+            message="Aplicando filtros..."
+          >
+            {courses.length > 0 ? (
+              <div className="teacher-course-grid mt-3">
+                {courses.map((course) => (
+                  <StudentCourseCard
+                    key={course.id}
+                    course={course}
+                    to={`/student/courses/${course.id}`}
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyLearningState
+                icon="bi-journal-x"
+                title="Sin cursos activos"
+                message="No tienes cursos activos actualmente."
+              />
+            )}
+          </ContentLoader>
+        </LearningPanel>
+      </div>
+    </>
   );
 }

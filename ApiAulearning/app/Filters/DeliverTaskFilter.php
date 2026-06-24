@@ -13,6 +13,8 @@ class DeliverTaskFilter extends BaseFilter
         public readonly ?int $teacherId = null,
         public readonly ?string $status = null,
         public readonly ?string $search = null,
+        public readonly ?string $gradeAtFrom = null,
+        public readonly ?string $gradeAtTo = null,
         ?int $perPage = 15,
         ?string $sortBy = 'delivery_date',
         ?string $sortDirection = 'desc',
@@ -23,41 +25,73 @@ class DeliverTaskFilter extends BaseFilter
     public function apply(Builder $query): Builder
     {
         $query
-            ->when($this->courseId, fn ($query) =>
-                $query->whereHas('task', fn ($query) =>
+            ->when(
+                $this->courseId,
+                fn($query) =>
+                $query->whereHas(
+                    'task',
+                    fn($query) =>
                     $query->where('course_id', $this->courseId)
                 )
             )
-            ->when($this->teacherId, fn ($query) =>
-                $query->whereHas('task.course', fn ($query) =>
+            ->when(
+                $this->teacherId,
+                fn($query) =>
+                $query->whereHas(
+                    'task.course',
+                    fn($query) =>
                     $query->where('teacher_id', $this->teacherId)
                 )
             )
-            ->when($this->taskId, fn ($query) =>
+            ->when(
+                $this->taskId,
+                fn($query) =>
                 $query->where('task_id', $this->taskId)
             )
-            ->when($this->studentId, fn ($query) =>
+            ->when(
+                $this->gradeAtFrom,
+                fn($query) =>
+                $query->whereDate('grade_at', '>=', $this->gradeAtFrom)
+            )
+            ->when(
+                $this->gradeAtTo,
+                fn($query) =>
+                $query->whereDate('grade_at', '<=', $this->gradeAtTo)
+            )
+            ->when(
+                $this->studentId,
+                fn($query) =>
                 $query->where('student_id', $this->studentId)
             )
-            ->when($this->status === 'pending', fn ($query) =>
+            ->when(
+                $this->status === 'pending',
+                fn($query) =>
                 $query->whereNull('grade')
             )
-            ->when($this->status === 'graded', fn ($query) =>
+            ->when(
+                $this->status === 'graded',
+                fn($query) =>
                 $query->whereNotNull('grade')
             )
             ->when($this->search, function ($query) {
                 $query->where(function ($query) {
                     $query
-                        ->whereHas('student', fn ($query) =>
+                        ->whereHas(
+                            'student',
+                            fn($query) =>
                             $query->where('name', 'like', "%{$this->search}%")
                                 ->orWhere('last_name', 'like', "%{$this->search}%")
                                 ->orWhere('email', 'like', "%{$this->search}%")
                         )
-                        ->orWhereHas('task', fn ($query) =>
+                        ->orWhereHas(
+                            'task',
+                            fn($query) =>
                             $query->where('title', 'like', "%{$this->search}%")
                         );
                 });
             });
+
+
 
         if (!$this->status) {
             return $query

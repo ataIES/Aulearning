@@ -12,6 +12,7 @@ use App\Services\Interfaces\INotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
+use App\Models\DeliveryTask;
 
 class CourseController extends BaseApiController
 {
@@ -50,6 +51,33 @@ class CourseController extends BaseApiController
             sortBy: $request->query('sort_by', 'id'),
             sortDirection: $request->query('sort_direction', 'desc'),
         );
+
+        if ($request->query('student_id')) {
+            $studentId = (int) $request->query('student_id');
+
+            $courses = Course::query()
+                ->with(['teacher:id,name,last_name,email'])
+                ->withCount([
+                    'tasks',
+                    'tasks as pending_tasks_count' => function ($query) use ($studentId) {
+                        $query
+                            ->where('type', '!=', 'APUNTES')
+                            ->whereDoesntHave('deliveries', function ($query) use ($studentId) {
+                                $query->where('student_id', $studentId);
+                            });
+                    },
+                ])
+                ->whereHas('enrollments', function ($query) use ($studentId) {
+                    $query->where('student_id', $studentId);
+                })
+                ->orderBy('name')
+                ->paginate((int) $request->query('per_page', 15));
+
+            return $this->success(
+                $this->paginated($courses),
+                'Cursos obtenidos correctamente.'
+            );
+        }
 
         return $this->success(
             $this->paginated(
@@ -117,12 +145,12 @@ class CourseController extends BaseApiController
         $course = Course::query()
             ->with([
                 'teacher:id,name,last_name,email',
-                'tasks' => fn ($query) => $query
-                    ->select('id', 'course_id', 'title', 'type', 'created_at')
+                'tasks' => fn($query) => $query
+                    ->select('id', 'course_id', 'title', 'type', 'due_date', 'created_at')
                     ->latest()
                     ->limit(5),
 
-                'enrollments' => fn ($query) => $query
+                'enrollments' => fn($query) => $query
                     ->select('id', 'course_id', 'student_id', 'enrollment_date')
                     ->latest()
                     ->limit(5),

@@ -11,6 +11,7 @@ import { useUI } from '../../../hooks/useUI';
 import TeacherService from '../../../services/TeacherService';
 
 import TaskFormModal from './TaskFormModal';
+import { Helmet } from 'react-helmet-async';
 
 const defaultFilters = {
   search: '',
@@ -125,6 +126,7 @@ export default function TeacherCourseTasksPage() {
     course_id: Number(courseId),
     due_date: payload.type === 'APUNTES' ? null : payload.due_date || null,
     gradable: payload.type === 'APUNTES' ? false : payload.gradable,
+    removed_files: payload.removed_files ?? [],
   });
 
   const handleSubmit = async (payload) => {
@@ -137,6 +139,7 @@ export default function TeacherCourseTasksPage() {
       const normalizedPayload = normalizePayload({
         ...payload,
         files: undefined,
+        removed_files: payload.removed_files ?? [],
       });
 
       let response;
@@ -242,188 +245,193 @@ export default function TeacherCourseTasksPage() {
   }
 
   return (
-    <div className="learning-dashboard">
-      <section className="learning-hero">
-        <div>
-          <span className="learning-kicker">Tareas del curso</span>
+    <>
+      <Helmet>
+        <title>Ver Tareas</title>
+      </Helmet>
+      <div className="learning-dashboard">
+        <section className="learning-hero">
+          <div>
+            <span className="learning-kicker">Tareas del curso</span>
 
-          <h2>{course?.name ?? 'Curso'}</h2>
+            <h2>{course?.name ?? 'Curso'}</h2>
 
-          <p>Gestiona las tareas, exámenes y apuntes publicados en este curso.</p>
-        </div>
+            <p>Gestiona las tareas, exámenes y apuntes publicados en este curso.</p>
+          </div>
 
-        <div className="learning-hero-icon">
-          <i className="bi bi-list-task" />
-        </div>
-      </section>
+          <div className="learning-hero-icon">
+            <i className="bi bi-list-task" />
+          </div>
+        </section>
 
-      <LearningPanel
-        title="Tareas"
-        subtitle="Busca, crea y administra las tareas del curso."
-        action={
-          <div className="d-flex gap-2">
-            <Link
-              to={`/teacher/courses/${courseId}`}
-              className="btn btn-outline-secondary btn-sm"
-            >
-              Volver
-            </Link>
+        <LearningPanel
+          title="Tareas"
+          subtitle="Busca, crea y administra las tareas del curso."
+          action={
+            <div className="d-flex gap-2">
+              <Link
+                to={`/teacher/courses/${courseId}`}
+                className="btn btn-outline-secondary btn-sm"
+              >
+                Volver
+              </Link>
+
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={openCreate}
+                disabled={loadingResults}
+              >
+                <i className="bi bi-plus-lg me-1" />
+                Nueva tarea
+              </button>
+            </div>
+          }
+        >
+          <form className="learning-filter-bar" onSubmit={handleSearch}>
+            <div className="learning-filter-input">
+              <i className="bi bi-search" />
+
+              <input
+                value={filters.search}
+                onChange={(event) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    search: event.target.value,
+                  }))
+                }
+                placeholder="Buscar tarea..."
+                disabled={loadingResults}
+              />
+            </div>
 
             <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={openCreate}
+              className="btn btn-primary"
+              type="submit"
               disabled={loadingResults}
             >
-              <i className="bi bi-plus-lg me-1" />
-              Nueva tarea
+              Buscar
             </button>
-          </div>
-        }
-      >
-        <form className="learning-filter-bar" onSubmit={handleSearch}>
-          <div className="learning-filter-input">
-            <i className="bi bi-search" />
 
-            <input
-              value={filters.search}
-              onChange={(event) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  search: event.target.value,
-                }))
-              }
-              placeholder="Buscar tarea..."
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={handleReset}
               disabled={loadingResults}
-            />
-          </div>
+            >
+              Limpiar
+            </button>
+          </form>
 
-          <button
-            className="btn btn-primary"
-            type="submit"
-            disabled={loadingResults}
+          <ContentLoader
+            loading={loadingResults}
+            title="Actualizando tareas..."
+            message="Aplicando filtros..."
           >
-            Buscar
-          </button>
 
-          <button
-            className="btn btn-outline-secondary"
-            type="button"
-            onClick={handleReset}
-            disabled={loadingResults}
-          >
-            Limpiar
-          </button>
-        </form>
-
-        <ContentLoader
-          loading={loadingResults}
-          title="Actualizando tareas..."
-          message="Aplicando filtros..."
-        >
-
-          {tasks.length > 0 ? (
-            <div className="learning-task-grid mt-3">
-              {tasks.map((task) => (
-                <article className="learning-task-card" key={task.id}>
-                  <div className="learning-task-card-header">
-                    <div className="learning-list-icon purple">
-                      <i className="bi bi-list-task" />
-                    </div>
-
-                    <div>
-                      <h5>{task.title}</h5>
-                      <p>{task.description || 'Sin descripción'}</p>
-                    </div>
-                  </div>
-
-                  <div className="learning-task-meta">
-                    {typeBadge(task.type)}
-
-                    <span>
-                      <i className="bi bi-calendar-event me-1" />
-                      {task.due_date
-                        ? new Date(task.due_date).toLocaleDateString()
-                        : 'Sin fecha'}
-                    </span>
-
-                    <span>
-                      <i className="bi bi-award me-1" />
-                      {task.gradable ?? task.calificable
-                        ? 'Calificable'
-                        : 'No calificable'}
-                    </span>
-                  </div>
-
-                  <div className="learning-task-actions">
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary btn-sm"
-                      onClick={() => openEdit(task)}
-                    >
-                      Editar
-                    </button>
-
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger btn-sm"
-                      onClick={() => setTaskToDelete(task)}
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-
-                  {(task.files ?? []).length > 0 && (
-                    <div className="learning-task-files">
-                      <strong>Archivos adjuntos</strong>
+            {tasks.length > 0 ? (
+              <div className="learning-task-grid mt-3">
+                {tasks.map((task) => (
+                  <article className="learning-task-card" key={task.id}>
+                    <div className="learning-task-card-header">
+                      <div className="learning-list-icon purple">
+                        <i className="bi bi-list-task" />
+                      </div>
 
                       <div>
-                        {task.files.map((file) => (
-                          <a
-                            key={file.id}
-                            href={file.url ?? file.path}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="learning-task-file"
-                          >
-                            <i className="bi bi-paperclip" />
-                            <span>{file.name}</span>
-                          </a>
-                        ))}
+                        <h5>{task.title}</h5>
+                        <p>{task.description || 'Sin descripción'}</p>
                       </div>
                     </div>
-                  )}
-                </article>
-              ))}
-            </div>
-          ) : (
-            <EmptyLearningState
-              icon="bi-list-task"
-              title="Sin tareas"
-              message="Todavía no has creado tareas para este curso."
-            />
-          )}
-        </ContentLoader>
-      </LearningPanel>
 
-      <TaskFormModal
-        show={showForm}
-        task={selectedTask}
-        errors={formErrors}
-        loading={saving}
-        onClose={closeForm}
-        onSubmit={handleSubmit}
-      />
+                    <div className="learning-task-meta">
+                      {typeBadge(task.type)}
 
-      <ConfirmModal
-        show={Boolean(taskToDelete)}
-        title="Eliminar tarea"
-        message={`¿Seguro que quieres eliminar "${taskToDelete?.title ?? ''}"?`}
-        confirmText="Eliminar"
-        loading={deleting}
-        onClose={() => setTaskToDelete(null)}
-        onConfirm={handleDelete}
-      />
-    </div>
+                      <span>
+                        <i className="bi bi-calendar-event me-1" />
+                        {task.due_date
+                          ? new Date(task.due_date).toLocaleDateString()
+                          : 'Sin fecha'}
+                      </span>
+
+                      <span>
+                        <i className="bi bi-award me-1" />
+                        {task.gradable ?? task.calificable
+                          ? 'Calificable'
+                          : 'No calificable'}
+                      </span>
+                    </div>
+
+                    <div className="learning-task-actions">
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary btn-sm"
+                        onClick={() => openEdit(task)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={() => setTaskToDelete(task)}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+
+                    {(task.files ?? []).length > 0 && (
+                      <div className="learning-task-files">
+                        <strong>Archivos adjuntos</strong>
+
+                        <div>
+                          {task.files.map((file) => (
+                            <a
+                              key={file.id}
+                              href={file.url ?? file.path}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="learning-task-file"
+                            >
+                              <i className="bi bi-paperclip" />
+                              <span>{file.name}</span>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <EmptyLearningState
+                icon="bi-list-task"
+                title="Sin tareas"
+                message="Todavía no has creado tareas para este curso."
+              />
+            )}
+          </ContentLoader>
+        </LearningPanel>
+
+        <TaskFormModal
+          show={showForm}
+          task={selectedTask}
+          errors={formErrors}
+          loading={saving}
+          onClose={closeForm}
+          onSubmit={handleSubmit}
+        />
+
+        <ConfirmModal
+          show={Boolean(taskToDelete)}
+          title="Eliminar tarea"
+          message={`¿Seguro que quieres eliminar "${taskToDelete?.title ?? ''}"?`}
+          confirmText="Eliminar"
+          loading={deleting}
+          onClose={() => setTaskToDelete(null)}
+          onConfirm={handleDelete}
+        />
+      </div>
+    </>
   );
 }

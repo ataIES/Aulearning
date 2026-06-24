@@ -15,6 +15,7 @@ class DeliverTaskDto implements IBaseDto
         public readonly ?Carbon $updatedDate = null,
         public readonly ?float $grade = null,
         public readonly ?string $comment = null,
+        public ?Carbon $gradedAt = null,
     ) {}
 
     public function toArray(): array
@@ -27,6 +28,7 @@ class DeliverTaskDto implements IBaseDto
             'updated_date' => $this->updatedDate?->toDateString(),
             'grade' => $this->grade,
             'comment' => $this->comment,
+            'graded_at' => $this->gradedAt,
         ];
     }
 }

@@ -180,8 +180,8 @@ export default function StudentDashboardPage() {
                     variant="purple"
                     title={task.title}
                     subtitle={`${task.course?.name ?? 'Curso'} · ${task.due_date
-                        ? new Date(task.due_date).toLocaleDateString()
-                        : 'Sin fecha'
+                      ? new Date(task.due_date).toLocaleDateString()
+                      : 'Sin fecha'
                       }`}
                   />
                 ))
@@ -212,6 +212,9 @@ export default function StudentDashboardPage() {
                     subtitle={`${delivery.task?.course?.name ?? 'Curso'} · ${delivery.grade !== null && delivery.grade !== undefined
                         ? `${delivery.grade}/10`
                         : 'Sin nota'
+                      } · Calificada el ${delivery.updated_date ?? delivery.updated_at
+                        ? new Date(delivery.updated_date ?? delivery.updated_at).toLocaleString('es-ES')
+                        : '-'
                       }`}
                   />
                 ))

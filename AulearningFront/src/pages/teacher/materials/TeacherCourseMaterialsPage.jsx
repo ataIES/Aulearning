@@ -11,6 +11,7 @@ import { useUI } from '../../../hooks/useUI';
 import TeacherService from '../../../services/TeacherService';
 
 import MaterialFormModal from './MaterialFormModal';
+import { Helmet } from 'react-helmet-async';
 
 const defaultFilters = {
   search: '',
@@ -190,13 +191,25 @@ export default function TeacherCourseMaterialsPage() {
   };
 
   const getFileUrl = (file) => {
-    if (file.url) return file.url;
+    if (!file) return '#';
+
+    if (file.url?.startsWith('http')) {
+      return file.url;
+    }
+
+    if (file.url) {
+      return `${import.meta.env.VITE_API_URL?.replace('/api/v1', '')}${file.url}`;
+    }
 
     if (file.path?.startsWith('http')) {
       return file.path;
     }
 
-    return `${import.meta.env.VITE_API_URL?.replace('/api/v1', '')}/storage/${file.path}`;
+    const cleanPath = file.path
+      ?.replace(/^public\//, '')
+      ?.replace(/^storage\//, '');
+
+    return `${import.meta.env.VITE_API_URL?.replace('/api/v1', '')}/storage/${cleanPath}`;
   };
 
   if (loadingPage) {
@@ -209,100 +222,109 @@ export default function TeacherCourseMaterialsPage() {
   }
 
   return (
-    <div className="learning-dashboard">
-      <section className="learning-hero">
-        <div>
-          <span className="learning-kicker">Materiales del curso</span>
+    <>
+      <Helmet>
+        <title>Ver Materiales</title>
+      </Helmet>
+      <div className="learning-dashboard">
+        <section className="learning-hero">
+          <div>
+            <span className="learning-kicker">Materiales del curso</span>
 
-          <h2>{course?.name ?? 'Curso'}</h2>
+            <h2>{course?.name ?? 'Curso'}</h2>
 
-          <p>
-            Sube, consulta y gestiona los recursos compartidos con tus alumnos.
-          </p>
-        </div>
+            <p>
+              Sube, consulta y gestiona los recursos compartidos con tus alumnos.
+            </p>
+          </div>
 
-        <div className="learning-hero-icon">
-          <i className="bi bi-folder2-open" />
-        </div>
-      </section>
+          <div className="learning-hero-icon">
+            <i className="bi bi-folder2-open" />
+          </div>
+        </section>
 
-      <LearningPanel
-        title="Materiales"
-        subtitle="Filtra por tarea o busca archivos concretos."
-        action={
-          <div className="d-flex gap-2">
-            <Link
-              to={`/teacher/courses/${courseId}`}
-              className="btn btn-outline-secondary btn-sm"
+        <LearningPanel
+          title="Materiales"
+          subtitle="Filtra por tarea o busca archivos concretos."
+          action={
+            <div className="d-flex gap-2">
+              <Link
+                to={`/teacher/courses/${courseId}`}
+                className="btn btn-outline-secondary btn-sm"
+              >
+                Volver
+              </Link>
+
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={openForm}
+                disabled={loadingResults}
+              >
+                <i className="bi bi-upload me-1" />
+                Subir material
+              </button>
+            </div>
+          }
+        >
+          <form className="learning-filter-bar" onSubmit={handleSearch}>
+            <div className="learning-filter-input">
+              <i className="bi bi-search" />
+
+              <input
+                value={filters.search}
+                onChange={(event) => updateFilter('search', event.target.value)}
+                placeholder="Buscar archivo..."
+                disabled={loadingResults}
+              />
+            </div>
+
+            <select
+              className="form-select learning-filter-select"
+              value={filters.task_id}
+              onChange={(event) => updateFilter('task_id', event.target.value)}
+              disabled={loadingResults}
             >
-              Volver
-            </Link>
+              <option value="">Todas las tareas</option>
+
+              {tasks.map((task) => (
+                <option key={task.id} value={task.id}>
+                  {task.title}
+                </option>
+              ))}
+            </select>
 
             <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={openForm}
+              className="btn btn-primary"
+              type="submit"
               disabled={loadingResults}
             >
-              <i className="bi bi-upload me-1" />
-              Subir material
+              Buscar
             </button>
-          </div>
-        }
-      >
-        <form className="learning-filter-bar" onSubmit={handleSearch}>
-          <div className="learning-filter-input">
-            <i className="bi bi-search" />
 
-            <input
-              value={filters.search}
-              onChange={(event) => updateFilter('search', event.target.value)}
-              placeholder="Buscar archivo..."
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={handleReset}
               disabled={loadingResults}
-            />
-          </div>
+            >
+              Limpiar
+            </button>
+          </form>
 
-          <select
-            className="form-select learning-filter-select"
-            value={filters.task_id}
-            onChange={(event) => updateFilter('task_id', event.target.value)}
-            disabled={loadingResults}
+          <ContentLoader
+            loading={loadingResults}
+            title="Actualizando materiales..."
+            message="Aplicando filtros..."
           >
-            <option value="">Todas las tareas</option>
-
-            {tasks.map((task) => (
-              <option key={task.id} value={task.id}>
-                {task.title}
-              </option>
-            ))}
-          </select>
-
-          <button
-            className="btn btn-primary"
-            type="submit"
-            disabled={loadingResults}
-          >
-            Buscar
-          </button>
-
-          <button
-            className="btn btn-outline-secondary"
-            type="button"
-            onClick={handleReset}
-            disabled={loadingResults}
-          >
-            Limpiar
-          </button>
-        </form>
-
-        <ContentLoader
-          loading={loadingResults}
-          title="Actualizando materiales..."
-          message="Aplicando filtros..."
-        >
-          {materials.length > 0 ? (
-            <div className="learning-material-grid mt-3">
-              {materials.map((file) => (
+            {materials
+              .slice()
+              .sort(
+                (a, b) =>
+                  new Date(b.created_at ?? 0) -
+                  new Date(a.created_at ?? 0)
+              )
+              .map((file) => (
                 <article className="learning-material-card" key={file.id}>
                   <div className="learning-material-icon">
                     <i className="bi bi-file-earmark-text-fill" />
@@ -316,10 +338,18 @@ export default function TeacherCourseMaterialsPage() {
                       {file.mime_type ?? 'Archivo'}
                     </p>
 
-                    <small>
+                    <small className="d-block">
                       {file.size
                         ? `${(file.size / 1024).toFixed(1)} KB`
                         : 'Tamaño desconocido'}
+                    </small>
+
+                    <small className="text-muted d-block mt-1">
+                      <i className="bi bi-calendar-event me-1" />
+                      Subido el{' '}
+                      {file.created_at
+                        ? new Date(file.created_at).toLocaleString('es-ES')
+                        : '-'}
                     </small>
                   </div>
 
@@ -342,36 +372,35 @@ export default function TeacherCourseMaterialsPage() {
                     </button>
                   </div>
                 </article>
-              ))}
-            </div>
-          ) : (
+              ))} : (
             <EmptyLearningState
               icon="bi-folder-x"
               title="Sin materiales"
               message="Todavía no hay archivos subidos para este curso."
             />
-          )}
-        </ContentLoader>
-      </LearningPanel>
+            )
+          </ContentLoader>
+        </LearningPanel>
 
-      <MaterialFormModal
-        show={showForm}
-        tasks={tasks}
-        errors={formErrors}
-        loading={uploading}
-        onClose={closeForm}
-        onSubmit={handleUpload}
-      />
+        <MaterialFormModal
+          show={showForm}
+          tasks={tasks}
+          errors={formErrors}
+          loading={uploading}
+          onClose={closeForm}
+          onSubmit={handleUpload}
+        />
 
-      <ConfirmModal
-        show={Boolean(materialToDelete)}
-        title="Eliminar material"
-        message={`¿Seguro que quieres eliminar "${materialToDelete?.name ?? ''}"?`}
-        confirmText="Eliminar"
-        loading={deleting}
-        onClose={() => setMaterialToDelete(null)}
-        onConfirm={handleDelete}
-      />
-    </div>
+        <ConfirmModal
+          show={Boolean(materialToDelete)}
+          title="Eliminar material"
+          message={`¿Seguro que quieres eliminar "${materialToDelete?.name ?? ''}"?`}
+          confirmText="Eliminar"
+          loading={deleting}
+          onClose={() => setMaterialToDelete(null)}
+          onConfirm={handleDelete}
+        />
+      </div>
+    </>
   );
 }

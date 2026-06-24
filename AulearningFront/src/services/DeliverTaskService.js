@@ -22,7 +22,7 @@ class DeliverTaskService {
     const formData = new FormData();
 
     Object.keys(payload).forEach((key) => {
-      if (key === 'files') {
+      if (key === 'files' && payload.files?.length) {
         payload.files.forEach((file) => {
           formData.append('files[]', file);
         });
@@ -48,9 +48,13 @@ class DeliverTaskService {
     const formData = new FormData();
 
     Object.keys(payload).forEach((key) => {
-      if (key === 'files') {
+      if (key === 'files' && payload.files?.length) {
         payload.files.forEach((file) => {
           formData.append('files[]', file);
+        });
+      } else if (key === 'removed_files' && payload.removed_files?.length) {
+        payload.removed_files.forEach((id) => {
+          formData.append('removed_files[]', id);
         });
       } else if (payload[key] !== null && payload[key] !== undefined) {
         formData.append(key, payload[key]);
@@ -71,8 +75,7 @@ class DeliverTaskService {
 
     return data;
   }
-
- async delete(id) {
+  async delete(id) {
     const { data } = await axiosClient.delete(
       ENDPOINTS.deliveries.delete(id)
     );

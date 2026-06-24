@@ -6,6 +6,7 @@ use App\DTOs\TaskDto;
 use App\Filters\TaskFilter;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
+use App\Models\File;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\Interfaces\INotificationService;
@@ -114,6 +115,16 @@ class TaskController extends BaseApiController
             ->find($id);
 
         $data = array_merge($current->toArray(), $request->validated());
+
+        $removedFiles = $request->validated('removed_files') ?? [];
+
+        if (!empty($removedFiles)) {
+            File::query()
+                ->where('task_id', $id)
+                ->whereIn('id', $removedFiles)
+                ->delete();
+        }
+
 
         $task = $this->taskService->update($id, new TaskDto(
             id: $id,

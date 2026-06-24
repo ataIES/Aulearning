@@ -8,6 +8,7 @@ import LearningPanel from '../../../components/learning/LearningPanel';
 
 import { useUI } from '../../../hooks/useUI';
 import TeacherService from '../../../services/TeacherService';
+import { Helmet } from 'react-helmet-async';
 
 const defaultFilters = {
   search: '',
@@ -127,123 +128,135 @@ export default function TeacherCourseStudentsPage() {
   }
 
   return (
-    <div className="learning-dashboard">
-      <section className="learning-hero">
-        <div>
-          <span className="learning-kicker">Alumnos del curso</span>
+    <>
+    <Helmet>
+          <title>Ver Alumnos</title>
+        </Helmet>
+      <div className="learning-dashboard">
+        <section className="learning-hero">
+          <div>
+            <span className="learning-kicker">Alumnos del curso</span>
 
-          <h2>{course?.name ?? 'Curso'}</h2>
+            <h2>{course?.name ?? 'Curso'}</h2>
 
-          <p>
-            Consulta los alumnos matriculados y accede rápidamente a sus entregas.
-          </p>
-        </div>
-
-        <div className="learning-hero-icon">
-          <i className="bi bi-people-fill" />
-        </div>
-      </section>
-
-      <LearningPanel
-        title="Alumnos"
-        subtitle="Busca alumnos matriculados en este curso."
-        action={
-          <Link
-            to={`/teacher/courses/${courseId}`}
-            className="btn btn-outline-secondary btn-sm"
-          >
-            Volver
-          </Link>
-        }
-      >
-        <form className="learning-filter-bar" onSubmit={handleSearch}>
-          <div className="learning-filter-input">
-            <i className="bi bi-search" />
-
-            <input
-              value={filters.search}
-              onChange={(event) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  search: event.target.value,
-                }))
-              }
-              placeholder="Buscar alumno..."
-              disabled={loadingResults}
-            />
+            <p>
+              Consulta los alumnos matriculados y accede rápidamente a sus entregas.
+            </p>
           </div>
 
-          <button
-            className="btn btn-primary"
-            type="submit"
-            disabled={loadingResults}
-          >
-            Buscar
-          </button>
+          <div className="learning-hero-icon">
+            <i className="bi bi-people-fill" />
+          </div>
+        </section>
 
-          <button
-            className="btn btn-outline-secondary"
-            type="button"
-            onClick={handleReset}
-            disabled={loadingResults}
-          >
-            Limpiar
-          </button>
-        </form>
-
-        <ContentLoader
-          loading={loadingResults}
-          title="Actualizando alumnos..."
-          message="Aplicando filtros..."
+        <LearningPanel
+          title="Alumnos"
+          subtitle="Busca alumnos matriculados en este curso."
+          action={
+            <Link
+              to={`/teacher/courses/${courseId}`}
+              className="btn btn-outline-secondary btn-sm"
+            >
+              Volver
+            </Link>
+          }
         >
-          {enrollments.length > 0 ? (
-            <div className="learning-student-grid mt-3">
-              {enrollments.map((enrollment) => {
-                const student = enrollment.student ?? enrollment.user ?? {};
+          <form className="learning-filter-bar" onSubmit={handleSearch}>
+            <div className="learning-filter-input">
+              <i className="bi bi-search" />
 
-                return (
-                  <article className="learning-student-card" key={enrollment.id}>
-                    <div className="learning-student-avatar">
-                      {(student.name ?? 'A').charAt(0).toUpperCase()}
-                    </div>
-
-                    <div className="learning-student-info">
-                      <h5>
-                        {student.name ?? 'Alumno'} {student.last_name ?? ''}
-                      </h5>
-
-                      <p>{student.email ?? 'Sin email'}</p>
-
-                      <small>
-                        Matrícula:{' '}
-                        {enrollment.enrollment_date
-                          ? new Date(enrollment.enrollment_date).toLocaleDateString()
-                          : '-'}
-                      </small>
-                    </div>
-
-                    <div className="learning-student-actions">
-                      <button
-                        type="button"
-                        className="btn btn-outline-primary btn-sm"
-                        onClick={() => goToDeliveries(student.id)}
-                      >
-                        Ver entregas
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
+              <input
+                value={filters.search}
+                onChange={(event) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    search: event.target.value,
+                  }))
+                }
+                placeholder="Buscar alumno..."
+                disabled={loadingResults}
+              />
             </div>
-          ) : (
-            <EmptyLearningState
-              icon="bi-people"
-              title="Sin alumnos"
-              message="No hay alumnos matriculados en este curso."
-            />
-          )}
-        </ContentLoader>
-      </LearningPanel>
-    </div>
+
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={loadingResults}
+            >
+              Buscar
+            </button>
+
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={handleReset}
+              disabled={loadingResults}
+            >
+              Limpiar
+            </button>
+          </form>
+
+          <ContentLoader
+            loading={loadingResults}
+            title="Actualizando alumnos..."
+            message="Aplicando filtros..."
+          >
+            {enrollments.length > 0 ? (
+              <div className="learning-student-grid mt-3">
+                {enrollments.map((enrollment) => {
+                  const student = enrollment.student ?? enrollment.user ?? {};
+
+                  return (
+                    <article className="learning-student-card" key={enrollment.id}>
+                      <div className="learning-student-avatar">
+                        {(student.name ?? 'A').charAt(0).toUpperCase()}
+                      </div>
+
+                      <div className="learning-student-info">
+                        <h5>
+                          {student.name ?? 'Alumno'} {student.last_name ?? ''}
+                        </h5>
+
+                        <p>{student.email ?? 'Sin email'}</p>
+
+                        <small className="d-block">
+                          Matrícula:{' '}
+                          {enrollment.enrollment_date
+                            ? new Date(enrollment.enrollment_date).toLocaleDateString('es-ES')
+                            : '-'}
+                        </small>
+
+                        <small className="d-block text-muted mt-1">
+                          Entregas:{' '}
+                          <strong>
+                            {enrollment.deliveries_count ?? 0}
+                          </strong>
+                        </small>
+                      </div>
+
+                      <div className="learning-student-actions">
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary btn-sm"
+                          onClick={() => goToDeliveries(student.id)}
+                        >
+                          Ver entregas
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <EmptyLearningState
+                icon="bi-people"
+                title="Sin alumnos"
+                message="No hay alumnos matriculados en este curso."
+              />
+            )}
+          </ContentLoader>
+        </LearningPanel>
+      </div>
+    </>
   );
 }

@@ -27,6 +27,8 @@ export default function StudentCourseCard({ course, to }) {
             {course.pending_tasks_count ?? 0} pendientes
           </span>
         </div>
+
+        
       </div>
     </Link>
   );

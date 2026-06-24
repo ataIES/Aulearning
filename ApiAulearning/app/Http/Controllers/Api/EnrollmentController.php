@@ -9,6 +9,7 @@ use App\Services\Interfaces\INotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
+use Illuminate\Support\Facades\DB;
 
 class EnrollmentController extends BaseApiController
 {
@@ -51,6 +52,14 @@ class EnrollmentController extends BaseApiController
         );
 
         $query = Enrollment::query()
+            ->select('enrollments.*')
+            ->addSelect([
+                'deliveries_count' => DB::table('delivery_tasks')
+                    ->join('tasks', 'tasks.id', '=', 'delivery_tasks.task_id')
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('delivery_tasks.student_id', 'enrollments.student_id')
+                    ->whereColumn('tasks.course_id', 'enrollments.course_id')
+            ])
             ->with([
                 'student:id,name,last_name,email,type,active',
                 'course:id,name,teacher_id',

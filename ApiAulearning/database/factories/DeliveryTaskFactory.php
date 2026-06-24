@@ -13,6 +13,12 @@ class DeliveryTaskFactory extends Factory
 
     public function definition(): array
     {
+        $submittedAt = fake()->dateTimeBetween('-15 days', 'now');
+
+        $grade = fake()->boolean(70)
+            ? fake()->numberBetween(0, 10)
+            : null;
+
         return [
             'student_id' => User::query()
                 ->where('type', 'student')
@@ -23,18 +29,20 @@ class DeliveryTaskFactory extends Factory
                 ->inRandomOrder()
                 ->value('id'),
 
-            'submitted_at' => fake()->dateTimeBetween('-15 days', 'now'),
+            'submitted_at' => $submittedAt,
 
             'updated_delivery_at' => fake()->boolean(35)
-                ? fake()->dateTimeBetween('-5 days', 'now')
+                ? fake()->dateTimeBetween($submittedAt, 'now')
                 : null,
 
-            'grade' => fake()->boolean(70)
-                ? fake()->numberBetween(0, 10)
-                : null,
+            'grade' => $grade,
 
             'comment' => fake()->boolean(45)
                 ? fake()->sentence()
+                : null,
+
+            'grade_at' => $grade !== null
+                ? fake()->dateTimeBetween($submittedAt, 'now')
                 : null,
         ];
     }
