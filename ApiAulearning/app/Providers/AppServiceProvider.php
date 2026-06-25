@@ -45,7 +45,7 @@ use App\Services\GradeService;
 use App\Services\TaskService;
 use App\Services\FileService;
 use App\Services\ChatGroupService;
-use App\Services\DashBoardService;
+use App\Services\DashboardService;
 use App\Services\DeliverTaskService;
 use App\Services\ParticipantService;
 use App\Services\MessageService;
@@ -118,7 +118,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IRoleService::class, RoleService::class);
         $this->app->bind(
             IDashboardService::class,
-            DashBoardService::class
+            DashboardService::class
         );
         $this->app->bind(
             INotificationMapper::class,

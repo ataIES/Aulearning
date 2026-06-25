@@ -7,10 +7,10 @@ use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
 use Illuminate\Http\Request;
 
-class DashBoardController extends BaseApiController
+class DashboardController extends BaseApiController
 {
     public function __construct(
-        private readonly IDashBoardService $dashboardService
+        private readonly IDashboardService $dashboardService
     ) {}
 
     #[OA\Get(

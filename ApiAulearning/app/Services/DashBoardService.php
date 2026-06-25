@@ -20,7 +20,7 @@ use App\Models\User;
 use App\Models\Enrollment;
 use App\Models\File;
 
-class DashBoardService implements IDashboardService
+class DashboardService implements IDashboardService
 {
     private const CACHE_KEY = 'dashboard_admin_last_3_days';
     private const CACHE_TTL_SECONDS = 300;
