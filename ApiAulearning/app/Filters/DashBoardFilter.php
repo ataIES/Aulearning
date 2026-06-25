@@ -4,7 +4,7 @@ namespace App\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 
-class DashBoardFilter extends BaseFilter
+class DashboardFilter extends BaseFilter
 {
     public function __construct(
         public readonly ?string $createdFrom = null,
