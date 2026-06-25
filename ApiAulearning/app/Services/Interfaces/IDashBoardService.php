@@ -4,7 +4,7 @@ namespace App\Services\Interfaces;
 
 use App\Models\User;
 
-interface IDashBoardService
+interface IDashboardService
 {
     public function getAdminDashboard(): array;
 
