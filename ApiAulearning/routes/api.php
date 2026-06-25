@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ChatGroupController;
 use App\Http\Controllers\Api\CourseController;
-use App\Http\Controllers\Api\DashBoardController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DeliverTaskController;
 use App\Http\Controllers\Api\EnrollmentController;
 use App\Http\Controllers\Api\FileController;
@@ -57,17 +57,17 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware('role:admin')->get(
             '/dashboard/admin',
-            [DashBoardController::class, 'getAdminDashboard']
+            [DashboardController::class, 'getAdminDashboard']
         );
 
         Route::middleware('role:teacher')->get(
             '/dashboard/teacher',
-            [DashBoardController::class, 'teacher']
+            [DashboardController::class, 'teacher']
         );
 
         Route::middleware('role:student')->get(
             '/dashboard/student',
-            [DashBoardController::class, 'getStudentDashBoard']
+            [DashboardController::class, 'getStudentDashBoard']
         );
 
 
