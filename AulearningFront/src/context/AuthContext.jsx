@@ -1,5 +1,4 @@
 import { createContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import AuthService from '../services/AuthService';
 import { clearAuth, getToken, getUser, saveAuth } from '../utils/storage';
@@ -28,23 +27,26 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    try {
-      showLoader('Cerrando sesión...');
+  console.log('showLoader:', showLoader, typeof showLoader);
+  console.log('hideLoader:', hideLoader, typeof hideLoader);
 
-      await AuthService.logout();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      clearAuth();
+  try {
+    showLoader('Cerrando sesión...');
 
-      setUser(null);
-      setToken(null);
+    await AuthService.logout();
+  } catch (error) {
+    console.error(error);
+  } finally {
+    clearAuth();
 
-      hideLoader();
+    setUser(null);
+    setToken(null);
 
-      window.location.replace('/login');
-    }
-  };
+    hideLoader();
+
+    window.location.replace('/login');
+  }
+};
 
   useEffect(() => {
     const initAuth = async () => {
