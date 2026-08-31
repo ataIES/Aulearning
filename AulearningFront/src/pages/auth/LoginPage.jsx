@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 
-import { useAuth } from '../hooks/useAuth';
-
 import '../styles/login.css';
 
 export default function LoginPage() {
