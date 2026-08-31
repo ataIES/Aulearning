@@ -23,6 +23,19 @@
   margin-bottom: 1.5rem;
 }
 
+.login-brand-logo {
+  width: 230px;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 24px;
+}
+
+.login-brand-description {
+  max-width: 340px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
 /* Sidebar */
 .sidebar-brand-logo {
   display: flex;

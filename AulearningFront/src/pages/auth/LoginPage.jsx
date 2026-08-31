@@ -82,7 +82,7 @@ export default function LoginPage() {
 
   return (
     <>
-    <Helmet>
+      <Helmet>
         <title>Iniciar sesión</title>
       </Helmet>
       {loginLoading && (
@@ -95,7 +95,18 @@ export default function LoginPage() {
       <main className="login-page">
         <section className="login-card">
           <div className="login-info">
-            <div className="login-logo">A</div>
+            <div className="login-brand">
+              <img
+                src="/branding/aulearning-logo.png"
+                alt="Aulearning"
+                className="login-brand-logo"
+              />
+
+              <p className="login-brand-description">
+                Plataforma educativa para gestionar cursos, tareas,
+                entregas y comunicación académica.
+              </p>
+            </div>
 
             <h1>Aulearning</h1>
 
