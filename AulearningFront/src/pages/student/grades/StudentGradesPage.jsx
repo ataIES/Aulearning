@@ -9,6 +9,7 @@ import { useAuth } from '../../../hooks/useAuth';
 import { useUI } from '../../../hooks/useUI';
 import StudentService from '../../../services/StudentService';
 import { useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const defaultFilters = {
   search: '',

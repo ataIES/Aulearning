@@ -4,6 +4,7 @@ import LearningPanel from '../../../components/learning/LearningPanel';
 import QuickAction from '../../../components/learning/QuickAction';
 
 import { useAuth } from '../../../hooks/useAuth';
+import { Helmet } from 'react-helmet-async';
 
 export default function StudentProfilePage() {
   const { user } = useAuth();

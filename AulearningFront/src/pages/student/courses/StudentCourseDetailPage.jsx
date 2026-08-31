@@ -7,6 +7,7 @@ import EmptyLearningState from '../../../components/learning/EmptyLearningState'
 import LearningPanel from '../../../components/learning/LearningPanel';
 import LearningStatCard from '../../../components/learning/LearningStatCard';
 import QuickAction from '../../../components/learning/QuickAction';
+import { Helmet } from 'react-helmet-async';
 
 import { useUI } from '../../../hooks/useUI';
 import StudentService from '../../../services/StudentService';

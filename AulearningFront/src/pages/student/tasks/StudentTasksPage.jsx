@@ -11,6 +11,7 @@ import { useUI } from '../../../hooks/useUI';
 import StudentService from '../../../services/StudentService';
 
 import SubmitTaskModal from './SubmitTaskModal';
+import { Helmet } from 'react-helmet-async';
 
 const defaultFilters = {
   search: '',

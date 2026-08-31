@@ -9,6 +9,7 @@ import StudentCourseCard from '../../../components/learning/StudentCourseCard';
 import { useAuth } from '../../../hooks/useAuth';
 import { useUI } from '../../../hooks/useUI';
 import StudentService from '../../../services/StudentService';
+import { Helmet } from 'react-helmet-async';
 
 const defaultFilters = {
   search: '',
