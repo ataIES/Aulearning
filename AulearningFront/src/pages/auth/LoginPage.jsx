@@ -1,207 +1,277 @@
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-
-import LoginLoader from '../../components/common/LoginLoader';
-import { useAuth } from '../../hooks/useAuth';
-import { useUI } from '../../hooks/useUI';
-import { getHomeByRole } from '../../utils/redirectByRole';
+import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+
+import { useAuth } from '../hooks/useAuth';
+
+import '../styles/login.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-
-  const { login, isAuthenticated, checkingAuth, user } = useAuth();
-  const { showError } = useUI();
-
-  const [loginLoading, setLoginLoading] = useState(false);
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     email: '',
     password: '',
-    remember: false,
   });
 
-  if (checkingAuth) {
-    return (
-      <LoginLoader
-        title="Comprobando sesión"
-        message="Verificando si ya tienes una sesión activa..."
-      />
-    );
-  }
-
-  if (isAuthenticated) {
-    return <Navigate to={getHomeByRole(user)} replace />;
-  }
+  const [remember, setRemember] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
+    const { name, value } = event.target;
 
-    setForm({
-      ...form,
-      [name]: type === 'checkbox' ? checked : value,
-    });
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (error) {
+      setError('');
+    }
   };
 
-  const getErrorMessage = (error) => {
-    const response = error.response?.data;
+  const redirectByRole = (user) => {
+    const role = (
+      user?.role?.name ||
+      user?.role_name ||
+      user?.type ||
+      ''
+    )
+      .toString()
+      .toLowerCase();
 
-    if (response?.errors) {
-      const firstKey = Object.keys(response.errors)[0];
-
-      return response.errors[firstKey]?.[0] ?? 'Error de validación.';
+    if (['admin', 'administrador'].includes(role)) {
+      navigate('/admin/dashboard', { replace: true });
+      return;
     }
 
-    return response?.message ?? 'No se pudo iniciar sesión.';
+    if (['teacher', 'profesor'].includes(role)) {
+      navigate('/teacher/dashboard', { replace: true });
+      return;
+    }
+
+    if (['student', 'alumno'].includes(role)) {
+      navigate('/student/dashboard', { replace: true });
+      return;
+    }
+
+    navigate('/', { replace: true });
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    event.stopPropagation();
+
+    if (!form.email.trim() || !form.password.trim()) {
+      setError('Introduce el correo electrónico y la contraseña.');
+      return;
+    }
 
     try {
-      setLoginLoading(true);
+      setLoading(true);
+      setError('');
 
-      const loggedUser = await login(
+      const user = await login(
         {
-          email: form.email,
-          password: form.password,
+          correo: form.email.trim(),
+          contrasenia: form.password,
         },
-        form.remember
+        remember
       );
 
-      navigate(getHomeByRole(loggedUser), {
-        replace: true,
-      });
-    } catch (error) {
-      showError(getErrorMessage(error), 'No se pudo iniciar sesión');
+      redirectByRole(user);
+    } catch (err) {
+      console.error('Error de login:', err);
+
+      const message =
+        err?.response?.data?.message ||
+        err?.response?.data?.errors?.correo?.[0] ||
+        'Correo o contraseña incorrectos.';
+
+      setError(message);
     } finally {
-      setLoginLoading(false);
+      setLoading(false);
     }
   };
 
   return (
     <>
       <Helmet>
-        <title>Iniciar sesión</title>
+        <title>Iniciar sesión | Aulearning</title>
       </Helmet>
-      {loginLoading && (
-        <LoginLoader
-          title="Iniciando sesión"
-          message="Validando credenciales y preparando tu panel..."
-        />
-      )}
 
-      <main className="login-page">
-        <section className="login-card">
-          <div className="login-info">
-            <div className="login-brand">
+      <main className="au-login-page">
+        <section className="au-login-card">
+
+          {/* PARTE IZQUIERDA */}
+          <div className="au-login-brand">
+            <div className="au-login-logo-box">
               <img
                 src="/branding/aulearning-logo.png"
                 alt="Aulearning"
-                className="login-brand-logo"
+                className="au-login-logo"
               />
+            </div>
 
-              <p className="login-brand-description">
+            <div className="au-login-brand-content">
+              <h1>Aulearning</h1>
+
+              <p>
                 Plataforma educativa para gestionar cursos, tareas,
                 entregas y comunicación académica.
               </p>
-            </div>
 
-            <h1>Aulearning</h1>
+              <ul className="au-login-features">
+                <li>
+                  <span className="au-feature-icon">
+                    <i className="bi bi-check-lg" />
+                  </span>
+                  Gestión académica centralizada
+                </li>
 
-            <p>
-              Plataforma educativa para gestionar cursos, tareas,
-              entregas y comunicación académica.
-            </p>
+                <li>
+                  <span className="au-feature-icon">
+                    <i className="bi bi-check-lg" />
+                  </span>
+                  Acceso personalizado por rol
+                </li>
 
-            <div className="login-points">
-              <span>
-                <i className="bi bi-check-circle-fill" />
-                Gestión académica centralizada
-              </span>
-
-              <span>
-                <i className="bi bi-check-circle-fill" />
-                Acceso personalizado por rol
-              </span>
-
-              <span>
-                <i className="bi bi-check-circle-fill" />
-                Entorno seguro y responsive
-              </span>
+                <li>
+                  <span className="au-feature-icon">
+                    <i className="bi bi-check-lg" />
+                  </span>
+                  Entorno seguro y responsive
+                </li>
+              </ul>
             </div>
           </div>
 
-          <div className="login-form-area">
-            <div className="login-form-title">
-              <h2>Iniciar sesión</h2>
-              <p>Accede a tu panel de Aulearning</p>
-            </div>
+          {/* PARTE DERECHA */}
+          <div className="au-login-form-section">
+            <div className="au-login-form-container">
+              <div className="au-login-heading">
+                <h2>Iniciar sesión</h2>
+                <p>Accede a tu panel de Aulearning</p>
+              </div>
 
-            <form onSubmit={handleSubmit} noValidate>
-              <fieldset disabled={loginLoading}>
-                <div className="mb-3">
-                  <label className="form-label">Correo electrónico</label>
+              {error && (
+                <div className="au-login-error" role="alert">
+                  <i className="bi bi-exclamation-circle-fill" />
+                  <span>{error}</span>
+                </div>
+              )}
 
-                  <div className="input-icon">
-                    <i className="bi bi-envelope" />
+              <form onSubmit={handleSubmit}>
+                <div className="au-form-group">
+                  <label htmlFor="email">
+                    Correo electrónico
+                  </label>
+
+                  <div className="au-input-wrapper">
+                    <i className="bi bi-envelope au-input-icon" />
 
                     <input
+                      id="email"
                       type="email"
                       name="email"
-                      className="form-control"
-                      placeholder="tu@email.com"
                       value={form.email}
                       onChange={handleChange}
-                      required
+                      placeholder="tu@email.com"
+                      autoComplete="email"
+                      disabled={loading}
                     />
                   </div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Contraseña</label>
+                <div className="au-form-group">
+                  <label htmlFor="password">
+                    Contraseña
+                  </label>
 
-                  <div className="input-icon">
-                    <i className="bi bi-lock" />
+                  <div className="au-input-wrapper">
+                    <i className="bi bi-lock au-input-icon" />
 
                     <input
-                      type="password"
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
                       name="password"
-                      className="form-control"
-                      placeholder="••••••••"
                       value={form.password}
                       onChange={handleChange}
-                      required
+                      placeholder="Introduce tu contraseña"
+                      autoComplete="current-password"
+                      disabled={loading}
                     />
+
+                    <button
+                      type="button"
+                      className="au-password-toggle"
+                      onClick={() =>
+                        setShowPassword((prev) => !prev)
+                      }
+                      aria-label={
+                        showPassword
+                          ? 'Ocultar contraseña'
+                          : 'Mostrar contraseña'
+                      }
+                    >
+                      <i
+                        className={`bi ${
+                          showPassword
+                            ? 'bi-eye-slash'
+                            : 'bi-eye'
+                        }`}
+                      />
+                    </button>
                   </div>
                 </div>
 
-                <div className="form-check mb-4">
-                  <input
-                    id="remember"
-                    name="remember"
-                    type="checkbox"
-                    className="form-check-input"
-                    checked={form.remember}
-                    onChange={handleChange}
-                  />
+                <div className="au-login-options">
+                  <label className="au-remember">
+                    <input
+                      type="checkbox"
+                      checked={remember}
+                      onChange={(event) =>
+                        setRemember(event.target.checked)
+                      }
+                      disabled={loading}
+                    />
 
-                  <label className="form-check-label" htmlFor="remember">
-                    Recuérdame
+                    <span>Recuérdame</span>
                   </label>
                 </div>
 
                 <button
-                  className="btn btn-primary login-submit"
                   type="submit"
+                  className="au-login-submit"
+                  disabled={loading}
                 >
-                  Entrar
-                  <i className="bi bi-arrow-right" />
+                  {loading ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm"
+                        aria-hidden="true"
+                      />
+                      Entrando...
+                    </>
+                  ) : (
+                    <>
+                      Entrar
+                      <i className="bi bi-arrow-right" />
+                    </>
+                  )}
                 </button>
-              </fieldset>
-            </form>
+              </form>
+
+              <div className="au-login-footer">
+                <span>Aulearning</span>
+                <span className="au-login-footer-dot">•</span>
+                <span>Plataforma educativa</span>
+              </div>
+            </div>
           </div>
+
         </section>
       </main>
     </>
