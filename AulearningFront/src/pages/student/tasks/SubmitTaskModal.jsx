@@ -137,7 +137,7 @@ export default function SubmitTaskModal({
   };
 
   return (
-    <div className="error-modal-backdrop">
+    <div className="form-modal-backdrop">
       <div className="form-modal">
         <div className="form-modal-header">
           <div>

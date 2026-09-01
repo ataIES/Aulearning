@@ -175,7 +175,7 @@ export default function TaskFormModal({
   };
 
   return (
-    <div className="error-modal-backdrop">
+    <div className="form-modal-backdrop">
       <div className="form-modal">
         <div className="form-modal-header">
           <div>
