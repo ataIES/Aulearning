@@ -74,8 +74,8 @@ export default function LoginPage() {
 
       const user = await login(
         {
-          correo: form.email.trim(),
-          contrasenia: form.password,
+          email: form.email.trim(),
+          password: form.password,
         },
         remember
       );
