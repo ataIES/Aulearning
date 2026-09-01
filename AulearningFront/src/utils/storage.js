@@ -1,30 +1,51 @@
 const TOKEN_KEY = 'aulearning_token';
 const USER_KEY = 'aulearning_user';
 
-export function saveAuth(token, user, remember = false) {
+export const saveAuth = (token, user, remember = false) => {
   clearAuth();
 
   const storage = remember ? localStorage : sessionStorage;
 
-  storage.setItem(TOKEN_KEY, token);
-  storage.setItem(USER_KEY, JSON.stringify(user));
-}
+  if (token) {
+    storage.setItem(TOKEN_KEY, token);
+  }
 
-export function getToken() {
-  return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
-}
+  if (user) {
+    storage.setItem(USER_KEY, JSON.stringify(user));
+  }
+};
 
-export function getUser() {
-  const user =
+export const getToken = () => {
+  return (
+    localStorage.getItem(TOKEN_KEY) ||
+    sessionStorage.getItem(TOKEN_KEY) ||
+    null
+  );
+};
+
+export const getUser = () => {
+  const value =
     localStorage.getItem(USER_KEY) ||
     sessionStorage.getItem(USER_KEY);
 
-  return user ? JSON.parse(user) : null;
-}
+  if (!value || value === 'undefined' || value === 'null') {
+    return null;
+  }
 
-export function clearAuth() {
+  try {
+    return JSON.parse(value);
+  } catch {
+    localStorage.removeItem(USER_KEY);
+    sessionStorage.removeItem(USER_KEY);
+
+    return null;
+  }
+};
+
+export const clearAuth = () => {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+
   sessionStorage.removeItem(TOKEN_KEY);
   sessionStorage.removeItem(USER_KEY);
-}
+};
