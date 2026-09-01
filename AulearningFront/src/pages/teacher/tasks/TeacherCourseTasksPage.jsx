@@ -12,7 +12,7 @@ import TeacherService from '../../../services/TeacherService';
 
 import TaskFormModal from './TaskFormModal';
 import { Helmet } from 'react-helmet-async';
-import { handleApiError } from '../../../utils/handleApiError';
+import { handleApiError } from '../../../utils/ApiErrorHandler';
 
 const defaultFilters = {
   search: '',

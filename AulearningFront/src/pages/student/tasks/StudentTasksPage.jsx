@@ -12,7 +12,7 @@ import StudentService from '../../../services/StudentService';
 
 import SubmitTaskModal from './SubmitTaskModal';
 import { Helmet } from 'react-helmet-async';
-import { handleApiError } from '../../../utils/handleApiError';
+import { handleApiError } from '../../../utils/ApiErrorHandler';
 
 const defaultFilters = {
   search: '',
