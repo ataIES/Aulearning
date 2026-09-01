@@ -180,7 +180,6 @@ export default function LoginPage() {
 
       redirectByRole(user);
     } catch (error) {
-      console.error('Error de login:', error);
 
       showError(
         getErrorMessage(error),
