@@ -12,6 +12,7 @@ import TeacherService from '../../../services/TeacherService';
 
 import TaskFormModal from './TaskFormModal';
 import { Helmet } from 'react-helmet-async';
+import { handleApiError } from '../../../utils/handleApiError';
 
 const defaultFilters = {
   search: '',
@@ -61,7 +62,6 @@ export default function TeacherCourseTasksPage() {
       setCourse(extractData(courseResponse));
       setTasks(extractItems(tasksResponse));
     } catch (error) {
-      console.error(error);
       showError('No se pudo cargar la información del curso.');
     } finally {
       setLoadingPage(false);
@@ -76,7 +76,6 @@ export default function TeacherCourseTasksPage() {
 
       setTasks(extractItems(response));
     } catch (error) {
-      console.error(error);
       showError('No se pudieron cargar las tareas.');
     } finally {
       setLoadingResults(false);
@@ -185,20 +184,12 @@ export default function TeacherCourseTasksPage() {
 
       await loadTasks();
     } catch (error) {
-      const response = error.response?.data;
-
-      if (response?.errors) {
-        setFormErrors(response.errors);
-
-        const firstKey = Object.keys(response.errors)[0];
-        const firstMessage = response.errors[firstKey]?.[0];
-
-        showError(firstMessage ?? response.message, 'Error de validación');
-        return;
-      }
-
-      showError(response?.message ?? 'No se pudo guardar la tarea.');
-    } finally {
+  handleApiError(
+    error,
+    showError,
+    setFormErrors
+  );
+} finally  {
       setSaving(false);
     }
   };

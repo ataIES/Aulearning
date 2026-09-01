@@ -12,6 +12,7 @@ import StudentService from '../../../services/StudentService';
 
 import SubmitTaskModal from './SubmitTaskModal';
 import { Helmet } from 'react-helmet-async';
+import { handleApiError } from '../../../utils/handleApiError';
 
 const defaultFilters = {
   search: '',
@@ -24,6 +25,7 @@ export default function StudentTasksPage() {
   const { user } = useAuth();
   const { showError } = useUI();
   const [searchParams] = useSearchParams();
+  
 
   const courseIdFromUrl = searchParams.get('course_id') ?? '';
 
@@ -264,23 +266,23 @@ export default function StudentTasksPage() {
       setSelectedDelivery(null);
 
       await loadTasks();
-    } catch (error) {
-      const response = error.response?.data;
+   } catch (error) {
+  const response = error.response?.data;
 
-      if (response?.errors) {
-        setSubmitErrors(response.errors);
+  if (response?.errors) {
+    setSubmitErrors(response.errors);
 
-        const firstKey = Object.keys(response.errors)[0];
-        const firstMessage = response.errors[firstKey]?.[0];
+    const firstKey = Object.keys(response.errors)[0];
+    const firstMessage = response.errors[firstKey]?.[0];
 
-        showError(firstMessage ?? response.message, 'Error de validación');
-        return;
-      }
+    showError(firstMessage ?? response.message, 'Error de validación');
+    return;
+  }
 
-      showError(response?.message ?? 'No se pudo guardar la entrega.');
-    } finally {
-      setSavingDelivery(false);
-    }
+  showError(response?.message ?? 'No se pudo guardar la entrega.');
+} finally {
+  setSavingDelivery(false);
+}
   };
 
   const getStatusBadge = (task) => {

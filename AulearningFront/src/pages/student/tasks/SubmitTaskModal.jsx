@@ -1,11 +1,24 @@
 import { useEffect, useState } from 'react';
 
 import LoadingButton from '../../../components/common/LoadingButton';
+import { useUI } from '../../../hooks/useUI';
 
 const emptyForm = {
   comment: '',
   files: [],
 };
+
+const ALLOWED_EXTENSIONS = [
+  'jpg',
+  'jpeg',
+  'png',
+  'webp',
+  'pdf',
+  'doc',
+  'docx',
+];
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 export default function SubmitTaskModal({
   show,
@@ -16,6 +29,8 @@ export default function SubmitTaskModal({
   onClose,
   onSubmit,
 }) {
+  const { showError } = useUI();
+
   const [form, setForm] = useState(emptyForm);
   const [removedFiles, setRemovedFiles] = useState([]);
 
@@ -34,20 +49,80 @@ export default function SubmitTaskModal({
 
   if (!show) return null;
 
-  const fieldError = (field) => errors?.[field]?.[0];
+  const fieldError = (field) => {
+    if (errors?.[field]?.[0]) {
+      return errors[field][0];
+    }
+
+    const nestedKey = Object.keys(errors ?? {}).find((key) =>
+      key.startsWith(`${field}.`)
+    );
+
+    return nestedKey ? errors[nestedKey]?.[0] : null;
+  };
+
+  const validateFile = (file) => {
+    const extension = file.name
+      .split('.')
+      .pop()
+      ?.toLowerCase();
+
+    if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
+      return 'Solo se permiten imágenes, archivos PDF y documentos Word.';
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      return `El archivo "${file.name}" no puede superar los 10 MB.`;
+    }
+
+    return null;
+  };
 
   const handleChange = (event) => {
     const { name, value, files } = event.target;
 
+    if (files) {
+      const selectedFiles = Array.from(files);
+
+      for (const file of selectedFiles) {
+        const validationError = validateFile(file);
+
+        if (validationError) {
+          showError(
+            validationError,
+            'Archivo no válido'
+          );
+
+          event.target.value = '';
+
+          setForm((prev) => ({
+            ...prev,
+            [name]: [],
+          }));
+
+          return;
+        }
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        [name]: selectedFiles,
+      }));
+
+      return;
+    }
+
     setForm((prev) => ({
       ...prev,
-      [name]: files ? Array.from(files) : value,
+      [name]: value,
     }));
   };
 
   const handleRemoveFile = (fileId) => {
     setRemovedFiles((prev) =>
-      prev.includes(fileId) ? prev : [...prev, fileId]
+      prev.includes(fileId)
+        ? prev
+        : [...prev, fileId]
     );
   };
 
@@ -66,7 +141,12 @@ export default function SubmitTaskModal({
       <div className="form-modal">
         <div className="form-modal-header">
           <div>
-            <h4>{isEditing ? 'Actualizar entrega' : 'Entregar tarea'}</h4>
+            <h4>
+              {isEditing
+                ? 'Actualizar entrega'
+                : 'Entregar tarea'}
+            </h4>
+
             <p>{task?.title ?? 'Tarea'}</p>
           </div>
 
@@ -78,14 +158,22 @@ export default function SubmitTaskModal({
           />
         </div>
 
-        <form onSubmit={handleSubmit} noValidate>
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+        >
           {delivery?.files?.length > 0 && (
             <div className="mb-3">
-              <label className="form-label">Archivos entregados</label>
+              <label className="form-label">
+                Archivos entregados
+              </label>
 
               <div className="task-current-files">
                 {delivery.files
-                  .filter((file) => !removedFiles.includes(file.id))
+                  .filter(
+                    (file) =>
+                      !removedFiles.includes(file.id)
+                  )
                   .map((file) => (
                     <div
                       key={file.id}
@@ -103,7 +191,9 @@ export default function SubmitTaskModal({
                       <button
                         type="button"
                         className="btn btn-sm btn-outline-danger"
-                        onClick={() => handleRemoveFile(file.id)}
+                        onClick={() =>
+                          handleRemoveFile(file.id)
+                        }
                         disabled={loading}
                       >
                         <i className="bi bi-trash" />
@@ -115,12 +205,18 @@ export default function SubmitTaskModal({
           )}
 
           <div className="mb-3">
-            <label className="form-label">Comentario</label>
+            <label className="form-label">
+              Comentario
+            </label>
 
             <textarea
               name="comment"
               rows="4"
-              className={`form-control ${fieldError('comment') ? 'is-invalid' : ''}`}
+              className={`form-control ${
+                fieldError('comment')
+                  ? 'is-invalid'
+                  : ''
+              }`}
               value={form.comment}
               onChange={handleChange}
               disabled={loading}
@@ -128,30 +224,41 @@ export default function SubmitTaskModal({
             />
 
             {fieldError('comment') && (
-              <div className="invalid-feedback">{fieldError('comment')}</div>
+              <div className="invalid-feedback">
+                {fieldError('comment')}
+              </div>
             )}
           </div>
 
           <div className="mb-4">
             <label className="form-label">
-              {isEditing ? 'Añadir nuevos archivos' : 'Archivos'}
+              {isEditing
+                ? 'Añadir nuevos archivos'
+                : 'Archivos'}
             </label>
 
             <input
               type="file"
               name="files"
               multiple
-              className={`form-control ${fieldError('files') ? 'is-invalid' : ''}`}
+              accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx"
+              className={`form-control ${
+                fieldError('files')
+                  ? 'is-invalid'
+                  : ''
+              }`}
               onChange={handleChange}
               disabled={loading}
             />
 
             <small className="text-muted">
-              Puedes subir uno o varios archivos para esta entrega.
+              Imágenes, PDF o Word. Máximo 10 MB por archivo.
             </small>
 
             {fieldError('files') && (
-              <div className="invalid-feedback">{fieldError('files')}</div>
+              <div className="invalid-feedback">
+                {fieldError('files')}
+              </div>
             )}
           </div>
 
@@ -171,7 +278,9 @@ export default function SubmitTaskModal({
               loadingText="Guardando entrega..."
               icon="bi-upload"
             >
-              {isEditing ? 'Actualizar entrega' : 'Entregar tarea'}
+              {isEditing
+                ? 'Actualizar entrega'
+                : 'Entregar tarea'}
             </LoadingButton>
           </div>
         </form>

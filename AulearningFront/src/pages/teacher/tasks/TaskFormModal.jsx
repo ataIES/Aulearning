@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+
 import LoadingButton from '../../../components/common/LoadingButton';
+import { useUI } from '../../../hooks/useUI';
 
 const emptyForm = {
   title: '',
@@ -11,6 +13,18 @@ const emptyForm = {
   files: [],
 };
 
+const ALLOWED_EXTENSIONS = [
+  'jpg',
+  'jpeg',
+  'png',
+  'webp',
+  'pdf',
+  'doc',
+  'docx',
+];
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
 export default function TaskFormModal({
   show,
   task,
@@ -21,9 +35,12 @@ export default function TaskFormModal({
   onClose,
   onSubmit,
 }) {
+  const { showError } = useUI();
+
   const [form, setForm] = useState(emptyForm);
-  const isEditing = Boolean(task);
   const [removedFiles, setRemovedFiles] = useState([]);
+
+  const isEditing = Boolean(task);
 
   useEffect(() => {
     if (task) {
@@ -33,7 +50,11 @@ export default function TaskFormModal({
         due_date: task.due_date ?? '',
         course_id: task.course_id ?? '',
         type: task.type ?? 'TAREA',
-        gradable: Boolean(task.gradable ?? task.calificable ?? true),
+        gradable: Boolean(
+          task.gradable ??
+          task.calificable ??
+          true
+        ),
         files: [],
       });
     } else {
@@ -43,24 +64,98 @@ export default function TaskFormModal({
     setRemovedFiles([]);
   }, [task, show]);
 
+  if (!show) return null;
+
+  const fieldError = (field) => {
+    if (errors?.[field]?.[0]) {
+      return errors[field][0];
+    }
+
+    if (field === 'files' && errors?.file?.[0]) {
+      return errors.file[0];
+    }
+
+    const nestedKey = Object.keys(errors ?? {}).find(
+      (key) => key.startsWith(`${field}.`)
+    );
+
+    return nestedKey
+      ? errors[nestedKey]?.[0]
+      : null;
+  };
+
+  const validateFile = (file) => {
+    const extension = file.name
+      .split('.')
+      .pop()
+      ?.toLowerCase();
+
+    if (
+      !extension ||
+      !ALLOWED_EXTENSIONS.includes(extension)
+    ) {
+      return `El archivo "${file.name}" no tiene un formato permitido. Solo se permiten imágenes, PDF y documentos Word.`;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      return `El archivo "${file.name}" supera el tamaño máximo de 10 MB.`;
+    }
+
+    return null;
+  };
+
   const handleRemoveFile = (fileId) => {
     setRemovedFiles((prev) =>
-      prev.includes(fileId) ? prev : [...prev, fileId]
+      prev.includes(fileId)
+        ? prev
+        : [...prev, fileId]
     );
   };
 
-  if (!show) return null;
-
-  const fieldError = (field) => errors?.[field]?.[0];
-
   const handleChange = (event) => {
-    const { name, value, type, checked, files } = event.target;
+    const {
+      name,
+      value,
+      type,
+      checked,
+      files,
+    } = event.target;
+
+    if (files) {
+      const selectedFiles = Array.from(files);
+
+      for (const file of selectedFiles) {
+        const validationError = validateFile(file);
+
+        if (validationError) {
+          showError(
+            validationError,
+            'Archivo no válido'
+          );
+
+          event.target.value = '';
+
+          setForm((prev) => ({
+            ...prev,
+            [name]: [],
+          }));
+
+          return;
+        }
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        [name]: selectedFiles,
+      }));
+
+      return;
+    }
 
     setForm((prev) => ({
       ...prev,
-      [name]: files
-        ? Array.from(files)
-        : type === 'checkbox'
+      [name]:
+        type === 'checkbox'
           ? checked
           : value,
     }));
@@ -73,7 +168,9 @@ export default function TaskFormModal({
     onSubmit({
       ...form,
       removed_files: removedFiles,
-      course_id: form.course_id ? Number(form.course_id) : null,
+      course_id: form.course_id
+        ? Number(form.course_id)
+        : null,
     });
   };
 
@@ -82,9 +179,15 @@ export default function TaskFormModal({
       <div className="form-modal">
         <div className="form-modal-header">
           <div>
-            <h4>{isEditing ? 'Editar tarea' : 'Nueva tarea'}</h4>
+            <h4>
+              {isEditing
+                ? 'Editar tarea'
+                : 'Nueva tarea'}
+            </h4>
+
             <p>
-              Configura la tarea y adjunta materiales si lo necesitas.
+              Configura la tarea y adjunta materiales
+              si lo necesitas.
             </p>
           </div>
 
@@ -96,23 +199,37 @@ export default function TaskFormModal({
           />
         </div>
 
-        <form onSubmit={handleSubmit} noValidate>
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+        >
           {showCourseSelect && (
             <div className="mb-3">
-              <label className="form-label">Curso</label>
+              <label className="form-label">
+                Curso
+              </label>
 
               <select
                 name="course_id"
-                className={`form-select ${fieldError('course_id') ? 'is-invalid' : ''}`}
+                className={`form-select ${
+                  fieldError('course_id')
+                    ? 'is-invalid'
+                    : ''
+                }`}
                 value={form.course_id}
                 onChange={handleChange}
                 disabled={loading}
                 required
               >
-                <option value="">Selecciona un curso...</option>
+                <option value="">
+                  Selecciona un curso...
+                </option>
 
                 {courses.map((course) => (
-                  <option key={course.id} value={course.id}>
+                  <option
+                    key={course.id}
+                    value={course.id}
+                  >
                     {course.name}
                   </option>
                 ))}
@@ -127,11 +244,17 @@ export default function TaskFormModal({
           )}
 
           <div className="mb-3">
-            <label className="form-label">Título</label>
+            <label className="form-label">
+              Título
+            </label>
 
             <input
               name="title"
-              className={`form-control ${fieldError('title') ? 'is-invalid' : ''}`}
+              className={`form-control ${
+                fieldError('title')
+                  ? 'is-invalid'
+                  : ''
+              }`}
               value={form.title}
               onChange={handleChange}
               disabled={loading}
@@ -139,17 +262,25 @@ export default function TaskFormModal({
             />
 
             {fieldError('title') && (
-              <div className="invalid-feedback">{fieldError('title')}</div>
+              <div className="invalid-feedback">
+                {fieldError('title')}
+              </div>
             )}
           </div>
 
           <div className="mb-3">
-            <label className="form-label">Descripción</label>
+            <label className="form-label">
+              Descripción
+            </label>
 
             <textarea
               name="description"
               rows="4"
-              className={`form-control ${fieldError('description') ? 'is-invalid' : ''}`}
+              className={`form-control ${
+                fieldError('description')
+                  ? 'is-invalid'
+                  : ''
+              }`}
               value={form.description}
               onChange={handleChange}
               disabled={loading}
@@ -164,35 +295,60 @@ export default function TaskFormModal({
 
           <div className="row">
             <div className="col-md-6 mb-3">
-              <label className="form-label">Tipo</label>
+              <label className="form-label">
+                Tipo
+              </label>
 
               <select
                 name="type"
-                className={`form-select ${fieldError('type') ? 'is-invalid' : ''}`}
+                className={`form-select ${
+                  fieldError('type')
+                    ? 'is-invalid'
+                    : ''
+                }`}
                 value={form.type}
                 onChange={handleChange}
                 disabled={loading}
               >
-                <option value="TAREA">Tarea</option>
-                <option value="EXAMEN">Examen</option>
-                <option value="APUNTES">Apuntes</option>
+                <option value="TAREA">
+                  Tarea
+                </option>
+
+                <option value="EXAMEN">
+                  Examen
+                </option>
+
+                <option value="APUNTES">
+                  Apuntes
+                </option>
               </select>
 
               {fieldError('type') && (
-                <div className="invalid-feedback">{fieldError('type')}</div>
+                <div className="invalid-feedback">
+                  {fieldError('type')}
+                </div>
               )}
             </div>
 
             <div className="col-md-6 mb-3">
-              <label className="form-label">Fecha entrega</label>
+              <label className="form-label">
+                Fecha entrega
+              </label>
 
               <input
                 type="date"
                 name="due_date"
-                className={`form-control ${fieldError('due_date') ? 'is-invalid' : ''}`}
+                className={`form-control ${
+                  fieldError('due_date')
+                    ? 'is-invalid'
+                    : ''
+                }`}
                 value={form.due_date}
                 onChange={handleChange}
-                disabled={loading || form.type === 'APUNTES'}
+                disabled={
+                  loading ||
+                  form.type === 'APUNTES'
+                }
               />
 
               {fieldError('due_date') && (
@@ -211,69 +367,100 @@ export default function TaskFormModal({
               className="form-check-input"
               checked={form.gradable}
               onChange={handleChange}
-              disabled={loading || form.type === 'APUNTES'}
+              disabled={
+                loading ||
+                form.type === 'APUNTES'
+              }
             />
 
-            <label className="form-check-label" htmlFor="gradable">
+            <label
+              className="form-check-label"
+              htmlFor="gradable"
+            >
               Tarea calificable
             </label>
           </div>
 
-          {isEditing && (task?.files ?? []).length > 0 && (
-            <div className="mb-3">
-              <label className="form-label">Archivos actuales</label>
+          {isEditing &&
+            (task?.files ?? []).length > 0 && (
+              <div className="mb-3">
+                <label className="form-label">
+                  Archivos actuales
+                </label>
 
-              <div className="task-current-files">
-                {task.files
-                  .filter((file) => !removedFiles.includes(file.id))
-                  .map((file) => (
-                    <div
-                      key={file.id}
-                      className="task-current-file d-flex align-items-center justify-content-between"
-                    >
-                      <a
-                        href={file.url ?? file.path}
-                        target="_blank"
-                        rel="noreferrer"
+                <div className="task-current-files">
+                  {task.files
+                    .filter(
+                      (file) =>
+                        !removedFiles.includes(
+                          file.id
+                        )
+                    )
+                    .map((file) => (
+                      <div
+                        key={file.id}
+                        className="task-current-file d-flex align-items-center justify-content-between"
                       >
-                        <i className="bi bi-paperclip me-1" />
-                        {file.name}
-                      </a>
+                        <a
+                          href={
+                            file.url ??
+                            file.path
+                          }
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <i className="bi bi-paperclip me-1" />
+                          {file.name}
+                        </a>
 
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => handleRemoveFile(file.id)}
-                        disabled={loading}
-                      >
-                        <i className="bi bi-trash" />
-                      </button>
-                    </div>
-                  ))}
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() =>
+                            handleRemoveFile(
+                              file.id
+                            )
+                          }
+                          disabled={loading}
+                        >
+                          <i className="bi bi-trash" />
+                        </button>
+                      </div>
+                    ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           <div className="mb-4">
             <label className="form-label">
-              {isEditing ? 'Añadir nuevos archivos' : 'Archivos adjuntos'}
+              {isEditing
+                ? 'Añadir nuevos archivos'
+                : 'Archivos adjuntos'}
             </label>
 
             <input
               type="file"
               name="files"
               multiple
-              className={`form-control ${fieldError('files') ? 'is-invalid' : ''}`}
+              accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx"
+              className={`form-control ${
+                fieldError('files')
+                  ? 'is-invalid'
+                  : ''
+              }`}
               onChange={handleChange}
               disabled={loading}
             />
 
             <small className="text-muted">
-              Se subirán como materiales de la tarea.
+              Imágenes, PDF o documentos Word.
+              Máximo 10 MB por archivo.
             </small>
 
             {fieldError('files') && (
-              <div className="invalid-feedback">{fieldError('files')}</div>
+              <div className="invalid-feedback">
+                {fieldError('files')}
+              </div>
             )}
           </div>
 
