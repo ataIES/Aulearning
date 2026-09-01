@@ -19,19 +19,19 @@ export function AuthProvider({ children }) {
 
   const { setLoading } = useUI();
 
-const login = async (credentials, remember = false) => {
-  const response = await AuthService.login(credentials);
+  const login = async (credentials, remember = false) => {
+    const response = await AuthService.login(credentials);
 
-  const user = response.data.user;
-  const token = response.data.token;
+    const user = response.data.user;
+    const token = response.data.token;
 
-  saveAuth(token, user, remember);
+    saveAuth(token, user, remember);
 
-  setUser(user);
-  setToken(token);
+    setUser(user);
+    setToken(token);
 
-  return user;
-};
+    return user;
+  };
 
   const logout = async () => {
     try {
@@ -65,22 +65,19 @@ const login = async (credentials, remember = false) => {
 
       try {
         const response = await AuthService.me();
-        const currentUser = response?.user ?? response;
+
+        const currentUser =
+          response?.data?.user ??
+          response?.data ??
+          response;
 
         setUser(currentUser);
         setToken(storedToken);
-      } catch (error) {
+      } catch {
         clearAuth();
 
         setUser(null);
         setToken(null);
-
-        if (import.meta.env.DEV) {
-          console.error(
-            'No se pudo recuperar la sesión:',
-            error
-          );
-        }
       } finally {
         setCheckingAuth(false);
       }
