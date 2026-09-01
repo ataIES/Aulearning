@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { useAuth } from '../../hooks/useAuth';
 
-import "../../styles/login.css";
+import '../../styles/login.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -16,7 +16,6 @@ export default function LoginPage() {
   });
 
   const [remember, setRemember] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -102,75 +101,92 @@ export default function LoginPage() {
         <title>Iniciar sesión | Aulearning</title>
       </Helmet>
 
-      <main className="au-login-page">
-        <section className="au-login-card">
+      <main className="login-page">
+        <section className="login-card">
 
-          {/* PARTE IZQUIERDA */}
-          <div className="au-login-brand">
-            <div className="au-login-logo-box">
-              <img
-                src="/branding/aulearning-logo.png"
-                alt="Aulearning"
-                className="au-login-logo"
-              />
-            </div>
+          {/* ZONA IZQUIERDA */}
+          <div className="login-brand-panel">
 
-            <div className="au-login-brand-content">
-              <h1>Aulearning</h1>
+            <div className="login-brand-content">
 
-              <p>
+              <div className="login-logo-container">
+                <img
+                  src="/branding/aulearning-logo.png"
+                  alt="Aulearning"
+                  className="login-logo"
+                />
+              </div>
+
+              <h1 className="login-brand-title">
+                Aulearning
+              </h1>
+
+              <p className="login-brand-description">
                 Plataforma educativa para gestionar cursos, tareas,
                 entregas y comunicación académica.
               </p>
 
-              <ul className="au-login-features">
-                <li>
-                  <span className="au-feature-icon">
-                    <i className="bi bi-check-lg" />
-                  </span>
-                  Gestión académica centralizada
-                </li>
+              <div className="login-features">
 
-                <li>
-                  <span className="au-feature-icon">
+                <div className="login-feature">
+                  <span className="login-feature-icon">
                     <i className="bi bi-check-lg" />
                   </span>
-                  Acceso personalizado por rol
-                </li>
 
-                <li>
-                  <span className="au-feature-icon">
+                  <span>Gestión académica centralizada</span>
+                </div>
+
+                <div className="login-feature">
+                  <span className="login-feature-icon">
                     <i className="bi bi-check-lg" />
                   </span>
-                  Entorno seguro y responsive
-                </li>
-              </ul>
+
+                  <span>Acceso personalizado por rol</span>
+                </div>
+
+                <div className="login-feature">
+                  <span className="login-feature-icon">
+                    <i className="bi bi-check-lg" />
+                  </span>
+
+                  <span>Entorno seguro y responsive</span>
+                </div>
+
+              </div>
             </div>
+
           </div>
 
-          {/* PARTE DERECHA */}
-          <div className="au-login-form-section">
-            <div className="au-login-form-container">
-              <div className="au-login-heading">
+          {/* ZONA DERECHA */}
+          <div className="login-form-panel">
+
+            <div className="login-form-container">
+
+              <div className="login-form-header">
                 <h2>Iniciar sesión</h2>
-                <p>Accede a tu panel de Aulearning</p>
+
+                <p>
+                  Accede a tu panel de Aulearning
+                </p>
               </div>
 
               {error && (
-                <div className="au-login-error" role="alert">
+                <div className="login-error">
                   <i className="bi bi-exclamation-circle-fill" />
                   <span>{error}</span>
                 </div>
               )}
 
               <form onSubmit={handleSubmit}>
-                <div className="au-form-group">
+
+                {/* EMAIL */}
+                <div className="login-form-group">
                   <label htmlFor="email">
                     Correo electrónico
                   </label>
 
-                  <div className="au-input-wrapper">
-                    <i className="bi bi-envelope au-input-icon" />
+                  <div className="login-input-wrapper">
+                    <i className="bi bi-envelope login-input-icon" />
 
                     <input
                       id="email"
@@ -185,50 +201,31 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                <div className="au-form-group">
+                {/* PASSWORD */}
+                <div className="login-form-group">
                   <label htmlFor="password">
                     Contraseña
                   </label>
 
-                  <div className="au-input-wrapper">
-                    <i className="bi bi-lock au-input-icon" />
+                  <div className="login-input-wrapper">
+                    <i className="bi bi-lock login-input-icon" />
 
                     <input
                       id="password"
-                      type={showPassword ? 'text' : 'password'}
+                      type="password"
                       name="password"
                       value={form.password}
                       onChange={handleChange}
-                      placeholder="Introduce tu contraseña"
+                      placeholder="••••••••"
                       autoComplete="current-password"
                       disabled={loading}
                     />
-
-                    <button
-                      type="button"
-                      className="au-password-toggle"
-                      onClick={() =>
-                        setShowPassword((prev) => !prev)
-                      }
-                      aria-label={
-                        showPassword
-                          ? 'Ocultar contraseña'
-                          : 'Mostrar contraseña'
-                      }
-                    >
-                      <i
-                        className={`bi ${
-                          showPassword
-                            ? 'bi-eye-slash'
-                            : 'bi-eye'
-                        }`}
-                      />
-                    </button>
                   </div>
                 </div>
 
-                <div className="au-login-options">
-                  <label className="au-remember">
+                {/* RECUÉRDAME */}
+                <div className="login-options">
+                  <label className="login-remember">
                     <input
                       type="checkbox"
                       checked={remember}
@@ -242,9 +239,10 @@ export default function LoginPage() {
                   </label>
                 </div>
 
+                {/* BOTÓN */}
                 <button
                   type="submit"
-                  className="au-login-submit"
+                  className="login-submit-button"
                   disabled={loading}
                 >
                   {loading ? (
@@ -253,23 +251,21 @@ export default function LoginPage() {
                         className="spinner-border spinner-border-sm"
                         aria-hidden="true"
                       />
-                      Entrando...
+
+                      <span>Entrando...</span>
                     </>
                   ) : (
                     <>
-                      Entrar
+                      <span>Entrar</span>
                       <i className="bi bi-arrow-right" />
                     </>
                   )}
                 </button>
+
               </form>
 
-              <div className="au-login-footer">
-                <span>Aulearning</span>
-                <span className="au-login-footer-dot">•</span>
-                <span>Plataforma educativa</span>
-              </div>
             </div>
+
           </div>
 
         </section>
