@@ -1,0 +1,519 @@
+.au-login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(37, 99, 235, 0.12),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(14, 165, 233, 0.08),
+      transparent 30%
+    ),
+    #f8fafc;
+}
+
+.au-login-card {
+  width: 100%;
+  max-width: 1000px;
+  min-height: 600px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  background: #ffffff;
+  border-radius: 24px;
+  overflow: hidden;
+
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.14);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+/* =========================
+   ZONA IZQUIERDA
+========================= */
+
+.au-login-brand {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 60px 55px;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    145deg,
+    #0f172a 0%,
+    #172554 35%,
+    #1d4ed8 100%
+  );
+}
+
+.au-login-brand::before {
+  content: '';
+  position: absolute;
+
+  width: 300px;
+  height: 300px;
+
+  right: -130px;
+  top: -100px;
+
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.au-login-brand::after {
+  content: '';
+  position: absolute;
+
+  width: 250px;
+  height: 250px;
+
+  left: -120px;
+  bottom: -120px;
+
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.au-login-logo-box {
+  position: relative;
+  z-index: 2;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content;
+
+  padding: 14px 18px;
+  margin-bottom: 32px;
+
+  background: #ffffff;
+
+  border-radius: 16px;
+
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+}
+
+.au-login-logo {
+  display: block;
+
+  width: 210px;
+  max-width: 100%;
+  height: auto;
+}
+
+.au-login-brand-content {
+  position: relative;
+  z-index: 2;
+}
+
+.au-login-brand-content h1 {
+  margin: 0 0 14px;
+
+  font-size: 2rem;
+  font-weight: 700;
+
+  letter-spacing: -0.03em;
+}
+
+.au-login-brand-content > p {
+  max-width: 400px;
+
+  margin: 0 0 36px;
+
+  font-size: 1rem;
+  line-height: 1.7;
+
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.au-login-features {
+  display: flex;
+  flex-direction: column;
+
+  gap: 18px;
+
+  padding: 0;
+  margin: 0;
+
+  list-style: none;
+}
+
+.au-login-features li {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  font-size: 0.94rem;
+
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.au-feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 28px;
+  height: 28px;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* =========================
+   ZONA DERECHA
+========================= */
+
+.au-login-form-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 60px 55px;
+
+  background: #ffffff;
+}
+
+.au-login-form-container {
+  width: 100%;
+  max-width: 380px;
+}
+
+.au-login-heading {
+  margin-bottom: 34px;
+}
+
+.au-login-heading h2 {
+  margin: 0 0 8px;
+
+  color: #0f172a;
+
+  font-size: 2rem;
+  font-weight: 700;
+
+  letter-spacing: -0.03em;
+}
+
+.au-login-heading p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 0.95rem;
+}
+
+/* ERROR */
+
+.au-login-error {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+
+  margin-bottom: 22px;
+
+  padding: 13px 15px;
+
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+
+  background: #fef2f2;
+
+  color: #b91c1c;
+
+  font-size: 0.9rem;
+}
+
+/* CAMPOS */
+
+.au-form-group {
+  margin-bottom: 22px;
+}
+
+.au-form-group label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #334155;
+
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.au-input-wrapper {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.au-input-wrapper input {
+  width: 100%;
+  height: 48px;
+
+  padding: 0 45px;
+
+  color: #0f172a;
+
+  font-size: 0.92rem;
+
+  background: #ffffff;
+
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.au-input-wrapper input::placeholder {
+  color: #94a3b8;
+}
+
+.au-input-wrapper input:focus {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.au-input-icon {
+  position: absolute;
+
+  left: 15px;
+
+  color: #94a3b8;
+
+  pointer-events: none;
+}
+
+/* MOSTRAR / OCULTAR CONTRASEÑA */
+
+.au-password-toggle {
+  position: absolute;
+  right: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  color: #64748b;
+
+  background: transparent;
+
+  border: none;
+  border-radius: 7px;
+
+  cursor: pointer;
+}
+
+.au-password-toggle:hover {
+  color: #2563eb;
+
+  background: #eff6ff;
+}
+
+/* RECUÉRDAME */
+
+.au-login-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 26px;
+}
+
+.au-remember {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  color: #475569;
+
+  font-size: 0.88rem;
+
+  cursor: pointer;
+}
+
+.au-remember input {
+  width: 16px;
+  height: 16px;
+
+  accent-color: #2563eb;
+}
+
+/* BOTÓN */
+
+.au-login-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  width: 100%;
+  height: 49px;
+
+  color: #ffffff;
+
+  font-size: 0.94rem;
+  font-weight: 600;
+
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #1d4ed8
+  );
+
+  border: none;
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.au-login-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
+}
+
+.au-login-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* PIE */
+
+.au-login-footer {
+  display: flex;
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-top: 32px;
+
+  color: #94a3b8;
+
+  font-size: 0.78rem;
+}
+
+.au-login-footer-dot {
+  color: #cbd5e1;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 900px) {
+  .au-login-card {
+    max-width: 600px;
+
+    grid-template-columns: 1fr;
+  }
+
+  .au-login-brand {
+    padding: 38px 40px;
+  }
+
+  .au-login-brand-content h1 {
+    font-size: 1.65rem;
+  }
+
+  .au-login-brand-content > p {
+    margin-bottom: 22px;
+  }
+
+  .au-login-features {
+    gap: 10px;
+  }
+
+  .au-login-form-section {
+    padding: 45px 40px;
+  }
+}
+
+/* =========================
+   MÓVIL
+========================= */
+
+@media (max-width: 576px) {
+  .au-login-page {
+    display: block;
+
+    padding: 0;
+
+    background: #ffffff;
+  }
+
+  .au-login-card {
+    min-height: 100vh;
+
+    border: none;
+    border-radius: 0;
+
+    box-shadow: none;
+  }
+
+  .au-login-brand {
+    padding: 34px 24px;
+  }
+
+  .au-login-logo-box {
+    margin-bottom: 22px;
+  }
+
+  .au-login-logo {
+    width: 175px;
+  }
+
+  .au-login-brand-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .au-login-brand-content > p {
+    font-size: 0.9rem;
+  }
+
+  .au-login-features li {
+    font-size: 0.84rem;
+  }
+
+  .au-login-form-section {
+    padding: 38px 24px 45px;
+  }
+
+  .au-login-heading h2 {
+    font-size: 1.7rem;
+  }
+}
