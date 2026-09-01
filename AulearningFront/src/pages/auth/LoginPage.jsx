@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 
 import { useAuth } from '../../hooks/useAuth';
+import { useUI } from '../../hooks/useUI';
 
 import '../../styles/login.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+
   const { login } = useAuth();
+  const { showError } = useUI();
 
   const [form, setForm] = useState({
     email: '',
@@ -16,8 +19,8 @@ export default function LoginPage() {
   });
 
   const [remember, setRemember] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -26,20 +29,18 @@ export default function LoginPage() {
       ...prev,
       [name]: value,
     }));
-
-    if (error) {
-      setError('');
-    }
   };
 
   const redirectByRole = (user) => {
     const role = (
       user?.role?.name ||
       user?.role_name ||
+      user?.rol?.name ||
       user?.type ||
       ''
     )
       .toString()
+      .trim()
       .toLowerCase();
 
     if (['admin', 'administrador'].includes(role)) {
@@ -57,39 +58,134 @@ export default function LoginPage() {
       return;
     }
 
-    navigate('/', { replace: true });
+    showError(
+      'El usuario autenticado no tiene un rol válido para acceder a la aplicación.',
+      'Rol no válido'
+    );
+  };
+
+  const getErrorMessage = (error) => {
+    const responseData = error?.response?.data;
+
+    /*
+     * Laravel ValidationException:
+     *
+     * {
+     *   message: "...",
+     *   errors: {
+     *      email: ["..."],
+     *      password: ["..."]
+     *   }
+     * }
+     */
+    if (responseData?.errors) {
+      const messages = Object.values(responseData.errors)
+        .flat()
+        .filter(Boolean);
+
+      if (messages.length > 0) {
+        return messages.join(' ');
+      }
+    }
+
+    if (responseData?.message) {
+      return responseData.message;
+    }
+
+    if (!error?.response) {
+      return 'No se ha podido conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo.';
+    }
+
+    return 'Se ha producido un error al iniciar sesión.';
+  };
+
+  const getErrorTitle = (error) => {
+    const status = error?.response?.status;
+
+    if (status === 422) {
+      return 'Error de validación';
+    }
+
+    if (status === 401) {
+      return 'Credenciales incorrectas';
+    }
+
+    if (status === 403) {
+      return 'Acceso no autorizado';
+    }
+
+    if (status >= 500) {
+      return 'Error del servidor';
+    }
+
+    return 'Error al iniciar sesión';
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!form.email.trim() || !form.password.trim()) {
-      setError('Introduce el correo electrónico y la contraseña.');
+    const email = form.email.trim();
+    const password = form.password;
+
+    /*
+     * Validación básica en frontend.
+     */
+    if (!email || !password) {
+      showError(
+        'Debes introducir el correo electrónico y la contraseña.',
+        'Campos obligatorios'
+      );
+
+      return;
+    }
+
+    /*
+     * El LoginRequest de Laravel exige mínimo 8 caracteres.
+     */
+    if (password.length < 8) {
+      showError(
+        'La contraseña debe tener al menos 8 caracteres.',
+        'Error de validación'
+      );
+
       return;
     }
 
     try {
       setLoading(true);
-      setError('');
 
+      /*
+       * IMPORTANTE:
+       * Tu LoginRequest de Laravel espera:
+       *
+       * email
+       * password
+       */
       const user = await login(
         {
-          email: form.email.trim(),
-          password: form.password,
+          email,
+          password,
         },
         remember
       );
 
+      if (!user) {
+        showError(
+          'El servidor ha iniciado la sesión, pero no se ha recibido correctamente la información del usuario.',
+          'Error de autenticación'
+        );
+
+        return;
+      }
+
       redirectByRole(user);
-    } catch (err) {
-      console.error('Error de login:', err);
+    } catch (error) {
+      console.error('Error de login:', error);
 
-      const message =
-        err?.response?.data?.message ||
-        err?.response?.data?.errors?.correo?.[0] ||
-        'Correo o contraseña incorrectos.';
-
-      setError(message);
+      showError(
+        getErrorMessage(error),
+        getErrorTitle(error)
+      );
     } finally {
       setLoading(false);
     }
@@ -104,15 +200,17 @@ export default function LoginPage() {
       <main className="login-page">
         <section className="login-card">
 
-          {/* ZONA IZQUIERDA */}
-          <div className="login-brand-panel">
+          {/* ============================
+              PANEL IZQUIERDO
+          ============================ */}
 
+          <div className="login-brand-panel">
             <div className="login-brand-content">
 
               <div className="login-logo-container">
                 <img
                   src="/branding/aulearning-logo.png"
-                  alt="Aulearning"
+                  alt="Logotipo de Aulearning"
                   className="login-logo"
                 />
               </div>
@@ -133,7 +231,9 @@ export default function LoginPage() {
                     <i className="bi bi-check-lg" />
                   </span>
 
-                  <span>Gestión académica centralizada</span>
+                  <span>
+                    Gestión académica centralizada
+                  </span>
                 </div>
 
                 <div className="login-feature">
@@ -141,7 +241,9 @@ export default function LoginPage() {
                     <i className="bi bi-check-lg" />
                   </span>
 
-                  <span>Acceso personalizado por rol</span>
+                  <span>
+                    Acceso personalizado por rol
+                  </span>
                 </div>
 
                 <div className="login-feature">
@@ -149,17 +251,20 @@ export default function LoginPage() {
                     <i className="bi bi-check-lg" />
                   </span>
 
-                  <span>Entorno seguro y responsive</span>
+                  <span>
+                    Entorno seguro y responsive
+                  </span>
                 </div>
 
               </div>
             </div>
-
           </div>
 
-          {/* ZONA DERECHA */}
-          <div className="login-form-panel">
+          {/* ============================
+              PANEL DERECHO
+          ============================ */}
 
+          <div className="login-form-panel">
             <div className="login-form-container">
 
               <div className="login-form-header">
@@ -170,22 +275,17 @@ export default function LoginPage() {
                 </p>
               </div>
 
-              {error && (
-                <div className="login-error">
-                  <i className="bi bi-exclamation-circle-fill" />
-                  <span>{error}</span>
-                </div>
-              )}
-
               <form onSubmit={handleSubmit}>
 
-                {/* EMAIL */}
+                {/* CORREO */}
+
                 <div className="login-form-group">
                   <label htmlFor="email">
                     Correo electrónico
                   </label>
 
                   <div className="login-input-wrapper">
+
                     <i className="bi bi-envelope login-input-icon" />
 
                     <input
@@ -198,21 +298,28 @@ export default function LoginPage() {
                       autoComplete="email"
                       disabled={loading}
                     />
+
                   </div>
                 </div>
 
-                {/* PASSWORD */}
+                {/* CONTRASEÑA */}
+
                 <div className="login-form-group">
                   <label htmlFor="password">
                     Contraseña
                   </label>
 
                   <div className="login-input-wrapper">
+
                     <i className="bi bi-lock login-input-icon" />
 
                     <input
                       id="password"
-                      type="password"
+                      type={
+                        showPassword
+                          ? 'text'
+                          : 'password'
+                      }
                       name="password"
                       value={form.password}
                       onChange={handleChange}
@@ -220,12 +327,37 @@ export default function LoginPage() {
                       autoComplete="current-password"
                       disabled={loading}
                     />
+
+                    <button
+                      type="button"
+                      className="login-password-toggle"
+                      onClick={() =>
+                        setShowPassword((prev) => !prev)
+                      }
+                      disabled={loading}
+                      aria-label={
+                        showPassword
+                          ? 'Ocultar contraseña'
+                          : 'Mostrar contraseña'
+                      }
+                    >
+                      <i
+                        className={`bi ${
+                          showPassword
+                            ? 'bi-eye-slash'
+                            : 'bi-eye'
+                        }`}
+                      />
+                    </button>
+
                   </div>
                 </div>
 
                 {/* RECUÉRDAME */}
+
                 <div className="login-options">
                   <label className="login-remember">
+
                     <input
                       type="checkbox"
                       checked={remember}
@@ -235,11 +367,15 @@ export default function LoginPage() {
                       disabled={loading}
                     />
 
-                    <span>Recuérdame</span>
+                    <span>
+                      Recuérdame
+                    </span>
+
                   </label>
                 </div>
 
                 {/* BOTÓN */}
+
                 <button
                   type="submit"
                   className="login-submit-button"
@@ -252,11 +388,16 @@ export default function LoginPage() {
                         aria-hidden="true"
                       />
 
-                      <span>Entrando...</span>
+                      <span>
+                        Iniciando sesión...
+                      </span>
                     </>
                   ) : (
                     <>
-                      <span>Entrar</span>
+                      <span>
+                        Entrar
+                      </span>
+
                       <i className="bi bi-arrow-right" />
                     </>
                   )}
@@ -265,7 +406,6 @@ export default function LoginPage() {
               </form>
 
             </div>
-
           </div>
 
         </section>
