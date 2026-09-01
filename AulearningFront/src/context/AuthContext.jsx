@@ -22,15 +22,18 @@ export function AuthProvider({ children }) {
   const login = async (credentials, remember = false) => {
     const response = await AuthService.login(credentials);
 
-    const user = response.data.user;
-    const token = response.data.token;
+    const authData = response.data;
 
-    saveAuth(token, user, remember);
+    saveAuth(
+      authData.token,
+      authData.user,
+      remember
+    );
 
-    setUser(user);
-    setToken(token);
+    setUser(authData.user);
+    setToken(authData.token);
 
-    return user;
+    return authData.user;
   };
 
   const logout = async () => {
