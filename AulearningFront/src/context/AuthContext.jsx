@@ -1,22 +1,32 @@
 import { createContext, useEffect, useState } from 'react';
 
 import AuthService from '../services/AuthService';
-import { clearAuth, getToken, getUser, saveAuth } from '../utils/storage';
+import {
+  clearAuth,
+  getToken,
+  getUser,
+  saveAuth,
+} from '../utils/storage';
+
 import { useUI } from '../hooks/useUI';
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-
   const [user, setUser] = useState(getUser());
   const [token, setToken] = useState(getToken());
   const [checkingAuth, setCheckingAuth] = useState(true);
 
-  const login = async (credentials, remember = false) => {
-    const response = await AuthService.login(credentials);
-    const authData = response.data;
+  const { setLoading } = useUI();
 
-    saveAuth(authData.token, authData.user, remember);
+  const login = async (credentials, remember = false) => {
+    const authData = await AuthService.login(credentials);
+
+    saveAuth(
+      authData.token,
+      authData.user,
+      remember
+    );
 
     setUser(authData.user);
     setToken(authData.token);
@@ -25,25 +35,25 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    await AuthService.logout();
-  } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error('Error al cerrar sesión:', error);
+      await AuthService.logout();
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error('Error al cerrar sesión:', error);
+      }
+    } finally {
+      clearAuth();
+
+      setUser(null);
+      setToken(null);
+
+      setLoading(false);
+
+      window.location.replace('/login');
     }
-  } finally {
-    clearAuth();
-
-    setUser(null);
-    setToken(null);
-
-    setLoading(false);
-
-    window.location.replace('/login');
-  }
-};
+  };
 
   useEffect(() => {
     const initAuth = async () => {
@@ -56,13 +66,22 @@ export function AuthProvider({ children }) {
 
       try {
         const response = await AuthService.me();
+        const currentUser = response?.user ?? response;
 
-        setUser(response.data);
+        setUser(currentUser);
         setToken(storedToken);
-      } catch {
+      } catch (error) {
         clearAuth();
+
         setUser(null);
         setToken(null);
+
+        if (import.meta.env.DEV) {
+          console.error(
+            'No se pudo recuperar la sesión:',
+            error
+          );
+        }
       } finally {
         setCheckingAuth(false);
       }
