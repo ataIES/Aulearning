@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 
-import '../styles/login.css';
+import "../../styles/login.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
