@@ -19,43 +19,122 @@ class TaskFilter extends BaseFilter
         ?string $sortBy = 'due_date',
         ?string $sortDirection = 'asc',
     ) {
-        parent::__construct($perPage, $sortBy, $sortDirection);
+        parent::__construct(
+            $perPage,
+            $sortBy,
+            $sortDirection
+        );
     }
 
     public function apply(Builder $query): Builder
     {
         $query
-            ->when($this->search, fn ($query) =>
-                $query->where('title', 'like', "%{$this->search}%")
-                    ->orWhere('description', 'like', "%{$this->search}%")
+            ->when(
+                $this->search,
+                function (Builder $query) {
+                    $query->where(function (Builder $query) {
+                        $query
+                            ->where(
+                                'title',
+                                'like',
+                                "%{$this->search}%"
+                            )
+                            ->orWhere(
+                                'description',
+                                'like',
+                                "%{$this->search}%"
+                            );
+                    });
+                }
             )
-            ->when($this->courseId, fn ($query) =>
-                $query->where('course_id', $this->courseId)
+
+            ->when(
+                $this->studentId,
+                function (Builder $query) {
+                    $query->whereHas(
+                        'course.enrollments',
+                        function (Builder $query) {
+                            $query
+                                ->where(
+                                    'student_id',
+                                    $this->studentId
+                                )
+                                ->where(
+                                    'active',
+                                    true
+                                );
+                        }
+                    );
+                }
             )
-            ->when($this->type, fn ($query) =>
-                $query->where('type', $this->type)
+
+            ->when(
+                $this->courseId,
+                fn (Builder $query) =>
+                    $query->where(
+                        'course_id',
+                        $this->courseId
+                    )
             )
-            ->when($this->status, fn ($query) =>
-                $query->where('status', $this->status)
+
+            ->when(
+                $this->type,
+                fn (Builder $query) =>
+                    $query->where(
+                        'type',
+                        $this->type
+                    )
             )
-            ->when(!is_null($this->gradable), fn ($query) =>
-                $query->where('gradable', $this->gradable)
+
+            ->when(
+                $this->status,
+                fn (Builder $query) =>
+                    $query->where(
+                        'status',
+                        $this->status
+                    )
             )
-            ->when($this->dueDateFrom, fn ($query) =>
-                $query->whereDate('due_date', '>=', $this->dueDateFrom)
+
+            ->when(
+                !is_null($this->gradable),
+                fn (Builder $query) =>
+                    $query->where(
+                        'gradable',
+                        $this->gradable
+                    )
             )
-            ->when($this->dueDateTo, fn ($query) =>
-                $query->whereDate('due_date', '<=', $this->dueDateTo)
+
+            ->when(
+                $this->dueDateFrom,
+                fn (Builder $query) =>
+                    $query->whereDate(
+                        'due_date',
+                        '>=',
+                        $this->dueDateFrom
+                    )
+            )
+
+            ->when(
+                $this->dueDateTo,
+                fn (Builder $query) =>
+                    $query->whereDate(
+                        'due_date',
+                        '<=',
+                        $this->dueDateTo
+                    )
             );
 
-        return $this->applySorting($query, [
-            'id',
-            'title',
-            'type',
-            'status',
-            'due_date',
-            'created_at',
-            'updated_at',
-        ]);
+        return $this->applySorting(
+            $query,
+            [
+                'id',
+                'title',
+                'type',
+                'status',
+                'due_date',
+                'created_at',
+                'updated_at',
+            ]
+        );
     }
 }

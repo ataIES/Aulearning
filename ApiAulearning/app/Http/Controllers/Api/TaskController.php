@@ -25,28 +25,48 @@ class TaskController extends BaseApiController
     #[OA\Get(path: '/tasks', summary: 'Listar tareas', security: [['sanctum' => []]], tags: ['Tasks'])]
     #[OA\Response(response: 200, description: 'Listado de tareas')]
     public function index(Request $request): JsonResponse
-    {
-        $filter = new TaskFilter(
-            search: $request->query('search'),
-            courseId: $request->query('course_id') ? (int) $request->query('course_id') : null,
-            studentId: $request->query('student_id') ? (int) $request->query('student_id') : null,
-            type: $request->query('type'),
-            status: $request->query('status'),
-            gradable: $request->has('gradable') ? $request->boolean('gradable') : null,
-            dueDateFrom: $request->query('due_date_from'),
-            dueDateTo: $request->query('due_date_to'),
-            perPage: (int) $request->query('per_page', 15),
-            sortBy: $request->query('sort_by', 'id'),
-            sortDirection: $request->query('sort_direction', 'desc'),
-        );
+{
+    $user = $request->user();
 
-        return $this->success(
-            $this->paginated(
-                $this->taskService->paginate($filter, ['course', 'student', 'files'])
-            ),
-            'Tareas obtenidas correctamente.'
-        );
+    $studentId = $request->query('student_id')
+        ? (int) $request->query('student_id')
+        : null;
+
+    if ($user && $user->type === 'student') {
+        $studentId = $user->id;
     }
+
+    $filter = new TaskFilter(
+        search: $request->query('search'),
+        courseId: $request->query('course_id')
+            ? (int) $request->query('course_id')
+            : null,
+        studentId: $studentId,
+        type: $request->query('type'),
+        status: $request->query('status'),
+        gradable: $request->has('gradable')
+            ? $request->boolean('gradable')
+            : null,
+        dueDateFrom: $request->query('due_date_from'),
+        dueDateTo: $request->query('due_date_to'),
+        perPage: (int) $request->query('per_page', 15),
+        sortBy: $request->query('sort_by', 'id'),
+        sortDirection: $request->query('sort_direction', 'desc'),
+    );
+
+    return $this->success(
+        $this->paginated(
+            $this->taskService->paginate(
+                $filter,
+                [
+                    'course',
+                    'files',
+                ]
+            )
+        ),
+        'Tareas obtenidas correctamente.'
+    );
+}
 
     #[OA\Post(path: '/tasks', summary: 'Crear tarea', security: [['sanctum' => []]], tags: ['Tasks'])]
     #[OA\Response(response: 201, description: 'Tarea creada')]
