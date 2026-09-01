@@ -27,22 +27,21 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-  console.log('showLoader:', showLoader, typeof showLoader);
-  console.log('hideLoader:', hideLoader, typeof hideLoader);
-
   try {
-    showLoader('Cerrando sesión...');
+    setLoading(true);
 
     await AuthService.logout();
   } catch (error) {
-    console.error(error);
+    if (import.meta.env.DEV) {
+      console.error('Error al cerrar sesión:', error);
+    }
   } finally {
     clearAuth();
 
     setUser(null);
     setToken(null);
 
-    hideLoader();
+    setLoading(false);
 
     window.location.replace('/login');
   }
