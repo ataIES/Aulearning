@@ -20,19 +20,31 @@ export function AuthProvider({ children }) {
   const { setLoading } = useUI();
 
   const login = async (credentials, remember = false) => {
-    const authData = await AuthService.login(credentials);
+  const response = await AuthService.login(credentials);
 
-    saveAuth(
-      authData.token,
-      authData.user,
-      remember
+  const authData = response?.data ?? response;
+
+  const token =
+    authData?.token ??
+    authData?.access_token;
+
+  const user =
+    authData?.user ??
+    authData?.usuario;
+
+  if (!token || !user) {
+    throw new Error(
+      'La respuesta del servidor no contiene el token o el usuario.'
     );
+  }
 
-    setUser(authData.user);
-    setToken(authData.token);
+  saveAuth(token, user, remember);
 
-    return authData.user;
-  };
+  setUser(user);
+  setToken(token);
+
+  return user;
+};
 
   const logout = async () => {
     try {
