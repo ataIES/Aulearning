@@ -24,16 +24,16 @@ export const getToken = () => {
 };
 
 export const getUser = () => {
-  const value =
+  const user =
     localStorage.getItem(USER_KEY) ||
     sessionStorage.getItem(USER_KEY);
 
-  if (!value || value === 'undefined' || value === 'null') {
+  if (!user || user === 'undefined' || user === 'null') {
     return null;
   }
 
   try {
-    return JSON.parse(value);
+    return JSON.parse(user);
   } catch {
     localStorage.removeItem(USER_KEY);
     sessionStorage.removeItem(USER_KEY);
