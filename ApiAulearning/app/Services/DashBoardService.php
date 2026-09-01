@@ -3,6 +3,12 @@
 namespace App\Services;
 
 use App\Filters\DashboardFilter;
+use App\Models\Course;
+use App\Models\DeliveryTask;
+use App\Models\Enrollment;
+use App\Models\File;
+use App\Models\Task;
+use App\Models\User;
 use App\Repositories\Interfaces\IChatGroupRepository;
 use App\Repositories\Interfaces\ICourseRepository;
 use App\Repositories\Interfaces\IFileRepository;
@@ -13,12 +19,6 @@ use App\Repositories\Interfaces\ITaskRepository;
 use App\Repositories\Interfaces\IUserRepository;
 use App\Services\Interfaces\IDashboardService;
 use Illuminate\Support\Facades\Cache;
-use App\Models\Course;
-use App\Models\DeliveryTask;
-use App\Models\Task;
-use App\Models\User;
-use App\Models\Enrollment;
-use App\Models\File;
 
 class DashboardService implements IDashboardService
 {
@@ -150,56 +150,108 @@ class DashboardService implements IDashboardService
                     $filter,
                     5,
                     [],
-                    ['id', 'name', 'last_name', 'email', 'type', 'created_at']
+                    [
+                        'id',
+                        'name',
+                        'last_name',
+                        'email',
+                        'type',
+                        'created_at',
+                    ]
                 ),
 
                 'courses' => $this->courseRepository->latest(
                     $filter,
                     5,
                     [],
-                    ['id', 'name', 'teacher_id', 'created_at']
+                    [
+                        'id',
+                        'name',
+                        'teacher_id',
+                        'created_at',
+                    ]
                 ),
 
                 'tasks' => $this->taskRepository->latest(
                     $filter,
                     5,
                     [],
-                    ['id', 'title', 'course_id', 'type', 'status', 'created_at']
+                    [
+                        'id',
+                        'title',
+                        'course_id',
+                        'type',
+                        'status',
+                        'created_at',
+                    ]
                 ),
 
                 'files' => $this->fileRepository->latest(
                     $filter,
                     5,
                     [],
-                    ['id', 'name', 'path', 'mime_type', 'size', 'task_id', 'created_at']
+                    [
+                        'id',
+                        'name',
+                        'path',
+                        'mime_type',
+                        'size',
+                        'task_id',
+                        'created_at',
+                    ]
                 ),
 
                 'grades' => $this->gradeRepository->latest(
                     $filter,
                     5,
                     [],
-                    ['id', 'grade', 'student_id', 'course_id', 'created_at']
+                    [
+                        'id',
+                        'grade',
+                        'student_id',
+                        'course_id',
+                        'created_at',
+                    ]
                 ),
 
                 'notifications' => $this->notificationRepository->latest(
                     $filter,
                     5,
                     [],
-                    ['id', 'title', 'type', 'user_id', 'read_at', 'created_at']
+                    [
+                        'id',
+                        'title',
+                        'type',
+                        'user_id',
+                        'read_at',
+                        'created_at',
+                    ]
                 ),
 
                 'chat_groups' => $this->chatGroupRepository->latest(
                     $filter,
                     5,
                     [],
-                    ['id', 'name', 'owner_id', 'active', 'created_at']
+                    [
+                        'id',
+                        'name',
+                        'owner_id',
+                        'active',
+                        'created_at',
+                    ]
                 ),
 
                 'messages' => $this->messageRepository->latest(
                     $filter,
                     5,
                     [],
-                    ['id', 'content', 'user_id', 'chat_group_id', 'created_at']
+                    [
+                        'id',
+                        'content',
+                        'user_id',
+                        'chat_group_id',
+                        'created_at',
+                    ]
                 ),
             ],
         ];
@@ -225,6 +277,10 @@ class DashboardService implements IDashboardService
 
                 'pending_tasks' => Task::query()
                     ->whereIn('course_id', $courseIds)
+                    ->whereIn('type', [
+                        'TAREA',
+                        'EXAMEN',
+                    ])
                     ->whereNotIn('id', $deliveredTaskIds)
                     ->count(),
 
@@ -247,8 +303,13 @@ class DashboardService implements IDashboardService
                     'course:id,name',
                 ])
                 ->whereIn('course_id', $courseIds)
+                ->whereIn('type', [
+                    'TAREA',
+                    'EXAMEN',
+                ])
                 ->whereNotIn('id', $deliveredTaskIds)
-                ->orderByRaw('due_date IS NULL')
+                ->whereNotNull('due_date')
+                ->whereDate('due_date', '>=', now()->toDateString())
                 ->orderBy('due_date')
                 ->limit(5)
                 ->get([
@@ -276,19 +337,36 @@ class DashboardService implements IDashboardService
                     'comment',
                     'created_at',
                     'updated_date',
-                    'updated_at'
+                    'updated_at',
                 ]),
 
             'courses' => Course::query()
-                ->with(['teacher:id,name,last_name,email'])
+                ->with([
+                    'teacher:id,name,last_name,email',
+                ])
                 ->withCount([
-                    'tasks',
+                    'tasks as tasks_count' => function ($query) {
+                        $query->whereIn('type', [
+                            'TAREA',
+                            'EXAMEN',
+                        ]);
+                    },
+
                     'tasks as pending_tasks_count' => function ($query) use ($student) {
                         $query
-                            ->where('type', '!=', 'APUNTES')
-                            ->whereDoesntHave('deliveries', function ($query) use ($student) {
-                                $query->where('student_id', $student->id);
-                            });
+                            ->whereIn('type', [
+                                'TAREA',
+                                'EXAMEN',
+                            ])
+                            ->whereDoesntHave(
+                                'deliveries',
+                                function ($query) use ($student) {
+                                    $query->where(
+                                        'student_id',
+                                        $student->id
+                                    );
+                                }
+                            );
                     },
                 ])
                 ->whereIn('id', $courseIds)

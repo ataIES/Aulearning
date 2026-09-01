@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 
 import PageLoader from '../../components/common/PageLoader';
 import ActivityItem from '../../components/learning/ActivityItem';
-import CourseCard from '../../components/learning/CourseCard';
 import EmptyLearningState from '../../components/learning/EmptyLearningState';
 import LearningPanel from '../../components/learning/LearningPanel';
 import LearningStatCard from '../../components/learning/LearningStatCard';
@@ -34,9 +33,10 @@ export default function StudentDashboardPage() {
         null;
 
       setDashboard(data);
-    } catch (error) {
-      console.error(error);
-      showError('No se pudo cargar el dashboard del alumno.');
+    } catch {
+      showError(
+        'No se pudo cargar el dashboard del alumno.'
+      );
     } finally {
       setLoading(false);
     }
@@ -57,17 +57,30 @@ export default function StudentDashboardPage() {
 
   const summary = dashboard?.summary ?? {};
 
+  const upcomingTasks = (
+    dashboard?.upcoming_tasks ?? []
+  ).filter(
+    (task) =>
+      task.type === 'TAREA' ||
+      task.type === 'EXAMEN'
+  );
+
   return (
     <div className="learning-dashboard">
       <section className="learning-hero">
         <div>
-          <span className="learning-kicker">Panel alumno</span>
+          <span className="learning-kicker">
+            Panel alumno
+          </span>
 
-          <h2>Hola, {user?.name ?? 'alumno'} 👋</h2>
+          <h2>
+            Hola, {user?.name ?? 'alumno'} 👋
+          </h2>
 
           <p>
-            Consulta tus cursos, tareas pendientes, materiales y últimas
-            calificaciones desde un único lugar.
+            Consulta tus cursos, tareas pendientes,
+            materiales y últimas calificaciones desde
+            un único lugar.
           </p>
         </div>
 
@@ -169,27 +182,42 @@ export default function StudentDashboardPage() {
         <div className="col-xl-6">
           <LearningPanel
             title="Próximas tareas"
-            subtitle="Tareas con fecha de entrega cercana."
+            subtitle="Tareas y exámenes con fecha de entrega cercana."
           >
             <div className="learning-list">
-              {(dashboard?.upcoming_tasks ?? []).length > 0 ? (
-                dashboard.upcoming_tasks.map((task) => (
+              {upcomingTasks.length > 0 ? (
+                upcomingTasks.map((task) => (
                   <ActivityItem
                     key={task.id}
-                    icon="bi-calendar-event"
+                    icon={
+                      task.type === 'EXAMEN'
+                        ? 'bi-file-earmark-text'
+                        : 'bi-calendar-event'
+                    }
                     variant="purple"
                     title={task.title}
-                    subtitle={`${task.course?.name ?? 'Curso'} · ${task.due_date
-                      ? new Date(task.due_date).toLocaleDateString()
-                      : 'Sin fecha'
-                      }`}
+                    subtitle={`${
+                      task.course?.name ?? 'Curso'
+                    } · ${
+                      task.type === 'EXAMEN'
+                        ? 'Examen'
+                        : 'Tarea'
+                    } · ${
+                      task.due_date
+                        ? new Date(
+                            task.due_date
+                          ).toLocaleDateString(
+                            'es-ES'
+                          )
+                        : 'Sin fecha'
+                    }`}
                   />
                 ))
               ) : (
                 <EmptyLearningState
                   icon="bi-calendar-x"
                   title="Sin próximas tareas"
-                  message="No tienes tareas próximas con fecha de entrega."
+                  message="No tienes tareas ni exámenes próximos con fecha de entrega."
                 />
               )}
             </div>
@@ -202,22 +230,38 @@ export default function StudentDashboardPage() {
             subtitle="Tus entregas calificadas recientemente."
           >
             <div className="learning-list">
-              {(dashboard?.latest_grades ?? []).length > 0 ? (
-                dashboard.latest_grades.map((delivery) => (
-                  <ActivityItem
-                    key={delivery.id}
-                    icon="bi-award-fill"
-                    variant="warning"
-                    title={delivery.task?.title ?? 'Tarea'}
-                    subtitle={`${delivery.task?.course?.name ?? 'Curso'} · ${delivery.grade !== null && delivery.grade !== undefined
-                        ? `${delivery.grade}/10`
-                        : 'Sin nota'
-                      } · Calificada el ${delivery.updated_date ?? delivery.updated_at
-                        ? new Date(delivery.updated_date ?? delivery.updated_at).toLocaleString('es-ES')
-                        : '-'
+              {(dashboard?.latest_grades ?? [])
+                .length > 0 ? (
+                dashboard.latest_grades.map(
+                  (delivery) => (
+                    <ActivityItem
+                      key={delivery.id}
+                      icon="bi-award-fill"
+                      variant="warning"
+                      title={
+                        delivery.task?.title ??
+                        'Tarea'
+                      }
+                      subtitle={`${
+                        delivery.task?.course?.name ??
+                        'Curso'
+                      } · ${
+                        delivery.grade !== null &&
+                        delivery.grade !== undefined
+                          ? `${delivery.grade}/10`
+                          : 'Sin nota'
+                      } · Calificada el ${
+                        delivery.updated_date ??
+                        delivery.updated_at
+                          ? new Date(
+                              delivery.updated_date ??
+                                delivery.updated_at
+                            ).toLocaleString('es-ES')
+                          : '-'
                       }`}
-                  />
-                ))
+                    />
+                  )
+                )
               ) : (
                 <EmptyLearningState
                   icon="bi-award"
