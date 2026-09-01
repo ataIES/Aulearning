@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 import ConfirmModal from '../../../components/common/ConfirmModal';
 import ContentLoader from '../../../components/common/ContentLoader';
@@ -11,7 +12,6 @@ import { useUI } from '../../../hooks/useUI';
 import TeacherService from '../../../services/TeacherService';
 
 import TaskFormModal from './TaskFormModal';
-import { Helmet } from 'react-helmet-async';
 import { handleApiError } from '../../../utils/ApiErrorHandler';
 
 const defaultFilters = {
@@ -39,15 +39,17 @@ export default function TeacherCourseTasksPage() {
   const [deleting, setDeleting] = useState(false);
 
   const extractData = (response) =>
-    response.data?.data ??
-    response.data ??
+    response?.data?.data ??
+    response?.data ??
     response ??
     null;
 
   const extractItems = (response) =>
-    response.data?.data?.data ??
-    response.data?.data ??
-    response.data?.items ??
+    response?.data?.data?.data ??
+    response?.data?.data ??
+    response?.data?.items ??
+    response?.data ??
+    response?.items ??
     [];
 
   const loadPage = async () => {
@@ -61,8 +63,10 @@ export default function TeacherCourseTasksPage() {
 
       setCourse(extractData(courseResponse));
       setTasks(extractItems(tasksResponse));
-    } catch (error) {
-      showError('No se pudo cargar la información del curso.');
+    } catch {
+      showError(
+        'No se pudo cargar la información del curso.'
+      );
     } finally {
       setLoadingPage(false);
     }
@@ -72,11 +76,17 @@ export default function TeacherCourseTasksPage() {
     try {
       setLoadingResults(true);
 
-      const response = await TeacherService.courseTasks(courseId, params);
+      const response =
+        await TeacherService.courseTasks(
+          courseId,
+          params
+        );
 
       setTasks(extractItems(response));
-    } catch (error) {
-      showError('No se pudieron cargar las tareas.');
+    } catch {
+      showError(
+        'No se pudieron cargar las tareas.'
+      );
     } finally {
       setLoadingResults(false);
     }
@@ -122,10 +132,21 @@ export default function TeacherCourseTasksPage() {
 
   const normalizePayload = (payload) => ({
     ...payload,
+
     course_id: Number(courseId),
-    due_date: payload.type === 'APUNTES' ? null : payload.due_date || null,
-    gradable: payload.type === 'APUNTES' ? false : payload.gradable,
-    removed_files: payload.removed_files ?? [],
+
+    due_date:
+      payload.type === 'APUNTES'
+        ? null
+        : payload.due_date || null,
+
+    gradable:
+      payload.type === 'APUNTES'
+        ? false
+        : payload.gradable,
+
+    removed_files:
+      payload.removed_files ?? [],
   });
 
   const handleSubmit = async (payload) => {
@@ -138,58 +159,73 @@ export default function TeacherCourseTasksPage() {
       const normalizedPayload = normalizePayload({
         ...payload,
         files: undefined,
-        removed_files: payload.removed_files ?? [],
+        removed_files:
+          payload.removed_files ?? [],
       });
 
-      let response;
+      let taskId = null;
 
       if (selectedTask) {
-        response = await TeacherService.updateTask(
+        await TeacherService.updateTask(
           selectedTask.id,
           normalizedPayload
         );
 
-        if (files.length > 0) {
-          await Promise.all(
-            files.map((file) =>
-              TeacherService.uploadMaterial({
-                task_id: selectedTask.id,
-                file,
-              })
-            )
-          );
-        }
+        taskId = selectedTask.id;
       } else {
-        response = await TeacherService.createTask(normalizedPayload);
+        const response =
+          await TeacherService.createTask(
+            normalizedPayload
+          );
 
         const createdTask =
           response?.data?.data ??
           response?.data ??
           response;
 
-        if (createdTask?.id && files.length > 0) {
-          await Promise.all(
-            files.map((file) =>
-              TeacherService.uploadMaterial({
-                task_id: createdTask.id,
-                file,
-              })
-            )
+        taskId = createdTask?.id;
+
+        if (!taskId) {
+          throw new Error(
+            'No se ha recibido el identificador de la tarea creada.'
           );
+        }
+      }
+
+      if (files.length > 0) {
+        for (const file of files) {
+          await TeacherService.uploadMaterial({
+            task_id: taskId,
+            file,
+          });
         }
       }
 
       setShowForm(false);
       setSelectedTask(null);
+      setFormErrors({});
 
       await loadTasks();
     } catch (error) {
-  handleApiError(
-    error,
-    showError,
-    setFormErrors
-  );
-} finally  {
+      if (
+        !error?.response &&
+        error?.message ===
+          'No se ha recibido el identificador de la tarea creada.'
+      ) {
+        showError(
+          error.message,
+          'Error al guardar'
+        );
+
+        return;
+      }
+
+      handleApiError(
+        error,
+        showError,
+        setFormErrors
+      );
+    } finally {
       setSaving(false);
     }
   };
@@ -200,13 +236,17 @@ export default function TeacherCourseTasksPage() {
     try {
       setDeleting(true);
 
-      await TeacherService.deleteTask(taskToDelete.id);
+      await TeacherService.deleteTask(
+        taskToDelete.id
+      );
 
       setTaskToDelete(null);
 
       await loadTasks();
     } catch {
-      showError('No se pudo eliminar la tarea.');
+      showError(
+        'No se pudo eliminar la tarea.'
+      );
     } finally {
       setDeleting(false);
     }
@@ -240,14 +280,21 @@ export default function TeacherCourseTasksPage() {
       <Helmet>
         <title>Ver Tareas</title>
       </Helmet>
+
       <div className="learning-dashboard">
         <section className="learning-hero">
           <div>
-            <span className="learning-kicker">Tareas del curso</span>
+            <span className="learning-kicker">
+              Tareas del curso
+            </span>
 
-            <h2>{course?.name ?? 'Curso'}</h2>
+            <h2>
+              {course?.name ?? 'Curso'}
+            </h2>
 
-            <p>Gestiona las tareas, exámenes y apuntes publicados en este curso.</p>
+            <p>
+              Gestiona las tareas, exámenes y apuntes publicados en este curso.
+            </p>
           </div>
 
           <div className="learning-hero-icon">
@@ -279,7 +326,10 @@ export default function TeacherCourseTasksPage() {
             </div>
           }
         >
-          <form className="learning-filter-bar" onSubmit={handleSearch}>
+          <form
+            className="learning-filter-bar"
+            onSubmit={handleSearch}
+          >
             <div className="learning-filter-input">
               <i className="bi bi-search" />
 
@@ -319,11 +369,13 @@ export default function TeacherCourseTasksPage() {
             title="Actualizando tareas..."
             message="Aplicando filtros..."
           >
-
             {tasks.length > 0 ? (
               <div className="learning-task-grid mt-3">
                 {tasks.map((task) => (
-                  <article className="learning-task-card" key={task.id}>
+                  <article
+                    className="learning-task-card"
+                    key={task.id}
+                  >
                     <div className="learning-task-card-header">
                       <div className="learning-list-icon purple">
                         <i className="bi bi-list-task" />
@@ -331,7 +383,11 @@ export default function TeacherCourseTasksPage() {
 
                       <div>
                         <h5>{task.title}</h5>
-                        <p>{task.description || 'Sin descripción'}</p>
+
+                        <p>
+                          {task.description ||
+                            'Sin descripción'}
+                        </p>
                       </div>
                     </div>
 
@@ -340,14 +396,21 @@ export default function TeacherCourseTasksPage() {
 
                       <span>
                         <i className="bi bi-calendar-event me-1" />
+
                         {task.due_date
-                          ? new Date(task.due_date).toLocaleDateString()
+                          ? new Date(
+                              task.due_date
+                            ).toLocaleDateString(
+                              'es-ES'
+                            )
                           : 'Sin fecha'}
                       </span>
 
                       <span>
                         <i className="bi bi-award me-1" />
-                        {task.gradable ?? task.calificable
+
+                        {task.gradable ??
+                        task.calificable
                           ? 'Calificable'
                           : 'No calificable'}
                       </span>
@@ -357,7 +420,9 @@ export default function TeacherCourseTasksPage() {
                       <button
                         type="button"
                         className="btn btn-outline-primary btn-sm"
-                        onClick={() => openEdit(task)}
+                        onClick={() =>
+                          openEdit(task)
+                        }
                       >
                         Editar
                       </button>
@@ -365,7 +430,9 @@ export default function TeacherCourseTasksPage() {
                       <button
                         type="button"
                         className="btn btn-outline-danger btn-sm"
-                        onClick={() => setTaskToDelete(task)}
+                        onClick={() =>
+                          setTaskToDelete(task)
+                        }
                       >
                         Eliminar
                       </button>
@@ -373,21 +440,31 @@ export default function TeacherCourseTasksPage() {
 
                     {(task.files ?? []).length > 0 && (
                       <div className="learning-task-files">
-                        <strong>Archivos adjuntos</strong>
+                        <strong>
+                          Archivos adjuntos
+                        </strong>
 
                         <div>
-                          {task.files.map((file) => (
-                            <a
-                              key={file.id}
-                              href={file.url ?? file.path}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="learning-task-file"
-                            >
-                              <i className="bi bi-paperclip" />
-                              <span>{file.name}</span>
-                            </a>
-                          ))}
+                          {task.files.map(
+                            (file) => (
+                              <a
+                                key={file.id}
+                                href={
+                                  file.url ??
+                                  file.path
+                                }
+                                target="_blank"
+                                rel="noreferrer"
+                                className="learning-task-file"
+                              >
+                                <i className="bi bi-paperclip" />
+
+                                <span>
+                                  {file.name}
+                                </span>
+                              </a>
+                            )
+                          )}
                         </div>
                       </div>
                     )}
@@ -419,7 +496,9 @@ export default function TeacherCourseTasksPage() {
           message={`¿Seguro que quieres eliminar "${taskToDelete?.title ?? ''}"?`}
           confirmText="Eliminar"
           loading={deleting}
-          onClose={() => setTaskToDelete(null)}
+          onClose={() =>
+            setTaskToDelete(null)
+          }
           onConfirm={handleDelete}
         />
       </div>

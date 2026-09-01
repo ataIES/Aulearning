@@ -104,14 +104,6 @@ export default function TaskFormModal({
     return null;
   };
 
-  const handleRemoveFile = (fileId) => {
-    setRemovedFiles((prev) =>
-      prev.includes(fileId)
-        ? prev
-        : [...prev, fileId]
-    );
-  };
-
   const handleChange = (event) => {
     const {
       name,
@@ -161,6 +153,14 @@ export default function TaskFormModal({
     }));
   };
 
+  const handleRemoveFile = (fileId) => {
+    setRemovedFiles((prev) =>
+      prev.includes(fileId)
+        ? prev
+        : [...prev, fileId]
+    );
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -186,8 +186,7 @@ export default function TaskFormModal({
             </h4>
 
             <p>
-              Configura la tarea y adjunta materiales
-              si lo necesitas.
+              Configura la tarea y adjunta materiales si lo necesitas.
             </p>
           </div>
 
@@ -392,9 +391,7 @@ export default function TaskFormModal({
                   {task.files
                     .filter(
                       (file) =>
-                        !removedFiles.includes(
-                          file.id
-                        )
+                        !removedFiles.includes(file.id)
                     )
                     .map((file) => (
                       <div
@@ -402,10 +399,7 @@ export default function TaskFormModal({
                         className="task-current-file d-flex align-items-center justify-content-between"
                       >
                         <a
-                          href={
-                            file.url ??
-                            file.path
-                          }
+                          href={file.url ?? file.path}
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -417,9 +411,7 @@ export default function TaskFormModal({
                           type="button"
                           className="btn btn-sm btn-outline-danger"
                           onClick={() =>
-                            handleRemoveFile(
-                              file.id
-                            )
+                            handleRemoveFile(file.id)
                           }
                           disabled={loading}
                         >
@@ -453,8 +445,7 @@ export default function TaskFormModal({
             />
 
             <small className="text-muted">
-              Imágenes, PDF o documentos Word.
-              Máximo 10 MB por archivo.
+              Imágenes, PDF o documentos Word. Máximo 10 MB por archivo.
             </small>
 
             {fieldError('files') && (

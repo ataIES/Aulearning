@@ -3,9 +3,12 @@ import { ENDPOINTS } from '../api/endpoints';
 
 class FileService {
   async paginate(params = {}) {
-    const { data } = await axiosClient.get(ENDPOINTS.files.list, {
-      params,
-    });
+    const { data } = await axiosClient.get(
+      ENDPOINTS.files.list,
+      {
+        params,
+      }
+    );
 
     return data;
   }
@@ -13,27 +16,28 @@ class FileService {
   async upload(payload) {
     const formData = new FormData();
 
-    Object.keys(payload).forEach((key) => {
-      if (payload[key] !== null && payload[key] !== undefined) {
-        formData.append(key, payload[key]);
-      }
-    });
+    formData.append(
+      'task_id',
+      payload.task_id
+    );
+
+    formData.append(
+      'file',
+      payload.file
+    );
 
     const { data } = await axiosClient.post(
       ENDPOINTS.files.create,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
 
     return data;
   }
 
   async delete(id) {
-    const { data } = await axiosClient.delete(ENDPOINTS.files.delete(id));
+    const { data } = await axiosClient.delete(
+      ENDPOINTS.files.delete(id)
+    );
 
     return data;
   }

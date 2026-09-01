@@ -1,12 +1,16 @@
 import axios from 'axios';
-import { clearAuth, getToken } from '../utils/storage';
+
+import {
+  clearAuth,
+  getToken,
+} from '../utils/storage';
+
 import { logger } from '../utils/logger';
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
     Accept: 'application/json',
-    'Content-Type': 'application/json',
   },
 });
 
@@ -15,6 +19,10 @@ axiosClient.interceptors.request.use((config) => {
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
   }
 
   logger.info('API Request', {
@@ -27,8 +35,13 @@ axiosClient.interceptors.request.use((config) => {
 
 axiosClient.interceptors.response.use(
   (response) => response,
+
   (error) => {
-    logger.error('API Error', error.response?.data || error.message);
+    logger.error(
+      'API Error',
+      error.response?.data ||
+        error.message
+    );
 
     if (error.response?.status === 401) {
       clearAuth();

@@ -1,17 +1,43 @@
-export function handleApiError(error, showError, setFormErrors) {
+export function handleApiError(
+  error,
+  showError,
+  setFormErrors
+) {
+  const response = error?.response?.data;
 
-    const response = error.response?.data;
+  if (response?.errors) {
+    setFormErrors?.(
+      response.errors
+    );
 
-    if (response?.errors) {
+    const first = Object
+      .values(response.errors)
+      .flat()
+      .find(Boolean);
 
-        setFormErrors?.(response.errors);
+    showError(
+      first ??
+        response.message ??
+        'Los datos introducidos no son válidos.',
+      'Error de validación'
+    );
 
-        const first = Object.values(response.errors)[0]?.[0];
+    return;
+  }
 
-        showError(first ?? response.message);
+  if (!error?.response) {
+    showError(
+      error?.message ??
+        'No se ha podido conectar con el servidor.',
+      'Error'
+    );
 
-        return;
-    }
+    return;
+  }
 
-    showError(response?.message ?? 'Ha ocurrido un error inesperado.');
+  showError(
+    response?.message ??
+      'Ha ocurrido un error inesperado.',
+    'Error'
+  );
 }
