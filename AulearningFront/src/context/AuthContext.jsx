@@ -12,8 +12,6 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(getToken());
   const [checkingAuth, setCheckingAuth] = useState(true);
 
-  const { showLoader, hideLoader } = useUI();
-
   const login = async (credentials, remember = false) => {
     const response = await AuthService.login(credentials);
     const authData = response.data;
