@@ -4,7 +4,7 @@ namespace App\Mappers;
 
 use App\DTOs\DeliverTaskDto;
 use App\Mappers\Interfaces\IDeliverTaskMapper;
-use App\Models\DeliverTask;
+use App\Models\DeliveryTask;
 use Carbon\Carbon;
 
 class DeliverTaskMapper extends BaseMapper implements IDeliverTaskMapper
@@ -12,41 +12,41 @@ class DeliverTaskMapper extends BaseMapper implements IDeliverTaskMapper
     public function toDto(
         mixed $model
     ): DeliverTaskDto {
-
-        /** @var DeliverTask $model */
+        /** @var DeliveryTask $model */
 
         return new DeliverTaskDto(
-
             id: $model->id,
 
             studentId: $model->student_id,
 
             taskId: $model->task_id,
 
-            deliveryDate: Carbon::parse(
-                $model->delivery_date
-            ),
+            deliveryDate: $model->delivery_date
+                ? Carbon::parse($model->delivery_date)
+                : null,
 
             updatedDate: $model->updated_date
                 ? Carbon::parse($model->updated_date)
                 : null,
 
-            grade: $model->grade,
+            grade: $model->grade !== null
+                ? (float) $model->grade
+                : null,
 
             comment: $model->comment,
-            gradedAt: $model->graded_at
 
+            gradedAt: $model->graded_at
+                ? Carbon::parse($model->graded_at)
+                : null,
         );
     }
 
     public function toArray(
         mixed $dto
     ): array {
-
         /** @var DeliverTaskDto $dto */
 
         return $this->removeNulls([
-
             'student_id' => $dto->studentId,
 
             'task_id' => $dto->taskId,
@@ -58,8 +58,8 @@ class DeliverTaskMapper extends BaseMapper implements IDeliverTaskMapper
             'grade' => $dto->grade,
 
             'comment' => $dto->comment,
-            'graded_at' => $dto->gradedAt
 
+            'graded_at' => $dto->gradedAt,
         ]);
     }
 }
