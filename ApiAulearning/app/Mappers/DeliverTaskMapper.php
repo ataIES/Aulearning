@@ -17,27 +17,40 @@ class DeliverTaskMapper extends BaseMapper implements IDeliverTaskMapper
         return new DeliverTaskDto(
             id: $model->id,
 
-            studentId: $model->student_id,
+            studentId:
+                $model->student_id,
 
-            taskId: $model->task_id,
+            taskId:
+                $model->task_id,
 
-            deliveryDate: $model->delivery_date
-                ? Carbon::parse($model->delivery_date)
-                : null,
+            deliveryDate:
+                $model->delivery_date
+                    ? Carbon::parse(
+                        $model->delivery_date
+                    )
+                    : null,
 
-            updatedDate: $model->updated_date
-                ? Carbon::parse($model->updated_date)
-                : null,
+            updatedDate:
+                $model->updated_date
+                    ? Carbon::parse(
+                        $model->updated_date
+                    )
+                    : null,
 
-            grade: $model->grade !== null
-                ? (float) $model->grade
-                : null,
+            grade:
+                $model->grade !== null
+                    ? (float) $model->grade
+                    : null,
 
-            comment: $model->comment,
+            comment:
+                $model->comment,
 
-            gradedAt: $model->graded_at
-                ? Carbon::parse($model->graded_at)
-                : null,
+            gradedAt:
+                $model->graded_at
+                    ? Carbon::parse(
+                        $model->graded_at
+                    )
+                    : null,
         );
     }
 
@@ -47,19 +60,26 @@ class DeliverTaskMapper extends BaseMapper implements IDeliverTaskMapper
         /** @var DeliverTaskDto $dto */
 
         return $this->removeNulls([
-            'student_id' => $dto->studentId,
+            'student_id' =>
+                $dto->studentId,
 
-            'task_id' => $dto->taskId,
+            'task_id' =>
+                $dto->taskId,
 
-            'delivery_date' => $dto->deliveryDate,
+            'delivery_date' =>
+                $dto->deliveryDate,
 
-            'updated_date' => $dto->updatedDate,
+            'updated_date' =>
+                $dto->updatedDate,
 
-            'grade' => $dto->grade,
+            'grade' =>
+                $dto->grade,
 
-            'comment' => $dto->comment,
+            'comment' =>
+                $dto->comment,
 
-            'graded_at' => $dto->gradedAt,
+            'graded_at' =>
+                $dto->gradedAt,
         ]);
     }
 }

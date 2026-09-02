@@ -21,73 +21,29 @@ class DeliverTaskController extends BaseApiController
         private readonly INotificationService $notificationService
     ) {}
 
-    #[OA\Get(
-        path: '/deliveries',
-        summary: 'Listar entregas',
-        description: 'Obtiene una lista paginada de entregas. Permite filtrar por curso, tarea, alumno, estado y búsqueda general.',
-        security: [['sanctum' => []]],
-        tags: ['Deliveries']
-    )]
-    #[OA\Parameter(
-        name: 'course_id',
-        in: 'query',
-        required: false,
-        schema: new OA\Schema(type: 'integer')
-    )]
-    #[OA\Parameter(
-        name: 'task_id',
-        in: 'query',
-        required: false,
-        schema: new OA\Schema(type: 'integer')
-    )]
-    #[OA\Parameter(
-        name: 'student_id',
-        in: 'query',
-        required: false,
-        schema: new OA\Schema(type: 'integer')
-    )]
-    #[OA\Parameter(
-        name: 'teacher_id',
-        in: 'query',
-        required: false,
-        schema: new OA\Schema(type: 'integer')
-    )]
-    #[OA\Parameter(
-        name: 'status',
-        in: 'query',
-        required: false,
-        schema: new OA\Schema(
-            type: 'string',
-            enum: ['pending', 'graded']
-        )
-    )]
-    #[OA\Parameter(
-        name: 'search',
-        in: 'query',
-        required: false,
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(ref: '#/components/parameters/PerPage')]
-    #[OA\Parameter(ref: '#/components/parameters/SortBy')]
-    #[OA\Parameter(ref: '#/components/parameters/SortDirection')]
-    #[OA\Response(
-        response: 200,
-        description: 'Entregas obtenidas correctamente'
-    )]
-    #[OA\Response(
-        response: 401,
-        description: 'No autenticado'
-    )]
-    #[OA\Response(
-        response: 403,
-        description: 'No autorizado'
-    )]
     public function index(Request $request): JsonResponse
     {
+        $user = $request->user();
+
+        $teacherId = $request->query('teacher_id')
+            ? (int) $request->query('teacher_id')
+            : null;
+
+        $studentId = $request->query('student_id')
+            ? (int) $request->query('student_id')
+            : null;
+
+        if ($user->hasRole('student')) {
+            $studentId = $user->id;
+            $teacherId = null;
+        }
+
+        if ($user->hasRole('teacher')) {
+            $teacherId = $user->id;
+        }
+
         $filter = new DeliverTaskFilter(
-            teacherId: $request->query('teacher_id')
-                ? (int) $request->query('teacher_id')
-                : null,
+            teacherId: $teacherId,
 
             courseId: $request->query('course_id')
                 ? (int) $request->query('course_id')
@@ -97,9 +53,7 @@ class DeliverTaskController extends BaseApiController
                 ? (int) $request->query('task_id')
                 : null,
 
-            studentId: $request->query('student_id')
-                ? (int) $request->query('student_id')
-                : null,
+            studentId: $studentId,
 
             status: $request->query('status'),
 
@@ -137,34 +91,27 @@ class DeliverTaskController extends BaseApiController
         );
     }
 
-    #[OA\Post(
-        path: '/deliveries',
-        summary: 'Crear entrega',
-        description: 'Crea una entrega de una tarea.',
-        security: [['sanctum' => []]],
-        tags: ['Deliveries']
-    )]
-    #[OA\Response(
-        response: 201,
-        description: 'Entrega creada correctamente'
-    )]
-    #[OA\Response(
-        response: 422,
-        description: 'Error de validación'
-    )]
     public function store(
         StoreDeliverTaskRequest $request
     ): JsonResponse {
+        $user = $request->user();
         $data = $request->validated();
+
+        if (!$user->hasRole('student')) {
+            return $this->error(
+                'No autorizado.',
+                403
+            );
+        }
 
         $delivery = $this->deliverTaskService->create(
             new DeliverTaskDto(
                 id: null,
-                studentId: $data['student_id'],
+                studentId: $user->id,
                 taskId: $data['task_id'],
                 deliveryDate: now(),
                 updatedDate: null,
-                grade: $data['grade'] ?? null,
+                grade: null,
                 comment: $data['comment'] ?? null,
                 gradedAt: null,
             )
@@ -215,29 +162,47 @@ class DeliverTaskController extends BaseApiController
         );
     }
 
-    #[OA\Get(
-        path: '/deliveries/{id}',
-        summary: 'Obtener entrega',
-        description: 'Obtiene el detalle de una entrega.',
-        security: [['sanctum' => []]],
-        tags: ['Deliveries']
-    )]
-    #[OA\Parameter(
-        name: 'id',
-        in: 'path',
-        required: true,
-        schema: new OA\Schema(type: 'integer')
-    )]
-    #[OA\Response(
-        response: 200,
-        description: 'Entrega obtenida correctamente'
-    )]
-    #[OA\Response(
-        response: 404,
-        description: 'Entrega no encontrada'
-    )]
-    public function show(int $id): JsonResponse
-    {
+    public function show(
+        Request $request,
+        int $id
+    ): JsonResponse {
+        $user = $request->user();
+
+        $deliveryModel = DeliveryTask::query()
+            ->with([
+                'task.course',
+            ])
+            ->find($id);
+
+        if (!$deliveryModel) {
+            return $this->error(
+                'Entrega no encontrada.',
+                404
+            );
+        }
+
+        if (
+            $user->hasRole('student') &&
+            (int) $deliveryModel->student_id !==
+                (int) $user->id
+        ) {
+            return $this->error(
+                'No autorizado.',
+                403
+            );
+        }
+
+        if (
+            $user->hasRole('teacher') &&
+            (int) $deliveryModel->task?->course?->teacher_id !==
+                (int) $user->id
+        ) {
+            return $this->error(
+                'No autorizado.',
+                403
+            );
+        }
+
         $delivery = $this->deliverTaskService->getById(
             $id,
             [
@@ -248,48 +213,18 @@ class DeliverTaskController extends BaseApiController
             ]
         );
 
-        if (!$delivery) {
-            return $this->error(
-                'Entrega no encontrada.',
-                404
-            );
-        }
-
         return $this->success(
             $delivery,
             'Entrega obtenida correctamente.'
         );
     }
 
-    #[OA\Put(
-        path: '/deliveries/{id}',
-        summary: 'Actualizar entrega',
-        description: 'Actualiza una entrega existente.',
-        security: [['sanctum' => []]],
-        tags: ['Deliveries']
-    )]
-    #[OA\Parameter(
-        name: 'id',
-        in: 'path',
-        required: true,
-        schema: new OA\Schema(type: 'integer')
-    )]
-    #[OA\Response(
-        response: 200,
-        description: 'Entrega actualizada correctamente'
-    )]
-    #[OA\Response(
-        response: 404,
-        description: 'Entrega no encontrada'
-    )]
-    #[OA\Response(
-        response: 422,
-        description: 'Error de validación'
-    )]
     public function update(
         UpdateDeliverTaskRequest $request,
         int $id
     ): JsonResponse {
+        $user = $request->user();
+
         $current = $this->deliverTaskService
             ->getById($id);
 
@@ -316,15 +251,65 @@ class DeliverTaskController extends BaseApiController
             );
         }
 
-        $oldGrade = $oldDelivery->grade;
+        if (
+            $user->hasRole('student') &&
+            (int) $oldDelivery->student_id !==
+                (int) $user->id
+        ) {
+            return $this->error(
+                'No puedes modificar esta entrega.',
+                403
+            );
+        }
+
+        if ($user->hasRole('teacher')) {
+            if (
+                (int) $oldDelivery->task?->course?->teacher_id !==
+                (int) $user->id
+            ) {
+                return $this->error(
+                    'No puedes modificar entregas de otros cursos.',
+                    403
+                );
+            }
+
+            if (!$user->can('tasks.grade')) {
+                return $this->error(
+                    'No tienes permiso para calificar tareas.',
+                    403
+                );
+            }
+        }
+
+        if (
+            $user->hasRole('admin') &&
+            !$user->can('tasks.grade')
+        ) {
+            return $this->error(
+                'No tienes permiso para calificar tareas.',
+                403
+            );
+        }
 
         $validated = $request->validated();
+
+        $oldGrade = $oldDelivery->grade;
+
+        if ($user->hasRole('student')) {
+            unset(
+                $validated['grade'],
+                $validated['graded_at']
+            );
+        }
 
         $removedFiles =
             $validated['removed_files'] ?? [];
 
-        if (!empty($removedFiles)) {
-            DeliveryFile::query()
+        if (
+            $user->hasRole('student') &&
+            !empty($removedFiles)
+        ) {
+            $filesToDelete = DeliveryFile::query()
                 ->where(
                     'delivery_task_id',
                     $id
@@ -333,25 +318,26 @@ class DeliverTaskController extends BaseApiController
                     'id',
                     $removedFiles
                 )
-                ->delete();
+                ->get();
+
+            foreach ($filesToDelete as $file) {
+                $file->delete();
+            }
         }
 
-        $data = array_merge(
-            $current->toArray(),
-            $validated
-        );
+        $newGrade = $user->hasRole('student')
+            ? $oldGrade
+            : ($validated['grade'] ?? $oldGrade);
 
-        $newGrade =
-            $data['grade'] ?? null;
-
-        $gradedAt =
-            $oldDelivery->graded_at;
+        $gradedAt = $oldDelivery->graded_at;
 
         if (
+            !$user->hasRole('student') &&
             !is_null($newGrade) &&
             (
                 is_null($oldGrade) ||
-                (float) $oldGrade !== (float) $newGrade
+                (float) $oldGrade !==
+                    (float) $newGrade
             )
         ) {
             $gradedAt = now();
@@ -361,20 +347,28 @@ class DeliverTaskController extends BaseApiController
             $id,
             new DeliverTaskDto(
                 id: $id,
-                studentId: $data['student_id'],
-                taskId: $data['task_id'],
+
+                studentId:
+                    $oldDelivery->student_id,
+
+                taskId:
+                    $oldDelivery->task_id,
 
                 deliveryDate:
                     $oldDelivery->delivery_date,
 
                 updatedDate: now(),
 
-                grade: $newGrade,
+                grade: $newGrade !== null
+                    ? (float) $newGrade
+                    : null,
 
                 comment:
-                    $data['comment'] ?? null,
+                    $validated['comment']
+                    ?? $oldDelivery->comment,
 
-                gradedAt: $gradedAt,
+                gradedAt:
+                    $gradedAt,
             )
         );
 
@@ -388,6 +382,7 @@ class DeliverTaskController extends BaseApiController
             ->find($id);
 
         if (
+            $user->hasRole('student') &&
             $deliveryModel &&
             $request->hasFile('files')
         ) {
@@ -412,11 +407,13 @@ class DeliverTaskController extends BaseApiController
                     (float) $currentGrade;
 
             if (
+                !$user->hasRole('student') &&
                 ($isGradedNow || $gradeChanged) &&
                 $deliveryModel->student
             ) {
                 $this->notificationService->createForUser(
                     $deliveryModel->student,
+
                     $gradeChanged
                         ? 'Calificación actualizada'
                         : 'Tarea corregida',
@@ -424,18 +421,20 @@ class DeliverTaskController extends BaseApiController
                     "Tu entrega de la tarea "
                     . "\"{$deliveryModel->task?->title}\" "
                     . 'ha sido '
-                    . ($gradeChanged
-                        ? 'actualizada'
-                        : 'corregida')
+                    . (
+                        $gradeChanged
+                            ? 'actualizada'
+                            : 'corregida'
+                    )
                     . ". Nota: {$currentGrade}.",
 
                     'grade'
                 );
-            } elseif (
-                $deliveryModel
-                    ->task
-                    ?->course
-                    ?->teacher
+            }
+
+            if (
+                $user->hasRole('student') &&
+                $deliveryModel->task?->course?->teacher
             ) {
                 $studentName = trim(
                     "{$deliveryModel->student?->name} "
@@ -465,29 +464,33 @@ class DeliverTaskController extends BaseApiController
         );
     }
 
-    #[OA\Delete(
-        path: '/deliveries/{id}',
-        summary: 'Eliminar entrega',
-        description: 'Elimina una entrega.',
-        security: [['sanctum' => []]],
-        tags: ['Deliveries']
-    )]
-    #[OA\Parameter(
-        name: 'id',
-        in: 'path',
-        required: true,
-        schema: new OA\Schema(type: 'integer')
-    )]
-    #[OA\Response(
-        response: 200,
-        description: 'Entrega eliminada correctamente'
-    )]
-    #[OA\Response(
-        response: 404,
-        description: 'Entrega no encontrada'
-    )]
-    public function destroy(int $id): JsonResponse
-    {
+    public function destroy(
+        Request $request,
+        int $id
+    ): JsonResponse {
+        $user = $request->user();
+
+        $delivery = DeliveryTask::query()
+            ->find($id);
+
+        if (!$delivery) {
+            return $this->error(
+                'Entrega no encontrada.',
+                404
+            );
+        }
+
+        if (
+            $user->hasRole('student') &&
+            (int) $delivery->student_id !==
+                (int) $user->id
+        ) {
+            return $this->error(
+                'No puedes eliminar esta entrega.',
+                403
+            );
+        }
+
         return $this->deliverTaskService->delete($id)
             ? $this->success(
                 null,

@@ -22,21 +22,30 @@ class DeliverTaskDto implements IBaseDto
     {
         return [
             'id' => $this->id,
-            'student_id' => $this->studentId,
-            'task_id' => $this->taskId,
 
-            'delivery_date' => $this->deliveryDate
-                ?->toISOString(),
+            'student_id' =>
+                $this->studentId,
 
-            'updated_date' => $this->updatedDate
-                ?->toISOString(),
+            'task_id' =>
+                $this->taskId,
 
-            'grade' => $this->grade,
+            'delivery_date' =>
+                $this->deliveryDate
+                    ?->toISOString(),
 
-            'comment' => $this->comment,
+            'updated_date' =>
+                $this->updatedDate
+                    ?->toISOString(),
 
-            'graded_at' => $this->gradedAt
-                ?->toISOString(),
+            'grade' =>
+                $this->grade,
+
+            'comment' =>
+                $this->comment,
+
+            'graded_at' =>
+                $this->gradedAt
+                    ?->toISOString(),
         ];
     }
 }

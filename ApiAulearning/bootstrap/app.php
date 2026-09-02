@@ -17,6 +17,19 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             ForceJsonResponse::class,
         ]);
+        $middleware->alias([
+    'role.exists' =>
+        \App\Http\Middleware\CheckRoleExists::class,
+
+    'role' =>
+        \Spatie\Permission\Middleware\RoleMiddleware::class,
+
+    'permission' =>
+        \Spatie\Permission\Middleware\PermissionMiddleware::class,
+
+    'role_or_permission' =>
+        \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+]);
     })
     ->withMiddleware(function ($middleware) {
 

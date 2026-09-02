@@ -18,13 +18,12 @@ class DeliveryTask extends Model
         'comment',
     ];
 
-    protected $casts = [
+ protected $casts = [
     'delivery_date' => 'datetime',
     'updated_date' => 'datetime',
     'graded_at' => 'datetime',
     'grade' => 'decimal:2',
 ];
-
     public function student()
     {
         return $this->belongsTo(
