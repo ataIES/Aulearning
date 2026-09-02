@@ -17,12 +17,9 @@ use App\Repositories\Interfaces\IMessageRepository;
 use App\Repositories\Interfaces\INotificationRepository;
 use App\Repositories\Interfaces\IUserRepository;
 use App\Services\Interfaces\IDashboardService;
-use Illuminate\Support\Facades\Cache;
 
 class DashboardService implements IDashboardService
 {
-    private const CACHE_KEY = 'dashboard_admin_last_3_days';
-    private const CACHE_TTL_SECONDS = 300;
 
     public function __construct(
         private readonly IUserRepository $userRepository,
@@ -35,13 +32,9 @@ class DashboardService implements IDashboardService
     ) {}
 
     public function getAdminDashboard(): array
-    {
-        return Cache::remember(
-            self::CACHE_KEY,
-            self::CACHE_TTL_SECONDS,
-            fn() => $this->buildAdminDashboard()
-        );
-    }
+{
+    return $this->buildAdminDashboard();
+}
 
     public function teacherDashboard(int $teacherId): array
     {
@@ -424,10 +417,5 @@ class DashboardService implements IDashboardService
                 ->limit(5)
                 ->get(),
         ];
-    }
-
-    public function clearAdminDashboardCache(): void
-    {
-        Cache::forget(self::CACHE_KEY);
     }
 }
