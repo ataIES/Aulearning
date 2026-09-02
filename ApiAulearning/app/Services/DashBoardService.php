@@ -15,7 +15,6 @@ use App\Repositories\Interfaces\IFileRepository;
 use App\Repositories\Interfaces\IGradeRepository;
 use App\Repositories\Interfaces\IMessageRepository;
 use App\Repositories\Interfaces\INotificationRepository;
-use App\Repositories\Interfaces\ITaskRepository;
 use App\Repositories\Interfaces\IUserRepository;
 use App\Services\Interfaces\IDashboardService;
 use Illuminate\Support\Facades\Cache;
@@ -28,7 +27,6 @@ class DashboardService implements IDashboardService
     public function __construct(
         private readonly IUserRepository $userRepository,
         private readonly ICourseRepository $courseRepository,
-        private readonly ITaskRepository $taskRepository,
         private readonly IFileRepository $fileRepository,
         private readonly IGradeRepository $gradeRepository,
         private readonly INotificationRepository $notificationRepository,
@@ -46,102 +44,103 @@ class DashboardService implements IDashboardService
     }
 
     public function teacherDashboard(int $teacherId): array
-{
-    $courseIds = Course::query()
-        ->where('teacher_id', $teacherId)
-        ->pluck('id');
+    {
+        $courseIds = Course::query()
+            ->where('teacher_id', $teacherId)
+            ->pluck('id');
 
-    $courses = Course::query()
-        ->where('teacher_id', $teacherId)
-        ->withCount([
-            'enrollments',
+        $courses = Course::query()
+            ->where('teacher_id', $teacherId)
+            ->withCount([
+                'enrollments',
 
-            'tasks as tasks_count' => function ($query) {
-                $query->whereIn('type', [
-                    'TAREA',
-                    'EXAMEN',
-                ]);
-            },
-        ])
-        ->latest()
-        ->limit(4)
-        ->get();
+                'tasks as tasks_count' => function ($query) {
+                    $query->whereIn('type', [
+                        'TAREA',
+                        'EXAMEN',
+                    ]);
+                },
+            ])
+            ->latest()
+            ->limit(4)
+            ->get();
 
-    $tasksCount = Task::query()
-        ->whereIn('course_id', $courseIds)
-        ->whereIn('type', [
-            'TAREA',
-            'EXAMEN',
-        ])
-        ->count();
+        $tasksCount = Task::query()
+            ->whereIn('course_id', $courseIds)
+            ->whereIn('type', [
+                'TAREA',
+                'EXAMEN',
+            ])
+            ->count();
 
-    $studentsCount = Enrollment::query()
-        ->whereIn('course_id', $courseIds)
-        ->distinct('student_id')
-        ->count('student_id');
+        $studentsCount = Enrollment::query()
+            ->whereIn('course_id', $courseIds)
+            ->distinct('student_id')
+            ->count('student_id');
 
-    $pendingDeliveries = DeliveryTask::query()
-        ->whereHas('task', function ($query) use ($courseIds) {
-            $query
-                ->whereIn('course_id', $courseIds)
-                ->whereIn('type', [
-                    'TAREA',
-                    'EXAMEN',
-                ]);
-        })
-        ->whereNull('grade')
-        ->count();
+        $pendingDeliveries = DeliveryTask::query()
+            ->whereHas('task', function ($query) use ($courseIds) {
+                $query
+                    ->whereIn('course_id', $courseIds)
+                    ->whereIn('type', [
+                        'TAREA',
+                        'EXAMEN',
+                    ]);
+            })
+            ->whereNull('grade')
+            ->count();
 
-    $latestDeliveries = DeliveryTask::query()
-        ->with([
-            'student:id,name,last_name,email',
-            'task:id,title,course_id,type',
-            'task.course:id,name',
-        ])
-        ->whereHas('task', function ($query) use ($courseIds) {
-            $query
-                ->whereIn('course_id', $courseIds)
-                ->whereIn('type', [
-                    'TAREA',
-                    'EXAMEN',
-                ]);
-        })
-        ->latest()
-        ->limit(5)
-        ->get();
+        $latestDeliveries = DeliveryTask::query()
+            ->with([
+                'student:id,name,last_name,email',
+                'task:id,title,course_id,type',
+                'task.course:id,name',
+            ])
+            ->whereHas('task', function ($query) use ($courseIds) {
+                $query
+                    ->whereIn('course_id', $courseIds)
+                    ->whereIn('type', [
+                        'TAREA',
+                        'EXAMEN',
+                    ]);
+            })
+            ->latest()
+            ->limit(5)
+            ->get();
 
-    $upcomingTasks = Task::query()
-        ->with('course:id,name')
-        ->whereIn('course_id', $courseIds)
-        ->whereIn('type', [
-            'TAREA',
-            'EXAMEN',
-        ])
-        ->whereNotNull('due_date')
-        ->whereDate(
-            'due_date',
-            '>=',
-            now()->toDateString()
-        )
-        ->orderBy('due_date')
-        ->limit(5)
-        ->get();
+        $upcomingTasks = Task::query()
+            ->with('course:id,name')
+            ->whereIn('course_id', $courseIds)
+            ->whereIn('type', [
+                'TAREA',
+                'EXAMEN',
+            ])
+            ->whereNotNull('due_date')
+            ->whereDate(
+                'due_date',
+                '>=',
+                now()->toDateString()
+            )
+            ->orderBy('due_date')
+            ->limit(5)
+            ->get();
 
-    return [
-        'summary' => [
-            'courses' => $courseIds->count(),
-            'students' => $studentsCount,
-            'tasks' => $tasksCount,
-            'pending_deliveries' => $pendingDeliveries,
-        ],
+        return [
+            'summary' => [
+                'courses' => $courseIds->count(),
+                'students' => $studentsCount,
+                'tasks' => $tasksCount,
+                'pending_deliveries' => $pendingDeliveries,
+            ],
 
-        'courses' => $courses,
+            'courses' => $courses,
 
-        'latest_deliveries' => $latestDeliveries,
+            'latest_deliveries' => $latestDeliveries,
 
-        'upcoming_tasks' => $upcomingTasks,
-    ];
-}
+            'upcoming_tasks' => $upcomingTasks,
+        ];
+    }
+
     private function buildAdminDashboard(): array
     {
         $from = now()
@@ -166,12 +165,24 @@ class DashboardService implements IDashboardService
 
             'summary' => [
                 'users' => $this->userRepository->count($filter),
+
                 'courses' => $this->courseRepository->count($filter),
-                'tasks' => $this->taskRepository->count($filter),
+
+                'enrollments' => Enrollment::query()
+                    ->whereBetween('created_at', [
+                        $from,
+                        $to,
+                    ])
+                    ->count(),
+
                 'files' => $this->fileRepository->count($filter),
+
                 'grades' => $this->gradeRepository->count($filter),
+
                 'notifications' => $this->notificationRepository->count($filter),
+
                 'chat_groups' => $this->chatGroupRepository->count($filter),
+
                 'messages' => $this->messageRepository->count($filter),
             ],
 
@@ -202,19 +213,24 @@ class DashboardService implements IDashboardService
                     ]
                 ),
 
-                'tasks' => $this->taskRepository->latest(
-                    $filter,
-                    5,
-                    [],
-                    [
+                'enrollments' => Enrollment::query()
+                    ->with([
+                        'student:id,name,last_name,email',
+                        'course:id,name',
+                    ])
+                    ->whereBetween('created_at', [
+                        $from,
+                        $to,
+                    ])
+                    ->latest()
+                    ->limit(5)
+                    ->get([
                         'id',
-                        'title',
+                        'student_id',
                         'course_id',
-                        'type',
-                        'status',
+                        'active',
                         'created_at',
-                    ]
-                ),
+                    ]),
 
                 'files' => $this->fileRepository->latest(
                     $filter,
@@ -339,7 +355,11 @@ class DashboardService implements IDashboardService
                 ])
                 ->whereNotIn('id', $deliveredTaskIds)
                 ->whereNotNull('due_date')
-                ->whereDate('due_date', '>=', now()->toDateString())
+                ->whereDate(
+                    'due_date',
+                    '>=',
+                    now()->toDateString()
+                )
                 ->orderBy('due_date')
                 ->limit(5)
                 ->get([

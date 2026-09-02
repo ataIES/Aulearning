@@ -30,10 +30,10 @@ export default function AdminDashboardPage() {
       to: '/admin/courses',
     },
     {
-      title: 'Tareas',
-      value: dashboard.summary?.tasks ?? 0,
-      icon: 'bi-list-task',
-      to: '/admin/tasks',
+      title: 'Matrículas',
+      value: dashboard.summary?.enrollments ?? 0,
+      icon: 'bi-person-check',
+      to: '/admin/enrollments',
     },
     {
       title: 'Archivos',
@@ -55,9 +55,9 @@ export default function AdminDashboardPage() {
       to: '/admin/courses',
     },
     {
-      title: 'Últimas tareas',
-      items: dashboard.latest?.tasks ?? [],
-      to: '/admin/tasks',
+      title: 'Últimas matrículas',
+      items: dashboard.latest?.enrollments ?? [],
+      to: '/admin/enrollments',
     },
     {
       title: 'Últimos archivos',
@@ -67,7 +67,26 @@ export default function AdminDashboardPage() {
   ];
 
   const getItemLabel = (item) => {
-    return item.name || item.title || item.email || `Registro #${item.id}`;
+    if (item.student) {
+      const studentName = [
+        item.student.name,
+        item.student.last_name,
+      ]
+        .filter(Boolean)
+        .join(' ');
+
+      const courseName =
+        item.course?.name ?? 'Curso';
+
+      return `${studentName} · ${courseName}`;
+    }
+
+    return (
+      item.name ||
+      item.title ||
+      item.email ||
+      `Registro #${item.id}`
+    );
   };
 
   return (
@@ -75,7 +94,10 @@ export default function AdminDashboardPage() {
       <div className="admin-dashboard-header">
         <div>
           <h3>Dashboard administrador</h3>
-          <p>Resumen de actividad de los últimos 3 días.</p>
+
+          <p>
+            Resumen de actividad de los últimos 3 días.
+          </p>
         </div>
 
         <span className="admin-period-badge">
@@ -85,8 +107,14 @@ export default function AdminDashboardPage() {
 
       <div className="row g-3 mb-4">
         {cards.map((card) => (
-          <div className="col-xl-3 col-md-6" key={card.title}>
-            <Link to={card.to} className="admin-stat-card">
+          <div
+            className="col-xl-3 col-md-6"
+            key={card.title}
+          >
+            <Link
+              to={card.to}
+              className="admin-stat-card"
+            >
               <div className="admin-stat-icon">
                 <i className={`bi ${card.icon}`} />
               </div>
@@ -102,22 +130,38 @@ export default function AdminDashboardPage() {
 
       <div className="row g-4">
         {latestGroups.map((group) => (
-          <div className="col-xl-6" key={group.title}>
+          <div
+            className="col-xl-6"
+            key={group.title}
+          >
             <div className="admin-panel-card">
               <div className="admin-panel-header">
                 <h5>{group.title}</h5>
-                <Link to={group.to}>Ver todo</Link>
+
+                <Link to={group.to}>
+                  Ver todo
+                </Link>
               </div>
 
               {group.items.length > 0 ? (
                 <div className="admin-latest-list">
                   {group.items.map((item) => (
-                    <div className="admin-latest-item" key={item.id}>
+                    <div
+                      className="admin-latest-item"
+                      key={item.id}
+                    >
                       <div>
-                        <strong>{getItemLabel(item)}</strong>
+                        <strong>
+                          {getItemLabel(item)}
+                        </strong>
+
                         <small>
                           {item.created_at
-                            ? new Date(item.created_at).toLocaleString()
+                            ? new Date(
+                                item.created_at
+                              ).toLocaleString(
+                                'es-ES'
+                              )
                             : ''}
                         </small>
                       </div>
