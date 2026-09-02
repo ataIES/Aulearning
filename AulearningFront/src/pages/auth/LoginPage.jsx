@@ -67,17 +67,6 @@ export default function LoginPage() {
   const getErrorMessage = (error) => {
     const responseData = error?.response?.data;
 
-    /*
-     * Laravel ValidationException:
-     *
-     * {
-     *   message: "...",
-     *   errors: {
-     *      email: ["..."],
-     *      password: ["..."]
-     *   }
-     * }
-     */
     if (responseData?.errors) {
       const messages = Object.values(responseData.errors)
         .flat()
@@ -154,13 +143,6 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
-      /*
-       * IMPORTANTE:
-       * Tu LoginRequest de Laravel espera:
-       *
-       * email
-       * password
-       */
       const user = await login(
         {
           email,
@@ -199,9 +181,6 @@ export default function LoginPage() {
       <main className="login-page">
         <section className="login-card">
 
-          {/* ============================
-              PANEL IZQUIERDO
-          ============================ */}
 
           <div className="login-brand-panel">
             <div className="login-brand-content">
@@ -245,23 +224,10 @@ export default function LoginPage() {
                   </span>
                 </div>
 
-                <div className="login-feature">
-                  <span className="login-feature-icon">
-                    <i className="bi bi-check-lg" />
-                  </span>
-
-                  <span>
-                    Entorno seguro y responsive
-                  </span>
-                </div>
-
               </div>
             </div>
           </div>
 
-          {/* ============================
-              PANEL DERECHO
-          ============================ */}
 
           <div className="login-form-panel">
             <div className="login-form-container">
