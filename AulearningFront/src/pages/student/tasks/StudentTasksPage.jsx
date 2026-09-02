@@ -248,13 +248,12 @@ export default function StudentTasksPage() {
       setSubmitErrors({});
 
       const requestPayload = {
-        student_id: user.id,
-        task_id: selectedTask.id,
-        delivery_date: new Date().toISOString().slice(0, 10),
-        comment: payload.comment || null,
-        files: payload.files ?? [],
-        removed_files: payload.removed_files ?? [],
-      };
+  student_id: user.id,
+  task_id: selectedTask.id,
+  comment: payload.comment || null,
+  files: payload.files ?? [],
+  removed_files: payload.removed_files ?? [],
+};
 
       if (selectedDelivery) {
         await StudentService.updateDelivery(selectedDelivery.id, requestPayload);

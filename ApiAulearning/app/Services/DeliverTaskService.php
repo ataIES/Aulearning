@@ -55,28 +55,6 @@ class DeliverTaskService extends BaseService implements IDeliverTaskService
 
         $updatedDeliveryDto = parent::update($id, $dto);
 
-        $delivery = DeliveryTask::query()
-            ->with([
-                'student',
-                'task',
-                'task.course',
-            ])
-            ->find($id);
-
-        if (
-            $updatedDeliveryDto &&
-            $delivery &&
-            $delivery->grade !== null &&
-            $previousDelivery?->grade !== $delivery->grade
-        ) {
-            $this->notificationService->createForUser(
-                $delivery->student,
-                'Entrega calificada',
-                "Tu entrega de la tarea {$delivery->task?->title} ha sido calificada con {$delivery->grade}/10.",
-                'info'
-            );
-        }
-
         return $updatedDeliveryDto;
     }
 }
