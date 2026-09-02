@@ -22,6 +22,7 @@ class DeliveryTask extends Model
     'delivery_date' => 'datetime',
     'updated_date' => 'datetime',
     'graded_at' => 'datetime',
+    'grade' => 'decimal:2',
 ];
 
     public function student()
