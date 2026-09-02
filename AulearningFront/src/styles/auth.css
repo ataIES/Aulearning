@@ -1,8 +1,11 @@
 .login-page {
   min-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
   display: grid;
   place-items: center;
   padding: 24px;
+  overflow-y: auto;
   background:
     radial-gradient(circle at top left, rgba(37, 99, 235, 0.35), transparent 35%),
     radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.35), transparent 35%),
@@ -16,7 +19,7 @@
   border-radius: 30px;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.35);
 }
 

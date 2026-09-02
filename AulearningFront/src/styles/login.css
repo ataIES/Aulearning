@@ -4,12 +4,15 @@
 
 .login-page {
   min-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  padding: 40px 20px;
+  padding: clamp(20px, 4vw, 40px) 20px;
+  overflow-y: auto;
 
   background: #111a30;
 }
@@ -24,7 +27,7 @@
   min-height: 540px;
 
   display: grid;
-  grid-template-columns: 55% 45%;
+  grid-template-columns: minmax(0, 55%) minmax(0, 45%);
 
   background: #ffffff;
 
@@ -46,7 +49,7 @@
   display: flex;
   align-items: center;
 
-  padding: 65px 50px;
+  padding: clamp(38px, 5vw, 65px) clamp(30px, 4vw, 50px);
 
   color: #ffffff;
 
@@ -173,7 +176,7 @@
   align-items: center;
   justify-content: center;
 
-  padding: 55px 50px;
+  padding: clamp(38px, 5vw, 55px) clamp(30px, 4vw, 50px);
 
   background: #ffffff;
 }
@@ -426,6 +429,8 @@
 
   .login-card {
     min-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
 
     border-radius: 0;
 

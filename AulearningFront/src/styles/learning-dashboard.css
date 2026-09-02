@@ -6,6 +6,8 @@ body,
 
 .learning-layout {
   min-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   background: #f4f6fb;
   overflow: hidden;
@@ -16,11 +18,14 @@ body,
 .learning-sidebar {
   width: 270px;
   height: 100vh;
+  height: 100dvh;
   background: #111827;
   color: white;
   padding: 22px;
   flex-shrink: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .learning-sidebar-brand {
@@ -98,7 +103,9 @@ body,
 .learning-main {
   flex: 1;
   min-width: 0;
+  max-width: 100%;
   height: 100vh;
+  height: 100dvh;
   padding: 24px;
   background: #f4f6fb;
   overflow-y: auto;
@@ -128,7 +135,7 @@ body,
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  width:100%
+  width: 100%;
 }
 
 .learning-header-left,
@@ -369,6 +376,7 @@ body,
 }
 
 .teacher-course-card {
+  min-width: 0;
   text-decoration: none;
   color: inherit;
   border: 1px solid #e5e7eb;
@@ -470,6 +478,7 @@ body,
 }
 
 .learning-list-item {
+  min-width: 0;
   background: #f9fafb;
   border-radius: 18px;
   padding: 14px;
@@ -593,6 +602,7 @@ body,
 }
 
 .learning-task-card {
+  min-width: 0;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 22px;
@@ -651,6 +661,7 @@ body,
 }
 
 .learning-delivery-header {
+  min-width: 0;
   display: flex;
   align-items: flex-start;
   gap: 14px;
@@ -905,4 +916,14 @@ body,
 .learning-security-box p {
   margin: 0;
   color: #6b7280;
+}
+.learning-dashboard h1,
+.learning-dashboard h2,
+.learning-dashboard h3,
+.learning-dashboard h4,
+.learning-dashboard h5,
+.learning-dashboard p,
+.learning-dashboard strong,
+.learning-dashboard small {
+  overflow-wrap: anywhere;
 }

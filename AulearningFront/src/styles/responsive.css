@@ -1,7 +1,3 @@
-/* ===========================================================
-   <= 1200px
-=========================================================== */
-
 @media (max-width: 1200px) {
   .learning-stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -10,32 +6,48 @@
   .teacher-course-grid {
     grid-template-columns: 1fr;
   }
+
+  .learning-delivery-body {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-/* ===========================================================
-   <= 992px
-=========================================================== */
-
 @media (max-width: 992px) {
-  /* ---------- ADMIN ---------- */
-
   .mobile-menu-btn {
     display: flex;
   }
 
+  .admin-shell,
+  .learning-shell,
+  .learning-layout {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
   .admin-sidebar {
+    display: block;
     position: fixed;
     top: 0;
-    left: -290px;
-    width: 280px;
-    min-width: 280px;
+    bottom: 0;
+    left: 0;
+    width: min(280px, 86vw);
+    min-width: 0;
     height: 100vh;
+    height: 100dvh;
+    transform: translateX(-105%);
+    transition: transform 0.3s ease;
     z-index: 1200;
-    transition: left 0.3s ease;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .admin-sidebar.show {
     left: 0;
+    transform: translateX(0);
   }
 
   .sidebar-backdrop {
@@ -46,22 +58,32 @@
     z-index: 1100;
     opacity: 0;
     visibility: hidden;
-    transition: 0.3s;
+    pointer-events: none;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
   }
 
   .sidebar-backdrop.show {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
   }
 
   .admin-main {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .admin-header {
-    padding: 0 16px;
-    min-height: 76px;
-    height:120px;
+    width: 100%;
+    height: auto;
+    min-height: 72px;
+    padding: 10px 16px;
+    gap: 12px;
+  }
+
+  .admin-header > * {
+    min-width: 0;
   }
 
   .admin-email {
@@ -69,26 +91,24 @@
   }
 
   .admin-content {
+    min-width: 0;
     padding: 18px;
-  }
-
-  /* ---------- LEARNING ---------- */
-
-  .learning-layout {
-    display: flex;
-    min-height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden;
   }
 
   .learning-sidebar {
+    display: block;
     position: fixed;
     inset: 0 auto 0 0;
-    width: 280px;
-    max-width: 85vw;
+    width: min(280px, 86vw);
+    min-width: 0;
     height: 100vh;
-    transform: translateX(-100%);
+    height: 100dvh;
+    transform: translateX(-105%);
     transition: transform 0.25s ease;
     z-index: 11000;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .learning-sidebar.open {
@@ -111,54 +131,35 @@
 
   .learning-main {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     height: 100vh;
+    height: 100dvh;
     min-height: 100vh;
+    min-height: 100dvh;
     padding: 16px;
     overflow-y: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
   }
 
   .learning-menu-button {
     display: grid !important;
   }
-}
 
-/* ===========================================================
-   <= 768px
-=========================================================== */
+  .permissions-modal {
+    width: min(760px, 100%);
+  }
+
+  .notifications-dropdown {
+    max-width: min(360px, calc(100vw - 24px));
+  }
+}
 
 @media (max-width: 768px) {
-
-  .learning-material-card {
-  align-items: flex-start;
-}
-
-.learning-material-actions {
-  flex-direction: column;
-}
-
-  .learning-filter-select {
-  max-width: none;
-  width: 100%;
-}
-
-.learning-delivery-body {
-  grid-template-columns: 1fr;
-}
-
-.learning-delivery-header {
-  flex-wrap: wrap;
-}
-
-.learning-delivery-header .ms-auto {
-  margin-left: 0 !important;
-  width: 100%;
-}
-  /* ---------- ADMIN ---------- */
-
   .admin-dashboard-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
   }
 
   .admin-period-badge {
@@ -166,16 +167,38 @@
     text-align: center;
   }
 
-  .admin-stat-card {
+  .admin-card,
+  .admin-stat-card,
+  .admin-panel-card,
+  .course-detail-header {
     padding: 18px;
   }
 
-  .admin-panel-card {
-    padding: 18px;
+  .admin-panel-header,
+  .table-toolbar-header,
+  .course-detail-header,
+  .course-detail-list-item {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .admin-latest-item {
     flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .table-toolbar-header .btn,
+  .course-detail-header .btn {
+    width: 100%;
+  }
+
+  .table-responsive {
+    margin-inline: -2px;
+    padding-bottom: 4px;
+  }
+
+  .admin-table {
+    min-width: 720px;
   }
 
   .table-entity-icon {
@@ -208,33 +231,27 @@
     font-size: 0.82rem;
   }
 
-  .table-toolbar-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .table-toolbar-header .btn {
-    width: 100%;
-  }
-
-  .course-detail-header,
-  .course-detail-list-item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .permissions-grid {
     grid-template-columns: 1fr;
+    max-height: 56vh;
   }
 
   .permissions-modal {
-    width: 96vw;
+    width: min(100%, 620px);
   }
 
-  /* ---------- LOADERS ---------- */
+  .form-modal,
+  .error-modal,
+  .confirm-modal,
+  .permissions-modal {
+    border-radius: 20px;
+  }
 
-  .login-loader-overlay {
-    padding: 18px;
+  .login-loader-overlay,
+  .global-error-backdrop,
+  .error-modal-backdrop,
+  .form-modal-backdrop {
+    padding: 16px;
   }
 
   .login-loader-card,
@@ -252,6 +269,7 @@
   }
 
   .page-content-loader {
+    min-height: 180px;
     padding: 16px;
   }
 
@@ -272,10 +290,8 @@
     height: 22px;
   }
 
-  /* ---------- LEARNING ---------- */
-
   .learning-header {
-    padding: 14px;
+    padding: 12px 14px;
     border-radius: 20px;
     margin-bottom: 18px;
   }
@@ -299,16 +315,18 @@
   }
 
   .learning-header-left h2 {
+    max-width: 100%;
     font-size: 1.05rem;
-    line-height: 1.15;
+    line-height: 1.2;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .learning-header-left small {
-    font-size: 0.74rem;
     display: block;
+    max-width: 100%;
+    font-size: 0.74rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -349,6 +367,7 @@
   }
 
   .learning-hero p {
+    max-width: 100%;
     font-size: 0.92rem;
   }
 
@@ -359,23 +378,27 @@
     font-size: 28px;
   }
 
-  .learning-stats-grid {
+  .learning-stats-grid,
+  .learning-delivery-body {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
   .learning-stat-card {
+    min-width: 0;
     padding: 18px;
     border-radius: 20px;
   }
 
   .learning-panel {
+    min-width: 0;
     padding: 18px;
     border-radius: 22px;
   }
 
   .learning-panel-header {
     flex-direction: column;
+    align-items: stretch;
     gap: 8px;
   }
 
@@ -383,58 +406,162 @@
     width: 100%;
   }
 
+  .learning-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .learning-filter-input,
+  .learning-filter-select,
+  .learning-filter-bar .form-select {
+    width: 100%;
+    max-width: none;
+  }
+
+  .learning-filter-bar .btn {
+    width: 100%;
+  }
+
+  .learning-material-card,
+  .learning-student-card,
   .teacher-course-card,
   .learning-list-item {
-    flex-direction: row;
     align-items: flex-start;
   }
 
-  .learning-student-card {
-  align-items: flex-start;
-}
-}
+  .learning-material-actions,
+  .learning-student-actions {
+    flex-wrap: wrap;
+  }
 
-/* ===========================================================
-   <= 576px
-=========================================================== */
+  .learning-delivery-header {
+    flex-wrap: wrap;
+  }
+
+  .learning-delivery-header .ms-auto {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+
+  .learning-delivery-body strong {
+    overflow-wrap: anywhere;
+  }
+
+  .learning-profile-hero {
+    align-items: flex-start;
+  }
+
+  .learning-security-box {
+    align-items: flex-start;
+  }
+}
 
 @media (max-width: 576px) {
-  .learning-main {
+  .admin-content,
+  .learning-main,
+  .learning-content {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .admin-header {
+    min-height: 64px;
+    padding: 8px 12px;
+  }
+
+  .admin-header h5 {
+    font-size: 1rem;
+  }
+
+  .admin-card,
+  .admin-stat-card,
+  .admin-panel-card,
+  .course-detail-header {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .admin-stat-card {
+    gap: 12px;
+  }
+
+  .table-pagination {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .table-pagination .btn,
+  .table-pagination .btn-group {
+    width: 100%;
+  }
+
+  .course-period {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .course-description {
+    max-width: 160px;
+  }
+
+  .form-modal-backdrop,
+  .error-modal-backdrop,
+  .global-error-backdrop,
+  .login-loader-overlay {
+    align-items: flex-start;
     padding: 12px;
   }
-  .learning-material-card {
-  flex-direction: column;
-}
 
-.learning-material-actions,
-.learning-material-actions .btn {
-  width: 100%;
-}
-.learning-student-card {
-  flex-direction: column;
-}
-
-.learning-student-actions,
-.learning-student-actions .btn {
-  width: 100%;
-}
-  .learning-delivery-actions {
-  flex-direction: column;
-}
-
-.learning-delivery-actions .btn {
-  width: 100%;
-}
-
-  .learning-header {
-    padding: 12px;
+  .form-modal,
+  .error-modal,
+  .confirm-modal,
+  .permissions-modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - 24px);
+    margin: auto 0;
+    padding: 20px;
     border-radius: 18px;
   }
 
-  .learning-header-top {
-    gap: 8px;
+  .form-modal-header {
+    align-items: flex-start;
+    gap: 10px;
   }
 
+  .permissions-grid {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .notifications-dropdown {
+    position: fixed;
+    top: 72px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+    max-height: calc(100dvh - 84px);
+  }
+
+  .notifications-list {
+    max-height: calc(100dvh - 160px);
+  }
+
+  .learning-main {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .learning-header {
+    padding: 10px 12px;
+    border-radius: 18px;
+  }
+
+  .learning-header-top,
   .learning-header-left {
     gap: 8px;
   }
@@ -485,7 +612,12 @@
   }
 
   .teacher-course-card,
-  .learning-list-item {
+  .learning-list-item,
+  .learning-material-card,
+  .learning-student-card,
+  .learning-profile-hero,
+  .learning-security-box,
+  .learning-task-card-header {
     flex-direction: column;
   }
 
@@ -504,177 +636,168 @@
     height: 34px;
     border-radius: 12px;
   }
-  .learning-task-card-header {
-  flex-direction: column;
-}
 
-.learning-task-actions {
-  flex-direction: column;
-}
+  .learning-material-actions,
+  .learning-student-actions,
+  .learning-delivery-actions,
+  .learning-task-actions {
+    width: 100%;
+    flex-direction: column;
+  }
 
-.learning-task-actions .btn {
-  width: 100%;
-}
-}
+  .learning-material-actions .btn,
+  .learning-student-actions .btn,
+  .learning-delivery-actions .btn,
+  .learning-task-actions .btn {
+    width: 100%;
+  }
 
-/* ===========================================================
-   <= 420px
-=========================================================== */
+  .learning-profile-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 22px;
+    font-size: 1.5rem;
+  }
+
+  .login-page,
+  .au-login-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 0;
+    align-items: stretch;
+    background: #ffffff;
+    overflow-y: auto;
+  }
+
+  .login-card,
+  .au-login-card {
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+    min-height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .login-brand-panel {
+    padding: 30px 24px;
+  }
+
+  .login-form-panel {
+    padding: 34px 24px 40px;
+  }
+
+  .login-logo-container {
+    width: 150px;
+  }
+
+  .login-brand-title {
+    font-size: 1.6rem;
+  }
+
+  .login-brand-description {
+    margin-bottom: 24px;
+    font-size: 0.87rem;
+  }
+
+  .login-features {
+    gap: 10px;
+  }
+
+  .login-feature {
+    font-size: 0.83rem;
+  }
+
+  .login-form-header {
+    margin-bottom: 24px;
+  }
+
+  .login-form-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .login-input-wrapper input,
+  .input-icon .form-control,
+  .login-submit,
+  .login-submit-button {
+    min-height: 48px;
+  }
+
+  .au-login-brand {
+    padding: 30px 24px;
+  }
+
+  .au-login-form-section {
+    padding: 34px 24px 40px;
+  }
+
+  .au-login-logo {
+    width: 165px;
+  }
+
+  .au-login-brand-content h1,
+  .au-login-heading h2 {
+    font-size: 1.55rem;
+  }
+}
 
 @media (max-width: 420px) {
-  .learning-header-left h2 {
-    max-width: 105px;
+  .admin-sidebar,
+  .learning-sidebar {
+    width: min(280px, 90vw);
   }
 
   .learning-header-right {
     gap: 4px;
   }
-}
 
-@media (max-width: 992px) {
-  .login-page {
-    padding: 24px;
+  .learning-header-left h2 {
+    max-width: 120px;
   }
 
-  .login-card {
-    grid-template-columns: 1fr;
-    max-width: 520px;
+  .learning-hero-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
   }
 
-  .login-info {
-    padding: 32px;
-    min-height: auto;
+  .admin-table {
+    min-width: 680px;
   }
 
-  .login-form-area {
-    padding: 32px;
-  }
-}
-
-@media (max-width: 576px) {
-  .login-page {
-    min-height: 100vh;
-    padding: 0;
-    background: #f4f6fb;
-    align-items: stretch;
-  }
-
-  .learning-profile-hero {
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 22px;
-}
-
-.learning-profile-avatar {
-  width: 68px;
-  height: 68px;
-  border-radius: 22px;
-  font-size: 1.5rem;
-}
-
-.learning-security-box {
-  flex-direction: column;
-}
-
-  .login-card {
-    width: 100%;
-    min-height: 100vh;
-    border-radius: 0;
-    box-shadow: none;
-  }
-
-  .login-info {
-    padding: 28px 22px;
-    border-radius: 0 0 28px 28px;
-    display:none;
-  }
-
-  .login-logo {
-    width: 54px;
-    height: 54px;
-    border-radius: 18px;
-    font-size: 1.4rem;
-  }
-
-  .login-info h1 {
-    font-size: 1.75rem;
-  }
-
-  .login-info p {
-    font-size: 0.95rem;
-  }
-
-  .login-points {
-    gap: 8px;
-  }
-
-  .login-points span {
-    font-size: 0.85rem;
-  }
-
-  .login-form-area {
-    padding: 28px 22px 34px;
-    background: linear-gradient(160deg, #2563eb, #1e40af);
-  }
-
-  .login-form-area > form{
-    background:white;
-    padding:1em;
-    border-radius:1em;
-  }
-
-  .login-form-title{
-    text-align:center;
-    padding:1em;
-    background:white;
-    border-radius:1em;
-  }
-
-  .login-form-title h2 {
-    font-size: 1.45rem;
-  }
-
-  .input-icon .form-control {
-    min-height: 50px;
-  }
-
-  .login-submit {
-    width: 100%;
-    min-height: 52px;
-    justify-content: center;
+  .login-brand-panel,
+  .login-form-panel,
+  .au-login-brand,
+  .au-login-form-section {
+    padding-left: 18px;
+    padding-right: 18px;
   }
 }
 
 @media (max-width: 380px) {
-  .login-info {
-    padding: 24px 18px;
+  .learning-main,
+  .admin-content {
+    padding-left: 8px;
+    padding-right: 8px;
   }
 
-  .login-form-area {
-    padding: 24px 18px 30px;
+  .learning-panel,
+  .learning-stat-card,
+  .learning-hero,
+  .admin-card,
+  .admin-panel-card,
+  .admin-stat-card {
+    border-radius: 16px;
   }
 
-  .login-info h1 {
-    font-size: 1.55rem;
+  .learning-header-left h2 {
+    max-width: 105px;
+  }
+
+  .form-modal,
+  .error-modal,
+  .confirm-modal,
+  .permissions-modal {
+    padding: 16px;
   }
 }
-
-@media (max-width: 576px) {
-  .learning-filter-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .learning-filter-bar .btn {
-    width: 100%;
-  }
-}
-.learning-filter-bar {
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.learning-filter-bar .btn {
-  width: 100%;
-}
-

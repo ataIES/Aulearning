@@ -42,11 +42,14 @@
   display: grid;
   place-items: center;
   padding: 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .error-modal {
-  width: 420px;
-  max-width: 100%;
+  width: min(420px, 100%);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
   background: white;
   border-radius: 26px;
   padding: 34px;
@@ -178,8 +181,9 @@
   gap: 6px;
 }
 .confirm-modal {
-  width: 430px;
-  max-width: 100%;
+  width: min(430px, 100%);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
   background: white;
   border-radius: 24px;
   padding: 30px;
@@ -246,8 +250,9 @@
   font-weight: 800;
 }
 .form-modal {
-  width: 560px;
-  max-width: 100%;
+  width: min(560px, 100%);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
   background: white;
   border-radius: 24px;
   padding: 28px;
@@ -630,7 +635,9 @@
 }
 
 .permissions-modal {
-  width: 900px;
+  width: min(900px, 100%);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
 }
 
 .permissions-grid {
@@ -845,8 +852,7 @@
 
 .login-loader-card,
 .page-content-loader-card {
-  width: 430px;
-  max-width: 100%;
+  width: min(430px, 100%);
 
   background: white;
   border: 1px solid #e5e7eb;
@@ -896,4 +902,32 @@
 
   padding: 32px;
   background: transparent;
+}
+
+.table-responsive {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-table {
+  width: 100%;
+}
+
+.table-entity-cell > div,
+.table-user-cell > div,
+.course-cell > div,
+.teacher-cell > div {
+  min-width: 0;
+}
+
+.table-entity-cell strong,
+.table-entity-cell small,
+.table-user-cell strong,
+.table-user-cell small,
+.course-cell strong,
+.course-cell small,
+.notification-item p {
+  overflow-wrap: anywhere;
 }

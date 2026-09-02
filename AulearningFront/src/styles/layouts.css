@@ -1,6 +1,7 @@
 .admin-shell,
 .learning-shell {
   height: 100vh;
+  height: 100dvh;
   display: flex;
   overflow: hidden;
 }
@@ -202,10 +203,6 @@
     padding: 38px 30px;
   }
 
-  .admin-sidebar,
-  .learning-sidebar {
-    display: none;
-  }
 
   .admin-header,
   .learning-header {
@@ -215,6 +212,7 @@
   .admin-content,
   .learning-content {
     padding: 18px;
+    overflow-x: hidden;
   }
 
   .admin-email {
@@ -290,6 +288,7 @@
 
     width: 280px;
     height: 100vh;
+  height: 100dvh;
 
     z-index: 1200;
 

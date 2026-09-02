@@ -30,11 +30,14 @@
 
 .au-login-page {
   min-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
 
   padding: 32px;
+  overflow-y: auto;
 
   background:
     radial-gradient(
@@ -56,7 +59,7 @@
   min-height: 600px;
 
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 
   background: #ffffff;
 
@@ -530,6 +533,8 @@
 
   .au-login-card {
     min-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
 
     border: none;
     border-radius: 0;
