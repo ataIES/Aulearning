@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 import ContentLoader from '../../../components/common/ContentLoader';
 import PageLoader from '../../../components/common/PageLoader';
@@ -11,7 +12,6 @@ import { useUI } from '../../../hooks/useUI';
 import TeacherService from '../../../services/TeacherService';
 
 import GradeDeliveryModal from './GradeDeliveryModal';
-import { Helmet } from 'react-helmet-async';
 
 const defaultFilters = {
   search: '',
@@ -24,6 +24,7 @@ export default function TeacherDeliveriesPage() {
   const [searchParams] = useSearchParams();
 
   const [deliveries, setDeliveries] = useState([]);
+
   const [filters, setFilters] = useState({
     ...defaultFilters,
     status: searchParams.get('status') ?? 'pending',
@@ -47,7 +48,13 @@ export default function TeacherDeliveriesPage() {
   const formatDateTime = (date) => {
     if (!date) return '-';
 
-    return new Date(date).toLocaleString('es-ES', {
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return '-';
+    }
+
+    return parsedDate.toLocaleString('es-ES', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -56,26 +63,86 @@ export default function TeacherDeliveriesPage() {
     });
   };
 
-  const getSortDate = (delivery, status = filters.status) => {
-    const date =
-      status === 'graded'
-        ? delivery.updated_date ?? delivery.updated_at ?? delivery.created_at
-        : delivery.delivery_date ?? delivery.created_at;
+  const hasTimeInformation = (date) => {
+    if (!date || typeof date !== 'string') {
+      return false;
+    }
 
-    return date ? new Date(date).getTime() : 0;
+    return (
+      date.includes('T') ||
+      /\d{2}:\d{2}/.test(date)
+    );
   };
 
-  const sortDeliveriesDesc = (items, status = filters.status) =>
-    [...items].sort((a, b) => getSortDate(b, status) - getSortDate(a, status));
+  const getDeliveryDate = (delivery) => {
+    if (
+      delivery.delivery_date &&
+      hasTimeInformation(delivery.delivery_date)
+    ) {
+      return delivery.delivery_date;
+    }
 
-  const buildFilters = (currentFilters = filters) => ({
+    return (
+      delivery.created_at ??
+      delivery.delivery_date ??
+      null
+    );
+  };
+
+  const getGradedDate = (delivery) =>
+    delivery.graded_at ??
+    delivery.updated_date ??
+    delivery.updated_at ??
+    null;
+
+  const getSortDate = (
+    delivery,
+    status = filters.status
+  ) => {
+    const date =
+      status === 'graded'
+        ? getGradedDate(delivery)
+        : getDeliveryDate(delivery);
+
+    if (!date) {
+      return 0;
+    }
+
+    const timestamp = new Date(date).getTime();
+
+    return Number.isNaN(timestamp)
+      ? 0
+      : timestamp;
+  };
+
+  const sortDeliveriesDesc = (
+    items,
+    status = filters.status
+  ) =>
+    [...items].sort(
+      (a, b) =>
+        getSortDate(b, status) -
+        getSortDate(a, status)
+    );
+
+  const buildFilters = (
+    currentFilters = filters
+  ) => ({
     per_page: 200,
-    search: currentFilters.search || undefined,
-    status: currentFilters.status || undefined,
+
+    search:
+      currentFilters.search ||
+      undefined,
+
+    status:
+      currentFilters.status ||
+      undefined,
+
     sort_by:
       currentFilters.status === 'graded'
-        ? 'updated_date'
+        ? 'graded_at'
         : 'delivery_date',
+
     sort_direction: 'desc',
   });
 
@@ -90,10 +157,11 @@ export default function TeacherDeliveriesPage() {
         setLoadingResults(true);
       }
 
-      const response = await TeacherService.teacherDeliveries(
-        user.id,
-        buildFilters(currentFilters)
-      );
+      const response =
+        await TeacherService.teacherDeliveries(
+          user.id,
+          buildFilters(currentFilters)
+        );
 
       setDeliveries(
         sortDeliveriesDesc(
@@ -101,9 +169,10 @@ export default function TeacherDeliveriesPage() {
           currentFilters.status
         )
       );
-    } catch (error) {
-      console.error(error);
-      showError('No se pudieron cargar las entregas.');
+    } catch {
+      showError(
+        'No se pudieron cargar las entregas.'
+      );
     } finally {
       setLoadingPage(false);
       setLoadingResults(false);
@@ -114,11 +183,17 @@ export default function TeacherDeliveriesPage() {
     if (user?.id) {
       const initialFilters = {
         ...defaultFilters,
-        status: searchParams.get('status') ?? 'pending',
+        status:
+          searchParams.get('status') ??
+          'pending',
       };
 
       setFilters(initialFilters);
-      loadDeliveries(initialFilters, true);
+
+      loadDeliveries(
+        initialFilters,
+        true
+      );
     }
   }, [user?.id]);
 
@@ -130,45 +205,84 @@ export default function TeacherDeliveriesPage() {
   };
 
   const handleReset = () => {
-    const reset = { ...defaultFilters };
+    const reset = {
+      ...defaultFilters,
+    };
 
     setFilters(reset);
     loadDeliveries(reset);
   };
 
-  const handleGradeSubmit = async (payload) => {
-    if (!selectedDelivery) return;
+  const handleGradeSubmit = async (
+    payload
+  ) => {
+    if (!selectedDelivery) {
+      return;
+    }
 
     try {
       setSavingGrade(true);
       setGradeErrors({});
 
-      await TeacherService.updateDelivery(selectedDelivery.id, {
-        student_id: selectedDelivery.student_id ?? selectedDelivery.student?.id,
-        task_id: selectedDelivery.task_id ?? selectedDelivery.task?.id,
-        delivery_date: selectedDelivery.delivery_date,
-        ...payload,
-      });
+      await TeacherService.updateDelivery(
+        selectedDelivery.id,
+        {
+          student_id:
+            selectedDelivery.student_id ??
+            selectedDelivery.student?.id,
+
+          task_id:
+            selectedDelivery.task_id ??
+            selectedDelivery.task?.id,
+
+          ...payload,
+        }
+      );
 
       setSelectedDelivery(null);
 
       await loadDeliveries(filters);
     } catch (error) {
-      const response = error.response?.data;
+      const response =
+        error.response?.data;
 
       if (response?.errors) {
-        setGradeErrors(response.errors);
+        setGradeErrors(
+          response.errors
+        );
+
+        const firstKey =
+          Object.keys(
+            response.errors
+          )[0];
+
+        const firstMessage =
+          response.errors[
+            firstKey
+          ]?.[0];
+
+        showError(
+          firstMessage ??
+            response.message ??
+            'Error de validación.',
+          'Error de validación'
+        );
+
         return;
       }
 
-      showError(response?.message ?? 'No se pudo guardar la calificación.');
+      showError(
+        response?.message ??
+          'No se pudo guardar la calificación.'
+      );
     } finally {
       setSavingGrade(false);
     }
   };
 
   const isGraded = (delivery) =>
-    delivery.grade !== null && delivery.grade !== undefined;
+    delivery.grade !== null &&
+    delivery.grade !== undefined;
 
   if (loadingPage) {
     return (
@@ -184,12 +298,21 @@ export default function TeacherDeliveriesPage() {
       <Helmet>
         <title>Ver Entregas</title>
       </Helmet>
+
       <div className="learning-dashboard">
         <section className="learning-hero">
           <div>
-            <span className="learning-kicker">Entregas</span>
-            <h2>Entregas de tus alumnos</h2>
-            <p>Revisa y califica entregas de todos tus cursos.</p>
+            <span className="learning-kicker">
+              Entregas
+            </span>
+
+            <h2>
+              Entregas de tus alumnos
+            </h2>
+
+            <p>
+              Revisa y califica entregas de todos tus cursos.
+            </p>
           </div>
 
           <div className="learning-hero-icon">
@@ -201,17 +324,24 @@ export default function TeacherDeliveriesPage() {
           title="Entregas"
           subtitle="Por defecto se muestran las pendientes. Las calificadas se ordenan por fecha de calificación."
         >
-          <form className="learning-filter-bar" onSubmit={handleSearch}>
+          <form
+            className="learning-filter-bar"
+            onSubmit={handleSearch}
+          >
             <div className="learning-filter-input">
               <i className="bi bi-search" />
 
               <input
                 value={filters.search}
                 onChange={(event) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    search: event.target.value,
-                  }))
+                  setFilters(
+                    (prev) => ({
+                      ...prev,
+                      search:
+                        event.target
+                          .value,
+                    })
+                  )
                 }
                 placeholder="Buscar alumno o tarea..."
                 disabled={loadingResults}
@@ -222,16 +352,28 @@ export default function TeacherDeliveriesPage() {
               className="form-select learning-filter-select"
               value={filters.status}
               onChange={(event) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  status: event.target.value,
-                }))
+                setFilters(
+                  (prev) => ({
+                    ...prev,
+                    status:
+                      event.target
+                        .value,
+                  })
+                )
               }
               disabled={loadingResults}
             >
-              <option value="">Todos los estados</option>
-              <option value="pending">Pendientes</option>
-              <option value="graded">Calificadas</option>
+              <option value="">
+                Todos los estados
+              </option>
+
+              <option value="pending">
+                Pendientes
+              </option>
+
+              <option value="graded">
+                Calificadas
+              </option>
             </select>
 
             <button
@@ -259,77 +401,133 @@ export default function TeacherDeliveriesPage() {
           >
             {deliveries.length > 0 ? (
               <div className="learning-delivery-grid mt-3">
-                {deliveries.map((delivery) => {
-                  const graded = isGraded(delivery);
+                {deliveries.map(
+                  (delivery) => {
+                    const graded =
+                      isGraded(
+                        delivery
+                      );
 
-                  return (
-                    <article className="learning-delivery-card" key={delivery.id}>
-                      <div className="learning-delivery-header">
-                        <div className="learning-list-icon">
-                          <i className="bi bi-upload" />
-                        </div>
+                    const deliveryDate =
+                      getDeliveryDate(
+                        delivery
+                      );
 
-                        <div>
-                          <h5>
-                            {delivery.student?.name ?? 'Alumno'}{' '}
-                            {delivery.student?.last_name ?? ''}
-                          </h5>
+                    const gradedDate =
+                      getGradedDate(
+                        delivery
+                      );
 
-                          <p>{delivery.task?.title ?? 'Tarea'}</p>
+                    return (
+                      <article
+                        className="learning-delivery-card"
+                        key={delivery.id}
+                      >
+                        <div className="learning-delivery-header">
+                          <div className="learning-list-icon">
+                            <i className="bi bi-upload" />
+                          </div>
 
-                          <small>{delivery.task?.course?.name ?? 'Curso'}</small>
-                        </div>
-
-                        <div className="ms-auto">
-                          {graded ? (
-                            <span className="badge bg-success-subtle text-success">
-                              Calificada
-                            </span>
-                          ) : (
-                            <span className="badge bg-warning-subtle text-warning">
-                              Pendiente
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="learning-delivery-body">
-                        <div>
-                          <span>Entregado el</span>
-                          <strong>{formatDateTime(delivery.delivery_date)}</strong>
-                        </div>
-
-                        <div>
-                          <span>Nota</span>
-                          <strong>
-                            {graded ? `${delivery.grade}/10` : 'Sin calificar'}
-                          </strong>
-                        </div>
-
-                        {graded && (
                           <div>
-                            <span>Calificada el</span>
+                            <h5>
+                              {delivery
+                                .student
+                                ?.name ??
+                                'Alumno'}{' '}
+                              {delivery
+                                .student
+                                ?.last_name ??
+                                ''}
+                            </h5>
+
+                            <p>
+                              {delivery
+                                .task
+                                ?.title ??
+                                'Tarea'}
+                            </p>
+
+                            <small>
+                              {delivery
+                                .task
+                                ?.course
+                                ?.name ??
+                                'Curso'}
+                            </small>
+                          </div>
+
+                          <div className="ms-auto">
+                            {graded ? (
+                              <span className="badge bg-success-subtle text-success">
+                                Calificada
+                              </span>
+                            ) : (
+                              <span className="badge bg-warning-subtle text-warning">
+                                Pendiente
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="learning-delivery-body">
+                          <div>
+                            <span>
+                              Entregado el
+                            </span>
+
                             <strong>
                               {formatDateTime(
-                                delivery.updated_date ?? delivery.updated_at
+                                deliveryDate
                               )}
                             </strong>
                           </div>
-                        )}
-                      </div>
 
-                      <div className="learning-delivery-actions">
-                        <button
-                          type="button"
-                          className="btn btn-primary btn-sm"
-                          onClick={() => setSelectedDelivery(delivery)}
-                        >
-                          {graded ? 'Editar nota' : 'Calificar'}
-                        </button>
-                      </div>
-                    </article>
-                  );
-                })}
+                          <div>
+                            <span>
+                              Nota
+                            </span>
+
+                            <strong>
+                              {graded
+                                ? `${delivery.grade}/10`
+                                : 'Sin calificar'}
+                            </strong>
+                          </div>
+
+                          {graded && (
+                            <div>
+                              <span>
+                                Calificada el
+                              </span>
+
+                              <strong>
+                                {formatDateTime(
+                                  gradedDate
+                                )}
+                              </strong>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="learning-delivery-actions">
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm"
+                            onClick={() =>
+                              setSelectedDelivery(
+                                delivery
+                              )
+                            }
+                          >
+                            {graded
+                              ? 'Editar nota'
+                              : 'Calificar'}
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  }
+                )}
               </div>
             ) : (
               <EmptyLearningState
@@ -342,17 +540,26 @@ export default function TeacherDeliveriesPage() {
         </LearningPanel>
 
         <GradeDeliveryModal
-          show={Boolean(selectedDelivery)}
-          delivery={selectedDelivery}
+          show={Boolean(
+            selectedDelivery
+          )}
+          delivery={
+            selectedDelivery
+          }
           errors={gradeErrors}
           loading={savingGrade}
           onClose={() => {
             if (!savingGrade) {
-              setSelectedDelivery(null);
+              setSelectedDelivery(
+                null
+              );
+
               setGradeErrors({});
             }
           }}
-          onSubmit={handleGradeSubmit}
+          onSubmit={
+            handleGradeSubmit
+          }
         />
       </div>
     </>
